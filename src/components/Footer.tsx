@@ -3,7 +3,7 @@ import { useLocation } from 'react-router-dom';
 
 export default function Footer() {
   const location = useLocation();
-  if (location.pathname.startsWith('/admin')) return null;
+  if (location.pathname === '/' || location.pathname.startsWith('/admin')) return null;
 
   return (
     <footer style={{ backgroundColor: '#FFDAB9' }}>
