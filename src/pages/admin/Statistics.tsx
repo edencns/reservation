@@ -57,7 +57,7 @@ export default function Statistics() {
             <div key={m.label} className="flex-1 flex flex-col items-center gap-1">
               <p className="text-xs font-bold text-gray-600">{m.count}</p>
               <div className="w-full rounded-t-lg"
-                style={{ height: `${Math.max((m.count / maxCount) * 120, m.count > 0 ? 4 : 0)}px`, backgroundColor: '#91ADC2' }} />
+                style={{ height: `${Math.max((m.count / maxCount) * 120, m.count > 0 ? 4 : 0)}px`, backgroundColor: '#667EEA' }} />
               <p className="text-xs text-gray-500">{m.label}</p>
             </div>
           ))}
@@ -74,8 +74,8 @@ export default function Statistics() {
               <div className="w-full rounded-t-lg border-2"
                 style={{
                   height: `${Math.max((m.visitors / maxVisitors) * 120, m.visitors > 0 ? 4 : 0)}px`,
-                  backgroundColor: '#FFDAB9',
-                  borderColor: '#f5c49a',
+                  backgroundColor: '#E0D6F9',
+                  borderColor: '#d6c4f4',
                 }} />
               <p className="text-xs text-gray-500">{m.label}</p>
             </div>
@@ -100,12 +100,12 @@ export default function Statistics() {
                       <div className="h-1.5 rounded-full"
                         style={{
                           width: `${(e.visitors / Math.max(...eventStats.map(x => x.visitors), 1)) * 100}%`,
-                          backgroundColor: '#91ADC2',
+                          backgroundColor: '#667EEA',
                         }} />
                     </div>
                   </div>
                   <div className="text-right shrink-0">
-                    <p className="text-sm font-bold" style={{ color: '#91ADC2' }}>{e.visitors}명</p>
+                    <p className="text-sm font-bold" style={{ color: '#667EEA' }}>{e.visitors}명</p>
                     <p className="text-xs text-gray-400">{e.count}건</p>
                   </div>
                 </div>
@@ -123,13 +123,13 @@ export default function Statistics() {
             <div className="space-y-3">
               {timeEntries.map(t => (
                 <div key={t.time} className="flex items-center gap-3">
-                  <span className="text-sm font-bold w-12 shrink-0" style={{ color: '#91ADC2' }}>{t.time}</span>
+                  <span className="text-sm font-bold w-12 shrink-0" style={{ color: '#667EEA' }}>{t.time}</span>
                   <div className="flex-1 bg-gray-100 rounded-full h-3">
                     <div className="h-3 rounded-full"
                       style={{
                         width: `${(t.visitors / maxTimeVisitors) * 100}%`,
-                        backgroundColor: '#FFDAB9',
-                        border: '1.5px solid #f5c49a',
+                        backgroundColor: '#E0D6F9',
+                        border: '1.5px solid #d6c4f4',
                       }} />
                   </div>
                   <div className="text-right shrink-0">

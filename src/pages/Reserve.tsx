@@ -1,13 +1,13 @@
 import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ChevronLeft, ChevronRight, Plus, Minus } from 'lucide-react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import StepIndicator from '../components/StepIndicator';
 import QRTicket from '../components/QRTicket';
 import { formatDate, generateId } from '../utils/helpers';
 import type { Reservation } from '../types';
 
-const STEPS = ['날짜 선택', '시간·인원', '예약자 정보', '예약 완료'];
+const STEPS = ['날짜 선택', '예약자 정보', '예약 완료'];
 
 interface CustomerForm {
   name: string;
@@ -25,9 +25,6 @@ export default function Reserve() {
 
   const [step, setStep] = useState(1);
   const [selectedDate, setSelectedDate] = useState('');
-  const [selectedTime, setSelectedTime] = useState('');
-  const [selectedSlotId, setSelectedSlotId] = useState('');
-  const [attendeeCount, setAttendeeCount] = useState(1);
   const [customer, setCustomer] = useState<CustomerForm>({
     name: '',
     phone: '',
@@ -43,13 +40,12 @@ export default function Reserve() {
 
   const canNext = (() => {
     if (step === 1) return selectedDate !== '';
-    if (step === 2) return selectedSlotId !== '' && attendeeCount > 0;
-    if (step === 3) return customer.name && customer.phone && customer.email && customer.unitNumber && customer.agree;
+    if (step === 2) return customer.name && customer.phone && customer.email && customer.unitNumber && customer.agree;
     return false;
   })();
 
   const handleNext = () => {
-    if (step === 3) {
+    if (step === 2) {
         const reservation: Reservation = {
         id: generateId(),
         eventId: event.id,
@@ -57,9 +53,9 @@ export default function Reserve() {
         venue: event.venue,
         address: event.address,
         date: selectedDate,
-        time: selectedTime,
-        timeSlotId: selectedSlotId,
-          attendeeCount,
+        time: '시간 미지정',
+        timeSlotId: 'none',
+          attendeeCount: 1,
           customer: { name: customer.name, phone: customer.phone, email: customer.email },
           extraFields: { unitNumber: customer.unitNumber },
           status: 'confirmed',
@@ -68,7 +64,7 @@ export default function Reserve() {
         };
       addReservation(reservation);
       setCompleted(reservation);
-      setStep(4);
+      setStep(3);
       return;
     }
     setStep(s => s + 1);
@@ -80,7 +76,7 @@ export default function Reserve() {
       <div className="sticky top-0 z-10 bg-white border-b shadow-sm">
         <div className="max-w-2xl mx-auto px-4 py-3 flex items-center gap-3">
           <button
-            onClick={() => step > 1 && step < 4 ? setStep(s => s - 1) : navigate(`/events/${event.id}`)}
+            onClick={() => step > 1 && step < 3 ? setStep(s => s - 1) : navigate(`/events/${event.id}`)}
             className="p-1.5 rounded-lg hover:bg-gray-100"
           >
             <ChevronLeft size={22} className="text-gray-600" />
@@ -109,13 +105,13 @@ export default function Reserve() {
                 return (
                   <button
                     key={date}
-                    onClick={() => { setSelectedDate(date); setSelectedSlotId(''); setSelectedTime(''); setAttendeeCount(1); }}
+                    onClick={() => { setSelectedDate(date); }}
                     className={`p-2.5 rounded-xl border-2 text-center transition-all ${
                       selectedDate === date
                         ? 'text-white border-transparent'
-                        : 'border-gray-200 hover:border-[#91ADC2] bg-white'
+                        : 'border-gray-200 hover:border-[#667EEA] bg-white'
                     }`}
-                    style={selectedDate === date ? { backgroundColor: '#91ADC2' } : {}}
+                    style={selectedDate === date ? { backgroundColor: '#667EEA' } : {}}
                   >
                     <p className="text-xs font-medium">{d.getMonth() + 1}/{d.getDate()}</p>
                     <p className={`text-[11px] font-semibold ${
@@ -130,69 +126,12 @@ export default function Reserve() {
           </div>
         )}
 
-        {/* Step 2: 시간 및 인원 */}
+        {/* Step 2: 예약자 정보 */}
         {step === 2 && (
-          <div className="bg-white rounded-2xl shadow-sm p-6">
-            <h2 className="font-bold text-gray-800 text-lg mb-1">시간대와 방문 인원을 선택하세요</h2>
-            <p className="text-sm text-gray-400 mb-5">{formatDate(selectedDate)}</p>
-
-            <h3 className="text-sm font-semibold text-gray-600 mb-3">방문 시간</h3>
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-7">
-              {event.timeSlots.map(ts => {
-                const isSelected = selectedSlotId === ts.id;
-
-                return (
-                  <button
-                    key={ts.id}
-                    onClick={() => {
-                      setSelectedSlotId(ts.id);
-                      setSelectedTime(ts.time);
-                    }}
-                    className={`p-3.5 rounded-xl border-2 text-left transition-all ${
-                      isSelected ? 'border-transparent text-white' :
-                      'border-gray-200 hover:border-[#91ADC2]'
-                    }`}
-                    style={isSelected ? { backgroundColor: '#91ADC2' } : {}}
-                  >
-                    <p className="font-bold text-base">{ts.time}</p>
-                  </button>
-                );
-              })}
-            </div>
-
-            {selectedSlotId && (
-              <>
-                <h3 className="text-sm font-semibold text-gray-600 mb-3">방문 인원</h3>
-                <div className="flex items-center gap-4">
-                  <div className="flex items-center gap-3 bg-gray-50 rounded-xl p-2">
-                    <button
-                      onClick={() => setAttendeeCount(prev => Math.max(1, prev - 1))}
-                      className="w-9 h-9 rounded-lg bg-white shadow-sm flex items-center justify-center hover:bg-gray-100"
-                    >
-                      <Minus size={16} />
-                    </button>
-                    <span className="font-bold w-6 text-center text-lg">{attendeeCount}</span>
-                    <button
-                      onClick={() => setAttendeeCount(prev => prev + 1)}
-                      className="w-9 h-9 rounded-lg bg-white shadow-sm flex items-center justify-center hover:bg-gray-100"
-                    >
-                      <Plus size={16} />
-                    </button>
-                  </div>
-                  <span className="text-sm text-gray-500">명</span>
-                </div>
-                <p className="text-xs text-gray-400 mt-2">* 본인 포함 총 방문 인원을 입력해 주세요</p>
-              </>
-            )}
-          </div>
-        )}
-
-        {/* Step 3: 예약자 정보 */}
-        {step === 3 && (
           <div className="bg-white rounded-2xl shadow-sm p-6">
             <h2 className="font-bold text-gray-800 text-lg mb-1">예약자 정보를 입력하세요</h2>
             <div className="text-sm text-gray-400 mb-5 p-3 rounded-xl bg-gray-50">
-              {formatDate(selectedDate)} · {selectedTime} · {attendeeCount}명 방문
+              {formatDate(selectedDate)} 방문
             </div>
 
             <div className="space-y-4">
@@ -211,7 +150,7 @@ export default function Reserve() {
                     placeholder={placeholder}
                     value={customer[key]}
                     onChange={e => setCustomer(prev => ({ ...prev, [key]: e.target.value }))}
-                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#91ADC2] text-sm"
+                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#667EEA] text-sm"
                   />
                 </div>
               ))}
@@ -221,7 +160,7 @@ export default function Reserve() {
                   type="checkbox"
                   checked={customer.agree}
                   onChange={e => setCustomer(prev => ({ ...prev, agree: e.target.checked }))}
-                  className="mt-0.5 accent-[#91ADC2]"
+                  className="mt-0.5 accent-[#667EEA]"
                 />
                 <span className="text-sm text-gray-600">
                   개인정보 수집 및 이용에 동의합니다. <span className="text-red-400">*</span><br />
@@ -232,13 +171,13 @@ export default function Reserve() {
           </div>
         )}
 
-        {/* Step 4: 완료 */}
-        {step === 4 && completed && (
+        {/* Step 3: 완료 */}
+        {step === 3 && completed && (
           <div>
             <div className="text-center mb-6">
               <div
                 className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 text-white text-3xl"
-                style={{ backgroundColor: '#91ADC2' }}
+                style={{ backgroundColor: '#667EEA' }}
               >
                 ✓
               </div>
@@ -250,7 +189,7 @@ export default function Reserve() {
               <button
                 onClick={() => navigate('/my-tickets')}
                 className="flex-1 py-3.5 rounded-xl font-bold text-white hover:opacity-90 transition-opacity"
-                style={{ backgroundColor: '#91ADC2' }}
+                style={{ backgroundColor: '#667EEA' }}
               >
                 내 예약 보기
               </button>
@@ -265,16 +204,16 @@ export default function Reserve() {
         )}
 
         {/* Next button */}
-        {step < 4 && (
+        {step < 3 && (
           <div className="mt-6">
             <button
               onClick={handleNext}
               disabled={!canNext}
               className="w-full py-4 rounded-xl font-bold text-white text-base flex items-center justify-center gap-2 transition-all hover:opacity-90 disabled:bg-gray-300 disabled:cursor-not-allowed"
-              style={{ backgroundColor: canNext ? '#91ADC2' : undefined }}
+              style={{ backgroundColor: canNext ? '#667EEA' : undefined }}
             >
-              {step === 3 ? '예약 완료하기' : '다음'}
-              {step < 3 && <ChevronRight size={20} />}
+              {step === 2 ? '예약 완료하기' : '다음'}
+              {step < 2 && <ChevronRight size={20} />}
             </button>
           </div>
         )}

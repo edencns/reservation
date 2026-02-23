@@ -16,7 +16,7 @@ export default function Events() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="py-10 text-center" style={{ backgroundColor: '#91ADC2' }}>
+      <div className="py-10 text-center" style={{ backgroundColor: '#667EEA' }}>
         <h1 className="text-3xl font-extrabold text-white mb-2">방문 예약</h1>
         <p className="text-blue-100 text-sm">원하는 행사를 선택하고 방문 일시를 예약하세요</p>
       </div>
@@ -31,7 +31,7 @@ export default function Events() {
               placeholder="행사명, 장소, 주소 검색..."
               value={search}
               onChange={e => setSearch(e.target.value)}
-              className="w-full pl-9 pr-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#91ADC2]"
+              className="w-full pl-9 pr-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#667EEA]"
             />
           </div>
           <label className="flex items-center gap-2 text-sm text-gray-600 cursor-pointer whitespace-nowrap">
@@ -39,7 +39,7 @@ export default function Events() {
               type="checkbox"
               checked={showActive}
               onChange={e => setShowActive(e.target.checked)}
-              className="rounded accent-[#91ADC2]"
+              className="rounded accent-[#667EEA]"
             />
             예약 가능한 행사만 보기
           </label>

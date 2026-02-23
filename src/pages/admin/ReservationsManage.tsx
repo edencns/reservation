@@ -41,7 +41,7 @@ export default function ReservationsManage() {
             placeholder="행사명, 예약자명, 연락처, 예약번호 검색"
             value={search}
             onChange={e => setSearch(e.target.value)}
-            className="w-full pl-9 pr-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#91ADC2]"
+            className="w-full pl-9 pr-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#667EEA]"
           />
         </div>
         <div className="flex gap-2">
@@ -56,7 +56,7 @@ export default function ReservationsManage() {
               className={`px-4 py-2 rounded-xl text-sm font-semibold transition-all ${
                 statusFilter === f.value ? 'text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
               }`}
-              style={statusFilter === f.value ? { backgroundColor: '#91ADC2' } : {}}
+              style={statusFilter === f.value ? { backgroundColor: '#667EEA' } : {}}
             >
               {f.label}
             </button>
@@ -71,8 +71,8 @@ export default function ReservationsManage() {
         <div className="hidden md:block overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr style={{ backgroundColor: '#FFDAB9' }}>
-                {['예약번호', '행사명', '예약자', '방문날짜', '방문시간', '인원', '상태', '입장', ''].map(h => (
+              <tr style={{ backgroundColor: '#E0D6F9' }}>
+                {['예약번호', '행사명', '예약자', '방문날짜', '방문시간', '상태', '입장', ''].map(h => (
                   <th key={h} className="px-3 py-3 text-left font-semibold text-gray-700 whitespace-nowrap">{h}</th>
                 ))}
               </tr>
@@ -91,8 +91,7 @@ export default function ReservationsManage() {
                     <p className="text-xs text-gray-400">{r.customer.phone}</p>
                   </td>
                   <td className="px-3 py-3 text-gray-600 whitespace-nowrap">{formatDate(r.date)}</td>
-                  <td className="px-3 py-3 font-bold whitespace-nowrap" style={{ color: '#91ADC2' }}>{r.time}</td>
-                  <td className="px-3 py-3 text-gray-600">{r.attendeeCount}명</td>
+                  <td className="px-3 py-3 font-bold whitespace-nowrap" style={{ color: '#667EEA' }}>{r.time}</td>
                   <td className="px-3 py-3">
                     <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${
                       r.status === 'confirmed' ? 'bg-green-100 text-green-600' : 'bg-gray-100 text-gray-500'
@@ -111,7 +110,7 @@ export default function ReservationsManage() {
                     <div className="flex gap-1">
                       <button onClick={() => setSelected(r)}
                         className="px-2 py-1 text-xs rounded-lg text-white font-medium"
-                        style={{ backgroundColor: '#91ADC2' }}>QR</button>
+                        style={{ backgroundColor: '#667EEA' }}>QR</button>
                       {r.status === 'confirmed' && (
                         <button onClick={() => handleCancel(r.id)}
                           className="px-2 py-1 text-xs rounded-lg bg-red-50 text-red-500 font-medium">취소</button>
@@ -142,14 +141,13 @@ export default function ReservationsManage() {
                 </span>
               </div>
               <p className="text-xs text-gray-500">{formatDate(r.date)} · {r.time}</p>
-              <p className="text-sm font-bold mt-1" style={{ color: '#91ADC2' }}>{r.attendeeCount}명 방문</p>
               {r.checkedIn && (
                 <span className="inline-block mt-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-green-100 text-green-700">입장완료</span>
               )}
               <div className="flex gap-2 mt-3">
                 <button onClick={() => setSelected(r)}
                   className="flex-1 py-2 text-xs rounded-lg text-white font-medium"
-                  style={{ backgroundColor: '#91ADC2' }}>QR 보기</button>
+                  style={{ backgroundColor: '#667EEA' }}>QR 보기</button>
                 {r.status === 'confirmed' && (
                   <button onClick={() => handleCancel(r.id)}
                     className="flex-1 py-2 text-xs rounded-lg bg-red-50 text-red-500 font-medium">예약 취소</button>

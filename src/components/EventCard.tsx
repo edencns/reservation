@@ -16,7 +16,7 @@ export default function EventCard({ event }: Props) {
       onClick={() => navigate(`/events/${event.id}`)}
     >
       {/* Top accent */}
-      <div className="h-2 w-full" style={{ backgroundColor: '#91ADC2' }} />
+      <div className="h-2 w-full" style={{ backgroundColor: '#667EEA' }} />
 
       <div className="p-5">
         <div className="flex items-start justify-between mb-3">
@@ -28,18 +28,18 @@ export default function EventCard({ event }: Props) {
 
         <div className="space-y-2 text-sm text-gray-500 mb-4">
           <div className="flex items-start gap-1.5">
-            <MapPin size={14} className="shrink-0 mt-0.5" style={{ color: '#91ADC2' }} />
+            <MapPin size={14} className="shrink-0 mt-0.5" style={{ color: '#667EEA' }} />
             <span className="line-clamp-1">{event.venue}</span>
           </div>
           <div className="flex items-center gap-1.5">
-            <Calendar size={14} style={{ color: '#91ADC2' }} />
+            <Calendar size={14} style={{ color: '#667EEA' }} />
             <span>{formatDate(event.dates[0])}</span>
             {event.dates.length > 1 && (
               <span className="text-xs text-gray-400">외 {event.dates.length - 1}일</span>
             )}
           </div>
           <div className="flex items-center gap-1.5">
-            <Clock size={14} style={{ color: '#91ADC2' }} />
+            <Clock size={14} style={{ color: '#667EEA' }} />
             <span>
               {event.timeSlots[0]?.time} ~ {event.timeSlots[event.timeSlots.length - 1]?.time}
             </span>
@@ -49,7 +49,7 @@ export default function EventCard({ event }: Props) {
 
         <button
           className="w-full py-2.5 rounded-xl text-white text-sm font-bold transition-opacity hover:opacity-90 disabled:bg-gray-300 disabled:cursor-not-allowed"
-          style={{ backgroundColor: event.status === 'active' ? '#91ADC2' : undefined }}
+          style={{ backgroundColor: event.status === 'active' ? '#667EEA' : undefined }}
           disabled={event.status !== 'active'}
         >
           {event.status === 'active' ? '방문 예약하기' : '예약 마감'}

@@ -38,7 +38,7 @@ export default function AdminLayout() {
         className={`fixed md:static inset-y-0 left-0 z-30 w-60 flex flex-col shadow-xl transition-transform duration-200 ${
           sidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
         }`}
-        style={{ backgroundColor: '#91ADC2' }}
+        style={{ backgroundColor: '#667EEA' }}
       >
         <div className="p-5 border-b border-white/20">
           <div className="flex items-center gap-2">
@@ -58,7 +58,7 @@ export default function AdminLayout() {
                 onClick={() => setSidebarOpen(false)}
                 className={`flex items-center gap-3 px-4 py-3 rounded-xl font-medium text-sm transition-all ${
                   isActive
-                    ? 'bg-white text-[#91ADC2] shadow-sm'
+                    ? 'bg-white text-[#667EEA] shadow-sm'
                     : 'text-white hover:bg-white/20'
                 }`}
               >

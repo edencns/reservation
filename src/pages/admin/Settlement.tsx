@@ -16,7 +16,7 @@ export default function Settlement() {
   const totalVisitors = confirmed.reduce((s, r) => s + r.attendeeCount, 0);
 
   const summaryCards = [
-    { label: '예약 건수', value: confirmed.length + '건', sub: `취소 ${cancelled.length}건`, color: '#91ADC2' },
+    { label: '예약 건수', value: confirmed.length + '건', sub: `취소 ${cancelled.length}건`, color: '#667EEA' },
     { label: '방문 인원', value: totalVisitors + '명', sub: '확정 기준', color: '#7EC8C8' },
     { label: '일 평균 방문', value: confirmed.length > 0 ? Math.round(totalVisitors / new Set(confirmed.map(r => r.date)).size) + '명' : '0명', sub: '방문일 기준', color: '#F4A261' },
     { label: '취소율', value: monthRes.length > 0 ? Math.round((cancelled.length / monthRes.length) * 100) + '%' : '0%', sub: '전체 대비', color: '#E76F51' },
@@ -47,11 +47,11 @@ export default function Settlement() {
         <h2 className="font-bold text-gray-800">방문 현황</h2>
         <div className="flex gap-2 items-center ml-auto">
           <select value={year} onChange={e => setYear(Number(e.target.value))}
-            className="px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#91ADC2]">
+            className="px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#667EEA]">
             {[2024, 2025, 2026, 2027].map(y => <option key={y} value={y}>{y}년</option>)}
           </select>
           <select value={month} onChange={e => setMonth(Number(e.target.value))}
-            className="px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#91ADC2]">
+            className="px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#667EEA]">
             {Array.from({ length: 12 }, (_, i) => (
               <option key={i + 1} value={i + 1}>{i + 1}월</option>
             ))}
@@ -85,7 +85,7 @@ export default function Settlement() {
                     <p className="text-xs text-gray-400 mt-0.5">{e.count}건 예약</p>
                   </div>
                   <div className="text-right shrink-0">
-                    <p className="text-sm font-bold" style={{ color: '#91ADC2' }}>{e.visitors}명</p>
+                    <p className="text-sm font-bold" style={{ color: '#667EEA' }}>{e.visitors}명</p>
                   </div>
                 </div>
               ))}
@@ -107,10 +107,10 @@ export default function Settlement() {
                     <div className="h-2 rounded-full"
                       style={{
                         width: `${(s.visitors / Math.max(...dailyEntries.map(([, v]) => v.visitors), 1)) * 100}%`,
-                        backgroundColor: '#91ADC2',
+                        backgroundColor: '#667EEA',
                       }} />
                   </div>
-                  <span className="text-xs font-bold shrink-0" style={{ color: '#91ADC2' }}>{s.visitors}명</span>
+                  <span className="text-xs font-bold shrink-0" style={{ color: '#667EEA' }}>{s.visitors}명</span>
                 </div>
               ))}
             </div>
@@ -141,7 +141,7 @@ export default function Settlement() {
               ) : monthRes.sort((a, b) => a.date.localeCompare(b.date) || a.time.localeCompare(b.time)).map(r => (
                 <tr key={r.id} className={`hover:bg-gray-50 ${r.status === 'cancelled' ? 'opacity-50' : ''}`}>
                   <td className="px-4 py-3 text-gray-600 whitespace-nowrap">{formatDate(r.date)}</td>
-                  <td className="px-4 py-3 font-bold" style={{ color: '#91ADC2' }}>{r.time}</td>
+                  <td className="px-4 py-3 font-bold" style={{ color: '#667EEA' }}>{r.time}</td>
                   <td className="px-4 py-3 max-w-[160px]">
                     <p className="font-medium text-gray-800 truncate">{r.eventTitle}</p>
                   </td>

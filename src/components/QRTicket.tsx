@@ -39,13 +39,13 @@ export default function QRTicket({ reservation: r, extraFields = [], compact = f
           <p className="font-bold text-gray-800 text-sm truncate">{r.eventTitle}</p>
           <p className="text-xs text-gray-500">{formatDate(r.date)} {r.time}</p>
           <p className="text-xs text-gray-500">{r.venue}</p>
-          <p className="text-xs font-semibold mt-1" style={{ color: '#91ADC2' }}>
-            {r.customer.name || r.extraFields['name'] || ''} · {r.attendeeCount}명
+          <p className="text-xs font-semibold mt-1" style={{ color: '#667EEA' }}>
+            {r.customer.name || r.extraFields['name'] || ''}
           </p>
           <div className="flex gap-1 mt-1">
             <span className={`inline-block text-[10px] px-1.5 py-0.5 rounded-full font-semibold ${
               r.status === 'confirmed' ? 'text-white' : 'bg-gray-100 text-gray-500'
-            }`} style={r.status === 'confirmed' ? { backgroundColor: '#91ADC2' } : {}}>
+            }`} style={r.status === 'confirmed' ? { backgroundColor: '#667EEA' } : {}}>
               {r.status === 'confirmed' ? '예약확정' : '취소됨'}
             </span>
             {r.checkedIn && (
@@ -63,7 +63,7 @@ export default function QRTicket({ reservation: r, extraFields = [], compact = f
   return (
     <div className="bg-white rounded-2xl shadow-lg overflow-hidden max-w-sm mx-auto">
       {/* 헤더 */}
-      <div className="text-white text-center py-4 px-5" style={{ backgroundColor: '#91ADC2' }}>
+      <div className="text-white text-center py-4 px-5" style={{ backgroundColor: '#667EEA' }}>
         <p className="text-xs uppercase tracking-widest opacity-75 mb-1">ReserveTicket</p>
         <h2 className="font-bold text-base leading-tight">{r.eventTitle}</h2>
         {r.checkedIn && (
@@ -92,7 +92,6 @@ export default function QRTicket({ reservation: r, extraFields = [], compact = f
             { label: '장소', value: r.venue },
             { label: '날짜', value: formatDate(r.date) },
             { label: '시간', value: r.time },
-            { label: '방문 인원', value: `${r.attendeeCount}명` },
           ].map(({ label, value }) => (
             <div key={label} className="flex justify-between items-start gap-2">
               <span className="text-gray-400 shrink-0 w-16 text-xs">{label}</span>
@@ -129,7 +128,7 @@ export default function QRTicket({ reservation: r, extraFields = [], compact = f
       </div>
 
       {/* 푸터 */}
-      <div style={{ backgroundColor: '#FFDAB9' }} className="px-5 py-3 text-center">
+      <div style={{ backgroundColor: '#E0D6F9' }} className="px-5 py-3 text-center">
         <p className="text-xs text-gray-600 font-medium">
           방문 시 이 QR코드를 제시해 주세요
         </p>

@@ -15,7 +15,7 @@ export default function EventDetail() {
         <div className="text-center">
           <p className="text-5xl mb-4">😢</p>
           <p className="text-xl font-bold text-gray-700">행사를 찾을 수 없습니다</p>
-          <button onClick={() => navigate('/events')} className="mt-4 text-[#91ADC2] underline">
+          <button onClick={() => navigate('/events')} className="mt-4 text-[#667EEA] underline">
             목록으로 돌아가기
           </button>
         </div>
@@ -33,7 +33,7 @@ export default function EventDetail() {
       </button>
 
       {/* Top banner */}
-      <div className="h-32 md:h-44 flex items-center justify-center text-7xl" style={{ backgroundColor: '#FFDAB9' }}>
+      <div className="h-32 md:h-44 flex items-center justify-center text-7xl" style={{ backgroundColor: '#E0D6F9' }}>
         🏢
       </div>
 
@@ -45,21 +45,21 @@ export default function EventDetail() {
 
             <div className="space-y-2.5 text-sm text-gray-600">
               <div className="flex items-start gap-2">
-                <MapPin size={16} className="mt-0.5 shrink-0" style={{ color: '#91ADC2' }} />
+                <MapPin size={16} className="mt-0.5 shrink-0" style={{ color: '#667EEA' }} />
                 <div>
                   <p className="font-semibold text-gray-800">{event.venue}</p>
                   <p className="text-gray-500">{event.address}</p>
                 </div>
               </div>
               <div className="flex items-center gap-2">
-                <Calendar size={16} style={{ color: '#91ADC2' }} />
+                <Calendar size={16} style={{ color: '#667EEA' }} />
                 <span>
                   {formatDate(event.dates[0])}
                   {event.dates.length > 1 && ` ~ ${formatDate(event.dates[event.dates.length - 1])}`}
                 </span>
               </div>
               <div className="flex items-center gap-2">
-                <Clock size={16} style={{ color: '#91ADC2' }} />
+                <Clock size={16} style={{ color: '#667EEA' }} />
                 <span>
                   {event.timeSlots[0]?.time} ~ {event.timeSlots[event.timeSlots.length - 1]?.time}
                 </span>
@@ -70,7 +70,7 @@ export default function EventDetail() {
             {event.description && (
               <div className="bg-white rounded-2xl p-5 shadow-sm">
                 <h2 className="font-bold text-gray-800 mb-3 flex items-center gap-2">
-                  <Info size={16} style={{ color: '#91ADC2' }} /> 행사 안내
+                  <Info size={16} style={{ color: '#667EEA' }} /> 행사 안내
                 </h2>
                 <p className="text-sm text-gray-600 leading-relaxed whitespace-pre-line">{event.description}</p>
               </div>
@@ -88,7 +88,7 @@ export default function EventDetail() {
                 onClick={() => event.status === 'active' && navigate(`/reserve/${event.id}`)}
                 disabled={event.status !== 'active'}
                 className="w-full mt-5 py-3.5 rounded-xl font-bold text-white text-base transition-all hover:opacity-90 disabled:bg-gray-300 disabled:cursor-not-allowed"
-                style={{ backgroundColor: event.status === 'active' ? '#91ADC2' : undefined }}
+                style={{ backgroundColor: event.status === 'active' ? '#667EEA' : undefined }}
               >
                 {event.status === 'active' ? '방문 예약하기' : '예약 마감'}
               </button>

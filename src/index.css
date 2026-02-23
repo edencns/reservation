@@ -1,10 +1,10 @@
 @import "tailwindcss";
 
 @theme {
-  --color-main: #FFDAB9;
-  --color-point: #91ADC2;
-  --color-point-dark: #7a97ae;
-  --color-main-dark: #f5c49a;
+  --color-main: #E0D6F9;
+  --color-point: #667EEA;
+  --color-point-dark: #5a67d8;
+  --color-main-dark: #d6c4f4;
 }
 
 body {
@@ -42,6 +42,6 @@ a {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #91ADC2;
+  background: #667EEA;
   border-radius: 3px;
 }

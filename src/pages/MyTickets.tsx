@@ -22,7 +22,7 @@ export default function MyTickets() {
 
   return (
     <div className="min-h-screen bg-gray-50 pb-16">
-      <div className="py-10 text-center" style={{ backgroundColor: '#91ADC2' }}>
+      <div className="py-10 text-center" style={{ backgroundColor: '#667EEA' }}>
         <h1 className="text-3xl font-extrabold text-white mb-2">내 예약</h1>
         <p className="text-blue-100 text-sm">휴대폰 번호로 예약 내역을 조회하세요</p>
       </div>
@@ -36,12 +36,12 @@ export default function MyTickets() {
               placeholder="휴대폰 번호 입력 (예: 01012345678)"
               value={phone}
               onChange={e => setPhone(e.target.value)}
-              className="flex-1 px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#91ADC2]"
+              className="flex-1 px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#667EEA]"
             />
             <button
               type="submit"
               className="px-5 py-3 rounded-xl text-white font-semibold flex items-center gap-2 hover:opacity-90 transition-opacity"
-              style={{ backgroundColor: '#91ADC2' }}
+              style={{ backgroundColor: '#667EEA' }}
             >
               <Search size={16} /> 조회
             </button>
@@ -57,7 +57,7 @@ export default function MyTickets() {
                 <button
                   onClick={() => navigate('/events')}
                   className="mt-4 px-6 py-2.5 rounded-lg text-white text-sm font-semibold hover:opacity-90"
-                  style={{ backgroundColor: '#91ADC2' }}
+                  style={{ backgroundColor: '#667EEA' }}
                 >
                   방문 예약하기
                 </button>
@@ -69,7 +69,7 @@ export default function MyTickets() {
                   <div
                     key={r.id}
                     className={`bg-white rounded-2xl shadow-sm p-5 cursor-pointer hover:shadow-md transition-all border-l-4 ${
-                      r.status === 'cancelled' ? 'opacity-60 border-gray-300' : 'border-[#91ADC2]'
+                      r.status === 'cancelled' ? 'opacity-60 border-gray-300' : 'border-[#667EEA]'
                     }`}
                     onClick={() => setSelected(r)}
                   >
@@ -80,7 +80,7 @@ export default function MyTickets() {
                             className={`text-xs px-2 py-0.5 rounded-full font-semibold ${
                               r.status === 'confirmed' ? 'text-white' : 'bg-gray-100 text-gray-500'
                             }`}
-                            style={r.status === 'confirmed' ? { backgroundColor: '#91ADC2' } : {}}
+                            style={r.status === 'confirmed' ? { backgroundColor: '#667EEA' } : {}}
                           >
                             {r.status === 'confirmed' ? '예약확정' : '취소됨'}
                           </span>
@@ -88,8 +88,8 @@ export default function MyTickets() {
                         <p className="font-bold text-gray-800 truncate">{r.eventTitle}</p>
                         <p className="text-sm text-gray-500 mt-0.5">{r.venue}</p>
                         <p className="text-sm text-gray-500">{formatDate(r.date)} · {r.time}</p>
-                        <p className="text-sm font-semibold mt-1" style={{ color: '#91ADC2' }}>
-                          {r.customer.name} · {r.attendeeCount}명 방문
+                        <p className="text-sm font-semibold mt-1" style={{ color: '#667EEA' }}>
+                          {r.customer.name}
                         </p>
                       </div>
                       <span className="text-xs text-gray-400 shrink-0 ml-2">QR 보기 &rsaquo;</span>

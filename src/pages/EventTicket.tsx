@@ -35,7 +35,7 @@ export default function EventTicket() {
 
   return (
     <div className="min-h-screen bg-gray-50 pb-16">
-      <div className="py-8 px-4 text-center" style={{ backgroundColor: '#91ADC2' }}>
+      <div className="py-8 px-4 text-center" style={{ backgroundColor: '#667EEA' }}>
         <h1 className="text-2xl font-extrabold text-white mb-1">내 예약 확인</h1>
         <p className="text-blue-100 text-sm">{event.title}</p>
       </div>
@@ -44,7 +44,7 @@ export default function EventTicket() {
         <button
           onClick={() => navigate(`/e/${slug}`)}
           className="flex items-center gap-1 text-sm mb-4"
-          style={{ color: '#91ADC2' }}
+          style={{ color: '#667EEA' }}
         >
           <ChevronLeft size={16} /> 행사 페이지로 돌아가기
         </button>
@@ -57,12 +57,12 @@ export default function EventTicket() {
               placeholder="연락처 입력 (예: 01012345678)"
               value={phone}
               onChange={e => setPhone(e.target.value)}
-              className="flex-1 px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#91ADC2]"
+              className="flex-1 px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#667EEA]"
             />
             <button
               type="submit"
               className="px-4 py-3 rounded-xl text-white font-semibold flex items-center gap-1.5 hover:opacity-90 text-sm"
-              style={{ backgroundColor: '#91ADC2' }}
+              style={{ backgroundColor: '#667EEA' }}
             >
               <Search size={15} /> 조회
             </button>
@@ -78,7 +78,7 @@ export default function EventTicket() {
                 <button
                   onClick={() => navigate(`/e/${slug}/reserve`)}
                   className="mt-4 px-5 py-2.5 rounded-lg text-white text-sm font-semibold hover:opacity-90"
-                  style={{ backgroundColor: '#91ADC2' }}
+                  style={{ backgroundColor: '#667EEA' }}
                 >
                   예약하기
                 </button>
@@ -91,7 +91,7 @@ export default function EventTicket() {
                     key={r.id}
                     className={`bg-white rounded-2xl shadow-sm p-4 cursor-pointer hover:shadow-md transition-all border-l-4 ${
                       r.status === 'cancelled' ? 'opacity-60 border-gray-300' :
-                      r.checkedIn ? 'border-green-400' : 'border-[#91ADC2]'
+                      r.checkedIn ? 'border-green-400' : 'border-[#667EEA]'
                     }`}
                     onClick={() => setSelected(r)}
                   >
@@ -102,7 +102,7 @@ export default function EventTicket() {
                             className={`text-xs px-2 py-0.5 rounded-full font-semibold ${
                               r.status === 'cancelled' ? 'bg-gray-100 text-gray-500' : 'text-white'
                             }`}
-                            style={r.status === 'confirmed' ? { backgroundColor: '#91ADC2' } : {}}
+                            style={r.status === 'confirmed' ? { backgroundColor: '#667EEA' } : {}}
                           >
                             {r.status === 'confirmed' ? '예약확정' : '취소됨'}
                           </span>
@@ -111,7 +111,6 @@ export default function EventTicket() {
                           )}
                         </div>
                         <p className="text-sm font-bold text-gray-800">{formatDate(r.date)} {r.time}</p>
-                        <p className="text-sm text-gray-500">{r.attendeeCount}명 방문</p>
                       </div>
                       <span className="text-xs text-gray-400 ml-2 shrink-0">QR 보기 ›</span>
                     </div>

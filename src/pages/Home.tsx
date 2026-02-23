@@ -241,7 +241,7 @@ export default function Home() {
                             </Text>
                             <Text fw={700}>{lookupResult.eventTitle}</Text>
                             <Text size="sm" c="dimmed">{formatDate(lookupResult.date)} · {lookupResult.time}</Text>
-                            <Text size="sm" mt="xs">{getName(lookupResult)} · {lookupResult.attendeeCount}명</Text>
+                            <Text size="sm" mt="xs">{getName(lookupResult)}</Text>
                         </div>
                         {!lookupResult.checkedIn && lookupResult.status === 'confirmed' && (
                         <Button color="teal" onClick={() => handleCheckIn(lookupResult.id)}><IconCheck size={16}/>&nbsp; 입장 처리</Button>

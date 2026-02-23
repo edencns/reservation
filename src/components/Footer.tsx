@@ -6,13 +6,13 @@ export default function Footer() {
   if (location.pathname === '/' || location.pathname.startsWith('/admin')) return null;
 
   return (
-    <footer style={{ backgroundColor: '#FFDAB9' }}>
+    <footer style={{ backgroundColor: '#E0D6F9' }}>
       <div className="max-w-6xl mx-auto px-4 py-10">
         <div className="flex flex-col md:flex-row justify-between gap-6">
           <div>
             <div className="flex items-center gap-2 mb-3">
-              <Ticket size={22} style={{ color: '#91ADC2' }} />
-              <span className="font-bold text-lg" style={{ color: '#91ADC2' }}>ReserveTicket</span>
+              <Ticket size={22} style={{ color: '#667EEA' }} />
+              <span className="font-bold text-lg" style={{ color: '#667EEA' }}>ReserveTicket</span>
             </div>
             <p className="text-sm text-gray-600 max-w-xs">
               모델하우스·분양사무소·입주박람회 방문 예약을 간편하게 관리하세요.

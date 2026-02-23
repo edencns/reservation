@@ -20,12 +20,12 @@ export default function AdminLogin() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4" style={{ backgroundColor: '#91ADC2' }}>
+    <div className="min-h-screen flex items-center justify-center p-4" style={{ backgroundColor: '#667EEA' }}>
       <div className="bg-white rounded-3xl shadow-2xl w-full max-w-sm p-8">
         <div className="text-center mb-8">
           <div className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4"
-            style={{ backgroundColor: '#FFDAB9' }}>
-            <Ticket size={32} style={{ color: '#91ADC2' }} />
+            style={{ backgroundColor: '#E0D6F9' }}>
+            <Ticket size={32} style={{ color: '#667EEA' }} />
           </div>
           <h1 className="text-2xl font-extrabold text-gray-800">관리자 로그인</h1>
           <p className="text-sm text-gray-500 mt-1">ReserveTicket 관리자 전용</p>
@@ -39,7 +39,7 @@ export default function AdminLogin() {
               value={username}
               onChange={e => setUsername(e.target.value)}
               placeholder="admin"
-              className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#91ADC2] text-sm"
+              className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#667EEA] text-sm"
             />
           </div>
           <div>
@@ -50,7 +50,7 @@ export default function AdminLogin() {
                 value={password}
                 onChange={e => setPassword(e.target.value)}
                 placeholder="••••••••"
-                className="w-full px-4 py-3 pr-11 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#91ADC2] text-sm"
+                className="w-full px-4 py-3 pr-11 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#667EEA] text-sm"
               />
               <button
                 type="button"
@@ -69,7 +69,7 @@ export default function AdminLogin() {
           <button
             type="submit"
             className="w-full py-3.5 rounded-xl font-bold text-white text-base transition-all hover:opacity-90"
-            style={{ backgroundColor: '#91ADC2' }}
+            style={{ backgroundColor: '#667EEA' }}
           >
             로그인
           </button>

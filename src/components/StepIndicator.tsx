@@ -23,7 +23,7 @@ export default function StepIndicator({ steps, currentStep }: Props) {
                 }`}
                 style={
                   isCompleted || isActive
-                    ? { backgroundColor: '#91ADC2', borderColor: '#91ADC2' }
+                    ? { backgroundColor: '#667EEA', borderColor: '#667EEA' }
                     : {}
                 }
               >
@@ -31,7 +31,7 @@ export default function StepIndicator({ steps, currentStep }: Props) {
               </div>
               <span
                 className={`text-xs mt-1 font-medium hidden sm:block ${
-                  isActive ? 'text-[#91ADC2]' : isCompleted ? 'text-gray-500' : 'text-gray-400'
+                  isActive ? 'text-[#667EEA]' : isCompleted ? 'text-gray-500' : 'text-gray-400'
                 }`}
               >
                 {label}
@@ -40,7 +40,7 @@ export default function StepIndicator({ steps, currentStep }: Props) {
             {idx < steps.length - 1 && (
               <div
                 className="w-12 sm:w-20 h-0.5 mx-1 transition-all"
-                style={{ backgroundColor: isCompleted ? '#91ADC2' : '#e5e7eb' }}
+                style={{ backgroundColor: isCompleted ? '#667EEA' : '#e5e7eb' }}
               />
             )}
           </div>

@@ -3,7 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { Plus, Trash2, ChevronLeft, Copy, GripVertical } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { generateId, generateSlug } from '../../utils/helpers';
-import type { Event, TimeSlotDef, CustomField, CustomFieldType } from '../../types';
+import type { Event, CustomField, CustomFieldType } from '../../types';
 
 function generateDateRange(start: string, end: string): string[] {
   if (!start || !end) return [];
@@ -17,13 +17,7 @@ function generateDateRange(start: string, end: string): string[] {
   return dates;
 }
 
-const DEFAULT_SLOTS: TimeSlotDef[] = [
-  { id: generateId(), time: '10:00' },
-  { id: generateId(), time: '11:00' },
-  { id: generateId(), time: '13:00' },
-  { id: generateId(), time: '14:00' },
-  { id: generateId(), time: '15:00' },
-];
+const DEFAULT_TIME_SLOT = [{ id: 'none', time: '시간 미지정' }];
 
 const BASE_FIELDS: CustomField[] = [
   { id: 'bf1', key: 'name', label: '이름', type: 'text', placeholder: '홍길동', required: true },
@@ -72,7 +66,6 @@ export default function EventForm() {
   const [address, setAddress] = useState(existing?.address ?? '');
   const [startDate, setStartDate] = useState(existing?.dates[0] ?? '');
   const [endDate, setEndDate] = useState(existing?.dates[existing?.dates.length - 1] ?? '');
-  const [timeSlots, setTimeSlots] = useState<TimeSlotDef[]>(existing?.timeSlots ?? DEFAULT_SLOTS);
   const [status, setStatus] = useState<'active' | 'closed' | 'draft'>(existing?.status ?? 'active');
   const [slug] = useState<string>(existing?.slug ?? generateSlug());
   const [customFields, setCustomFields] = useState<CustomField[]>(
@@ -83,13 +76,6 @@ export default function EventForm() {
     label: '', type: 'text', required: false, placeholder: '', options: '',
   });
   const [urlCopied, setUrlCopied] = useState(false);
-
-  const addSlot = () =>
-    setTimeSlots(prev => [...prev, { id: generateId(), time: '10:00' }]);
-  const removeSlot = (sid: string) =>
-    setTimeSlots(prev => prev.filter(t => t.id !== sid));
-  const updateSlot = (sid: string, key: keyof TimeSlotDef, value: string) =>
-    setTimeSlots(prev => prev.map(t => t.id === sid ? { ...t, [key]: value } : t));
 
   const addCustomField = () => {
     if (!newField.label.trim()) return;
@@ -132,21 +118,23 @@ export default function EventForm() {
     e.preventDefault();
     const dates = generateDateRange(startDate, endDate);
     if (dates.length === 0) { alert('날짜 범위를 확인해주세요.'); return; }
-    if (timeSlots.length === 0) { alert('시간대를 최소 1개 이상 추가해주세요.'); return; }
     if (customFields.length === 0) { alert('예약 정보 필드를 최소 1개 이상 추가해주세요.'); return; }
 
     const event: Event = {
       id: isEdit ? id : generateId(),
       slug,
       title, description, venue, address,
-      dates, timeSlots, customFields: normalizeBaseFields(customFields), status,
+      dates,
+      timeSlots: DEFAULT_TIME_SLOT,
+      customFields: normalizeBaseFields(customFields),
+      status,
       createdAt: existing?.createdAt ?? new Date().toISOString(),
     };
     if (isEdit) { updateEvent(event); } else { addEvent(event); }
     navigate('/admin/events');
   };
 
-  const inputCls = "w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#91ADC2]";
+  const inputCls = "w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#667EEA]";
   const labelCls = "block text-sm font-semibold text-gray-700 mb-1.5";
 
   return (
@@ -208,7 +196,7 @@ export default function EventForm() {
                 type="button"
                 onClick={copyUrl}
                 className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-sm font-semibold text-white hover:opacity-90 shrink-0"
-                style={{ backgroundColor: urlCopied ? '#22c55e' : '#91ADC2' }}
+                style={{ backgroundColor: urlCopied ? '#22c55e' : '#667EEA' }}
               >
                 <Copy size={14} />
                 {urlCopied ? '복사됨!' : 'URL 복사'}
@@ -240,49 +228,6 @@ export default function EventForm() {
           )}
         </div>
 
-        {/* 시간대 */}
-        <div className="bg-white rounded-2xl shadow-sm p-5 space-y-4">
-          <div className="flex items-center justify-between border-b pb-2">
-            <div>
-              <h3 className="font-bold text-gray-700 text-sm">방문 시간대 설정</h3>
-              <p className="text-xs text-gray-400 mt-0.5">예약 가능한 시간대를 추가하세요</p>
-            </div>
-            <button
-              type="button"
-              onClick={addSlot}
-              className="flex items-center gap-1 text-xs px-3 py-1.5 rounded-lg text-white font-semibold"
-              style={{ backgroundColor: '#91ADC2' }}
-            >
-              <Plus size={13} /> 시간 추가
-            </button>
-          </div>
-
-          <div className="space-y-2">
-            {timeSlots.map((ts, idx) => (
-              <div key={ts.id} className="flex gap-2 items-center p-3 bg-gray-50 rounded-xl">
-                <span className="text-xs text-gray-400 w-5 shrink-0 text-center">{idx + 1}</span>
-                <div className="flex-1">
-                  <label className="text-xs text-gray-500 mb-1 block">방문 시간</label>
-                  <input
-                    type="time"
-                    value={ts.time}
-                    onChange={e => updateSlot(ts.id, 'time', e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#91ADC2]"
-                  />
-                </div>
-                <button
-                  type="button"
-                  onClick={() => removeSlot(ts.id)}
-                  disabled={timeSlots.length <= 1}
-                  className="p-2 text-red-400 hover:text-red-600 hover:bg-red-50 rounded-lg disabled:opacity-30 disabled:cursor-not-allowed"
-                >
-                  <Trash2 size={15} />
-                </button>
-              </div>
-            ))}
-          </div>
-        </div>
-
         {/* 예약 정보 필드 */}
         <div className="bg-white rounded-2xl shadow-sm p-5 space-y-4">
           <div className="flex items-center justify-between border-b pb-2">
@@ -295,7 +240,7 @@ export default function EventForm() {
                 type="button"
                 onClick={() => setShowAddField(true)}
                 className="flex items-center gap-1 text-xs px-3 py-1.5 rounded-lg text-white font-semibold"
-                style={{ backgroundColor: '#91ADC2' }}
+                style={{ backgroundColor: '#667EEA' }}
               >
                 <Plus size={13} /> 필드 추가
               </button>
@@ -369,7 +314,7 @@ export default function EventForm() {
                     placeholder="예) 동호수, 차량번호"
                     value={newField.label}
                     onChange={e => setNewField(p => ({ ...p, label: e.target.value }))}
-                    className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#91ADC2]"
+                    className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#667EEA]"
                   />
                 </div>
                 <div>
@@ -377,7 +322,7 @@ export default function EventForm() {
                   <select
                     value={newField.type}
                     onChange={e => setNewField(p => ({ ...p, type: e.target.value as CustomFieldType }))}
-                    className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#91ADC2]"
+                    className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#667EEA]"
                   >
                     {(Object.entries(FIELD_TYPE_LABELS) as [CustomFieldType, string][]).map(([val, lbl]) => (
                       <option key={val} value={val}>{lbl}</option>
@@ -392,7 +337,7 @@ export default function EventForm() {
                   placeholder="예) 101동 501호"
                   value={newField.placeholder}
                   onChange={e => setNewField(p => ({ ...p, placeholder: e.target.value }))}
-                  className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#91ADC2]"
+                  className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#667EEA]"
                 />
               </div>
               {newField.type === 'select' && (
@@ -403,7 +348,7 @@ export default function EventForm() {
                     placeholder="예) 30평형, 40평형, 50평형"
                     value={newField.options}
                     onChange={e => setNewField(p => ({ ...p, options: e.target.value }))}
-                    className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#91ADC2]"
+                    className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#667EEA]"
                   />
                 </div>
               )}
@@ -412,7 +357,7 @@ export default function EventForm() {
                   type="checkbox"
                   checked={newField.required}
                   onChange={e => setNewField(p => ({ ...p, required: e.target.checked }))}
-                  className="accent-[#91ADC2]"
+                  className="accent-[#667EEA]"
                 />
                 <span className="text-sm text-gray-600">필수 입력</span>
               </label>
@@ -429,7 +374,7 @@ export default function EventForm() {
                   onClick={addCustomField}
                   disabled={!newField.label.trim()}
                   className="flex-1 py-2 text-sm rounded-lg text-white font-semibold disabled:opacity-50"
-                  style={{ backgroundColor: '#91ADC2' }}
+                  style={{ backgroundColor: '#667EEA' }}
                 >
                   추가
                 </button>
@@ -445,7 +390,7 @@ export default function EventForm() {
           </button>
           <button type="submit"
             className="flex-1 py-3 rounded-xl font-bold text-white hover:opacity-90"
-            style={{ backgroundColor: '#91ADC2' }}>
+            style={{ backgroundColor: '#667EEA' }}>
             {isEdit ? '수정 완료' : '행사 등록'}
           </button>
         </div>

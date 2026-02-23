@@ -22,7 +22,7 @@ export default function Header() {
     return (
       <header className="bg-white shadow-sm sticky top-0 z-50">
         <div className="max-w-3xl mx-auto px-4 h-14 flex items-center justify-between">
-          <div className="flex items-center gap-2" style={{ color: '#91ADC2' }}>
+          <div className="flex items-center gap-2" style={{ color: '#667EEA' }}>
             <Ticket size={22} />
             <span className="font-bold text-sm">ReserveTicket</span>
           </div>
@@ -30,7 +30,7 @@ export default function Header() {
             <Link
               to={`/e/${event.slug}/ticket`}
               className="text-sm font-medium hover:underline"
-              style={{ color: '#91ADC2' }}
+              style={{ color: '#667EEA' }}
             >
               내 예약 확인
             </Link>
@@ -44,7 +44,7 @@ export default function Header() {
   return (
     <header className="bg-white shadow-sm sticky top-0 z-50">
       <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
-        <Link to="/" className="flex items-center gap-2 font-bold text-xl" style={{ color: '#91ADC2' }}>
+        <Link to="/" className="flex items-center gap-2 font-bold text-xl" style={{ color: '#667EEA' }}>
           <Ticket size={28} />
           <span>ReserveTicket</span>
         </Link>
@@ -52,7 +52,7 @@ export default function Header() {
           <button
             onClick={() => navigate('/admin')}
             className="px-4 py-2 rounded-lg text-white font-medium text-sm transition-opacity hover:opacity-90"
-            style={{ backgroundColor: '#91ADC2' }}
+            style={{ backgroundColor: '#667EEA' }}
           >
             관리자 로그인
           </button>
@@ -66,7 +66,7 @@ export default function Header() {
           <button
             onClick={() => { navigate('/admin'); setMenuOpen(false); }}
             className="w-full py-2.5 rounded-lg text-white font-medium text-center"
-            style={{ backgroundColor: '#91ADC2' }}
+            style={{ backgroundColor: '#667EEA' }}
           >
             관리자 로그인
           </button>

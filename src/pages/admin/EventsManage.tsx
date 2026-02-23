@@ -20,7 +20,7 @@ export default function EventsManage() {
         <button
           onClick={() => navigate('/admin/events/create')}
           className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-white font-semibold text-sm hover:opacity-90 shadow-sm"
-          style={{ backgroundColor: '#91ADC2' }}
+          style={{ backgroundColor: '#667EEA' }}
         >
           <Plus size={16} /> 새 행사 등록
         </button>
@@ -31,15 +31,15 @@ export default function EventsManage() {
         <div className="hidden md:block overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr style={{ backgroundColor: '#FFDAB9' }}>
-                {['행사명', '예약 URL', '기간', '시간대', '예약 수', '상태', '관리'].map(h => (
+              <tr style={{ backgroundColor: '#E0D6F9' }}>
+                {['행사명', '예약 URL', '기간', '예약 수', '상태', '관리'].map(h => (
                   <th key={h} className="px-4 py-3 text-left font-semibold text-gray-700">{h}</th>
                 ))}
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-50">
               {events.length === 0 ? (
-                <tr><td colSpan={7} className="text-center py-12 text-gray-400">등록된 행사가 없습니다</td></tr>
+                <tr><td colSpan={6} className="text-center py-12 text-gray-400">등록된 행사가 없습니다</td></tr>
               ) : events.map(event => {
                 const confirmed = reservations.filter(r => r.eventId === event.id && r.status === 'confirmed').length;
                 return (
@@ -65,10 +65,7 @@ export default function EventsManage() {
                         <p className="text-xs text-gray-400">~ {formatDate(event.dates[event.dates.length - 1])}</p>
                       )}
                     </td>
-                    <td className="px-4 py-3 text-gray-600 whitespace-nowrap">
-                      {event.timeSlots.length}개
-                    </td>
-                    <td className="px-4 py-3 font-semibold" style={{ color: '#91ADC2' }}>
+                    <td className="px-4 py-3 font-semibold" style={{ color: '#667EEA' }}>
                       {confirmed}건
                     </td>
                     <td className="px-4 py-3">
@@ -121,13 +118,13 @@ export default function EventsManage() {
                 </div>
                 <p className="text-xs text-gray-500">{event.venue}</p>
                 <p className="text-xs text-gray-400 mt-0.5">{formatDate(event.dates[0])}</p>
-                <p className="text-xs font-semibold mt-1" style={{ color: '#91ADC2' }}>예약 {confirmed}건</p>
+                <p className="text-xs font-semibold mt-1" style={{ color: '#667EEA' }}>예약 {confirmed}건</p>
                 <div className="flex gap-2 mt-3">
                   <button onClick={() => navigator.clipboard.writeText(`${window.location.origin}/e/${event.slug}`)}
                     className="flex-1 py-2 text-xs rounded-lg bg-gray-100 text-gray-600 font-medium">URL 복사</button>
                   <button onClick={() => navigate(`/admin/events/${event.id}/edit`)}
                     className="flex-1 py-2 text-xs rounded-lg text-white font-medium"
-                    style={{ backgroundColor: '#91ADC2' }}>수정</button>
+                    style={{ backgroundColor: '#667EEA' }}>수정</button>
                   <button onClick={() => handleDelete(event.id)}
                     className="flex-1 py-2 text-xs rounded-lg bg-red-50 text-red-500 font-medium">삭제</button>
                 </div>

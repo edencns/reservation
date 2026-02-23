@@ -36,7 +36,7 @@ export default function EventEntry() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Hero */}
-      <div className="py-10 px-4 text-center" style={{ backgroundColor: '#91ADC2' }}>
+      <div className="py-10 px-4 text-center" style={{ backgroundColor: '#667EEA' }}>
         <p className="text-white/70 text-xs mb-2 uppercase tracking-widest">방문 예약</p>
         <h1 className="text-2xl md:text-3xl font-extrabold text-white leading-tight">{event.title}</h1>
         <p className="text-blue-100 text-sm mt-2">{event.venue}</p>
@@ -46,21 +46,21 @@ export default function EventEntry() {
         {/* 기본 정보 */}
         <div className="bg-white rounded-2xl shadow-sm p-5 space-y-3">
           <div className="flex items-start gap-2 text-sm text-gray-600">
-            <MapPin size={15} className="mt-0.5 shrink-0" style={{ color: '#91ADC2' }} />
+            <MapPin size={15} className="mt-0.5 shrink-0" style={{ color: '#667EEA' }} />
             <div>
               <p className="font-semibold text-gray-800">{event.venue}</p>
               <p className="text-gray-500">{event.address}</p>
             </div>
           </div>
           <div className="flex items-center gap-2 text-sm text-gray-600">
-            <Calendar size={15} style={{ color: '#91ADC2' }} />
+            <Calendar size={15} style={{ color: '#667EEA' }} />
             <span>
               {formatDate(event.dates[0])}
               {event.dates.length > 1 && ` ~ ${formatDate(event.dates[event.dates.length - 1])}`}
             </span>
           </div>
           <div className="flex items-center gap-2 text-sm text-gray-600">
-            <Clock size={15} style={{ color: '#91ADC2' }} />
+            <Clock size={15} style={{ color: '#667EEA' }} />
             <span>{event.timeSlots[0]?.time} ~ {event.timeSlots[event.timeSlots.length - 1]?.time}</span>
             <span className="text-gray-400">({event.timeSlots.length}개 시간대)</span>
           </div>
@@ -70,7 +70,7 @@ export default function EventEntry() {
         {event.description && (
           <div className="bg-white rounded-2xl shadow-sm p-5">
             <h2 className="font-bold text-gray-800 mb-3 flex items-center gap-2 text-sm">
-              <Info size={15} style={{ color: '#91ADC2' }} /> 안내사항
+              <Info size={15} style={{ color: '#667EEA' }} /> 안내사항
             </h2>
             <p className="text-sm text-gray-600 leading-relaxed whitespace-pre-line">{event.description}</p>
           </div>
@@ -80,7 +80,7 @@ export default function EventEntry() {
         <button
           onClick={() => navigate(`/e/${event.slug}/reserve`)}
           className="w-full py-4 rounded-2xl font-bold text-white text-lg flex items-center justify-center gap-2 shadow-md hover:opacity-90 transition-all"
-          style={{ backgroundColor: '#91ADC2' }}
+          style={{ backgroundColor: '#667EEA' }}
         >
           방문 예약하기 <ChevronRight size={22} />
         </button>

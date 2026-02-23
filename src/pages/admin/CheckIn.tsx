@@ -75,7 +75,7 @@ export default function CheckIn() {
           <select
             value={selectedEventId}
             onChange={e => setSelectedEventId(e.target.value)}
-            className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#91ADC2]"
+            className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#667EEA]"
           >
             <option value="">행사를 선택하세요</option>
             {events.map(e => (
@@ -88,7 +88,7 @@ export default function CheckIn() {
           <select
             value={selectedDate}
             onChange={e => setSelectedDate(e.target.value)}
-            className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#91ADC2]"
+            className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#667EEA]"
           >
             {(selectedEvent?.dates ?? []).map(d => (
               <option key={d} value={d}>{formatDate(d)}</option>
@@ -105,7 +105,7 @@ export default function CheckIn() {
           {/* 통계 요약 */}
           <div className="grid grid-cols-3 gap-3">
             {[
-              { label: '총 예약', value: dayReservations.length + '건', color: '#91ADC2' },
+              { label: '총 예약', value: dayReservations.length + '건', color: '#667EEA' },
               { label: '입장 완료', value: checkedInCount + '건', color: '#22c55e' },
               { label: '방문 인원', value: `${checkedInVisitors}/${totalVisitors}명`, color: '#f97316' },
             ].map(s => (
@@ -119,7 +119,7 @@ export default function CheckIn() {
           {/* ID 직접 조회 (QR 입력) */}
           <div className="bg-white rounded-2xl shadow-sm p-5">
             <h3 className="font-bold text-gray-700 text-sm mb-3 flex items-center gap-2">
-              <QrCode size={16} style={{ color: '#91ADC2' }} />
+              <QrCode size={16} style={{ color: '#667EEA' }} />
               QR 코드 / 예약번호 조회
             </h3>
             <form onSubmit={handleLookup} className="flex gap-2">
@@ -129,12 +129,12 @@ export default function CheckIn() {
                 placeholder="예약 번호를 입력하거나 QR 리더로 스캔하세요"
                 value={lookupId}
                 onChange={e => setLookupId(e.target.value)}
-                className="flex-1 px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#91ADC2]"
+                className="flex-1 px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#667EEA]"
                 autoFocus
               />
               <button type="submit"
                 className="px-4 py-2.5 rounded-xl text-white font-semibold text-sm hover:opacity-90"
-                style={{ backgroundColor: '#91ADC2' }}>
+                style={{ backgroundColor: '#667EEA' }}>
                 조회
               </button>
             </form>
@@ -145,7 +145,7 @@ export default function CheckIn() {
                 lookupResult === 'not-found' ? 'border-red-200 bg-red-50' :
                 lookupResult.checkedIn ? 'border-green-200 bg-green-50' :
                 lookupResult.status === 'cancelled' ? 'border-gray-200 bg-gray-50' :
-                'border-[#91ADC2] bg-[#91ADC211]'
+                'border-[#667EEA] bg-[#667EEA11]'
               }`}>
                 {lookupResult === 'not-found' ? (
                   <div className="flex items-center gap-2 text-red-600">
@@ -164,12 +164,12 @@ export default function CheckIn() {
                           ) : lookupResult.status === 'cancelled' ? (
                             <span className="text-xs bg-red-100 text-red-600 font-bold px-2 py-0.5 rounded-full">취소된 예약</span>
                           ) : (
-                            <span className="text-xs text-white font-bold px-2 py-0.5 rounded-full" style={{ backgroundColor: '#91ADC2' }}>예약확정</span>
+                            <span className="text-xs text-white font-bold px-2 py-0.5 rounded-full" style={{ backgroundColor: '#667EEA' }}>예약확정</span>
                           )}
                         </div>
                         <p className="font-bold text-gray-800">{lookupResult.eventTitle}</p>
                         <p className="text-sm text-gray-600">{formatDate(lookupResult.date)} · {lookupResult.time}</p>
-                        <p className="text-sm font-semibold mt-1" style={{ color: '#91ADC2' }}>
+                        <p className="text-sm font-semibold mt-1" style={{ color: '#667EEA' }}>
                           {getName(lookupResult)} · {getPhone(lookupResult)}
                         </p>
                         <p className="text-xs text-gray-500">{lookupResult.attendeeCount}명 방문</p>
@@ -210,7 +210,7 @@ export default function CheckIn() {
           <div className="bg-white rounded-2xl shadow-sm p-5">
             <div className="flex items-center gap-3 mb-4">
               <h3 className="font-bold text-gray-700 text-sm flex items-center gap-2">
-                <Users size={15} style={{ color: '#91ADC2' }} />
+                <Users size={15} style={{ color: '#667EEA' }} />
                 시간대별 예약 목록
               </h3>
               <div className="flex-1">
@@ -219,7 +219,7 @@ export default function CheckIn() {
                   placeholder="이름·연락처·번호 검색"
                   value={search}
                   onChange={e => setSearch(e.target.value)}
-                  className="w-full px-3 py-1.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#91ADC2]"
+                  className="w-full px-3 py-1.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#667EEA]"
                 />
               </div>
             </div>
@@ -234,7 +234,7 @@ export default function CheckIn() {
                   return (
                     <div key={time}>
                       <div className="flex items-center gap-3 mb-2">
-                        <span className="font-bold text-sm" style={{ color: '#91ADC2' }}>{time}</span>
+                        <span className="font-bold text-sm" style={{ color: '#667EEA' }}>{time}</span>
                         <span className="text-xs text-gray-400">
                           {list.length}건 · {slotVisitors}명 · 입장 {slotChecked}건
                         </span>
@@ -274,7 +274,7 @@ export default function CheckIn() {
                               <button
                                 onClick={() => handleCheckIn(r.id)}
                                 className="shrink-0 px-3 py-1.5 rounded-lg text-white text-xs font-bold hover:opacity-90"
-                                style={{ backgroundColor: '#91ADC2' }}
+                                style={{ backgroundColor: '#667EEA' }}
                               >
                                 입장
                               </button>
