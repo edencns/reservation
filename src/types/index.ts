@@ -14,7 +14,6 @@ export interface CustomField {
 export interface TimeSlotDef {
   id: string;
   time: string;
-  maxCapacity: number;
 }
 
 export interface Event {

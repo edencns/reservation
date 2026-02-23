@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { MapPin, Calendar, Clock, Users } from 'lucide-react';
+import { MapPin, Calendar, Clock } from 'lucide-react';
 import type { Event } from '../types';
 import { formatDate } from '../utils/helpers';
 
@@ -9,7 +9,6 @@ interface Props {
 
 export default function EventCard({ event }: Props) {
   const navigate = useNavigate();
-  const minCap = Math.min(...event.timeSlots.map(t => t.maxCapacity));
 
   return (
     <div
@@ -45,10 +44,6 @@ export default function EventCard({ event }: Props) {
               {event.timeSlots[0]?.time} ~ {event.timeSlots[event.timeSlots.length - 1]?.time}
             </span>
             <span className="text-xs text-gray-400">({event.timeSlots.length}회차)</span>
-          </div>
-          <div className="flex items-center gap-1.5">
-            <Users size={14} style={{ color: '#91ADC2' }} />
-            <span>회차당 최대 {minCap}명</span>
           </div>
         </div>
 

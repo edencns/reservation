@@ -6,7 +6,6 @@ import StepIndicator from '../components/StepIndicator';
 import CustomFieldInput from '../components/CustomFieldInput';
 import QRTicket from '../components/QRTicket';
 import { formatDate, generateId } from '../utils/helpers';
-import { getSlotUsedCount } from '../utils/storage';
 import type { Reservation } from '../types';
 
 const STEPS = ['날짜 선택', '시간·인원', '예약 정보', '예약 완료'];
@@ -14,7 +13,7 @@ const STEPS = ['날짜 선택', '시간·인원', '예약 정보', '예약 완�
 export default function EventReserve() {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
-  const { getEventBySlug, addReservation, reservations } = useApp();
+  const { getEventBySlug, addReservation } = useApp();
   const event = getEventBySlug(slug ?? '');
 
   const [step, setStep] = useState(1);
@@ -40,40 +39,27 @@ export default function EventReserve() {
     );
   }
 
-  const selectedSlot = event.timeSlots.find(ts => ts.id === selectedSlotId);
-  const remaining = selectedSlot
-    ? selectedSlot.maxCapacity - getSlotUsedCount(reservations, event.id, selectedDate, selectedSlot.time)
-    : 0;
-
   const handleFieldChange = (key: string, value: string) => {
     setFieldValues(prev => ({ ...prev, [key]: value }));
   };
 
-  // 필수 필드 검증 (step 3)
-  const requiredFields = event.customFields.filter(f => f.required);
-  const allRequiredFilled = requiredFields.every(f => (fieldValues[f.key] ?? '').trim() !== '');
+  const allRequiredFilled = event.customFields.filter(f => f.required).every(f => (fieldValues[f.key] ?? '').trim() !== '');
 
-  // customer 추출 (name/phone/email 키 기준)
   const getFieldValue = (key: string) => fieldValues[key] ?? '';
 
   const canNext = (() => {
     if (step === 1) return selectedDate !== '';
-    if (step === 2) return selectedSlotId !== '' && attendeeCount > 0 && attendeeCount <= remaining;
+    if (step === 2) return selectedSlotId !== '' && attendeeCount > 0;
     if (step === 3) return allRequiredFilled && agree;
     return false;
   })();
 
   const handleNext = () => {
     if (step === 3) {
-      // customer 기본 필드 (이름, 연락처, 이메일)
-      const nameField = event.customFields.find(f => f.key === 'name' || f.type === 'text');
-      const phoneField = event.customFields.find(f => f.key === 'phone' || f.type === 'tel');
-      const emailField = event.customFields.find(f => f.key === 'email' || f.type === 'email');
-
       const customer = {
-        name: nameField ? getFieldValue(nameField.key) : '',
-        phone: phoneField ? getFieldValue(phoneField.key) : '',
-        email: emailField ? getFieldValue(emailField.key) : '',
+        name: getFieldValue('name'),
+        phone: getFieldValue('phone'),
+        email: getFieldValue('email'),
       };
 
       const reservation: Reservation = {
@@ -159,37 +145,20 @@ export default function EventReserve() {
             <h3 className="text-sm font-semibold text-gray-600 mb-3">방문 시간</h3>
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-7">
               {event.timeSlots.map(ts => {
-                const used = getSlotUsedCount(reservations, event.id, selectedDate, ts.time);
-                const remain = ts.maxCapacity - used;
-                const isFull = remain <= 0;
                 const isSelected = selectedSlotId === ts.id;
-                const pct = (used / ts.maxCapacity) * 100;
                 return (
                   <button
                     key={ts.id}
                     onClick={() => {
-                      if (!isFull) {
-                        setSelectedSlotId(ts.id);
-                        setSelectedTime(ts.time);
-                        setAttendeeCount(Math.min(attendeeCount, remain));
-                      }
+                      setSelectedSlotId(ts.id);
+                      setSelectedTime(ts.time);
                     }}
-                    disabled={isFull}
                     className={`p-3.5 rounded-xl border-2 text-left transition-all ${
-                      isSelected ? 'border-transparent text-white' :
-                      isFull ? 'border-gray-100 bg-gray-50 cursor-not-allowed' :
-                      'border-gray-200 hover:border-[#91ADC2]'
+                      isSelected ? 'border-transparent text-white' : 'border-gray-200 hover:border-[#91ADC2]'
                     }`}
                     style={isSelected ? { backgroundColor: '#91ADC2' } : {}}
                   >
-                    <p className={`font-bold text-base ${isFull && !isSelected ? 'text-gray-300' : ''}`}>{ts.time}</p>
-                    <p className={`text-xs mt-0.5 ${isSelected ? 'text-white/80' : isFull ? 'text-red-400' : remain <= 5 ? 'text-orange-500' : 'text-green-600'}`}>
-                      {isFull ? '마감' : `잔여 ${remain}명`}
-                    </p>
-                    <div className={`mt-2 h-1 rounded-full ${isSelected ? 'bg-white/30' : 'bg-gray-100'}`}>
-                      <div className={`h-1 rounded-full ${isSelected ? 'bg-white/70' : pct >= 100 ? 'bg-red-400' : pct >= 80 ? 'bg-orange-400' : 'bg-[#91ADC2]'}`}
-                        style={{ width: `${Math.min(pct, 100)}%` }} />
-                    </div>
+                    <p className={'font-bold text-base'}>{ts.time}</p>
                   </button>
                 );
               })}
@@ -205,12 +174,12 @@ export default function EventReserve() {
                       <Minus size={16} />
                     </button>
                     <span className="font-bold w-6 text-center text-lg">{attendeeCount}</span>
-                    <button onClick={() => setAttendeeCount(p => Math.min(remaining, p + 1))}
+                    <button onClick={() => setAttendeeCount(p => p + 1)}
                       className="w-9 h-9 rounded-lg bg-white shadow-sm flex items-center justify-center hover:bg-gray-100">
                       <Plus size={16} />
                     </button>
                   </div>
-                  <span className="text-sm text-gray-500">명 (최대 {remaining}명)</span>
+                  <span className="text-sm text-gray-500">명</span>
                 </div>
                 <p className="text-xs text-gray-400 mt-2">* 본인 포함 총 방문 인원을 입력해 주세요</p>
               </>

@@ -1,13 +1,12 @@
 import { useParams, useNavigate } from 'react-router-dom';
-import { MapPin, Clock, Users, ChevronLeft, Calendar, Info } from 'lucide-react';
+import { MapPin, Clock, ChevronLeft, Calendar, Info } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { formatDate } from '../utils/helpers';
-import { getSlotUsedCount } from '../utils/storage';
 
 export default function EventDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { getEventById, reservations } = useApp();
+  const { getEventById } = useApp();
   const event = getEventById(id ?? '');
 
   if (!event) {
@@ -23,10 +22,6 @@ export default function EventDetail() {
       </div>
     );
   }
-
-  // Show availability for today or first date
-  const today = new Date().toISOString().split('T')[0];
-  const previewDate = event.dates.includes(today) ? today : event.dates[0];
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -81,40 +76,6 @@ export default function EventDetail() {
               </div>
             )}
 
-            {/* Time slot availability */}
-            <div className="bg-white rounded-2xl p-5 shadow-sm">
-              <h2 className="font-bold text-gray-800 mb-1">시간대별 잔여 현황</h2>
-              <p className="text-xs text-gray-400 mb-4">({formatDate(previewDate)} 기준)</p>
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                {event.timeSlots.map(ts => {
-                  const used = getSlotUsedCount(reservations, event.id, previewDate, ts.time);
-                  const remain = ts.maxCapacity - used;
-                  const pct = (used / ts.maxCapacity) * 100;
-                  return (
-                    <div key={ts.id} className="border rounded-xl p-3">
-                      <p className="font-bold text-gray-800 text-sm">{ts.time}</p>
-                      <div className="flex items-center justify-between mt-1 mb-1.5">
-                        <span className={`text-xs font-semibold ${
-                          remain === 0 ? 'text-red-500' : remain <= 5 ? 'text-orange-500' : 'text-green-600'
-                        }`}>
-                          {remain === 0 ? '마감' : `잔여 ${remain}명`}
-                        </span>
-                        <span className="text-xs text-gray-400">/{ts.maxCapacity}명</span>
-                      </div>
-                      <div className="w-full bg-gray-100 rounded-full h-1.5">
-                        <div
-                          className="h-1.5 rounded-full transition-all"
-                          style={{
-                            width: `${pct}%`,
-                            backgroundColor: pct >= 100 ? '#ef4444' : pct >= 80 ? '#f97316' : '#91ADC2',
-                          }}
-                        />
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
           </div>
 
           {/* Booking card */}
@@ -122,26 +83,6 @@ export default function EventDetail() {
             <div className="bg-white rounded-2xl shadow-md p-5 sticky top-20">
               <h2 className="font-bold text-gray-800 mb-2">방문 예약</h2>
               <p className="text-sm text-gray-500 mb-5">원하는 날짜와 시간을 선택해 예약하세요</p>
-
-              <div className="space-y-2 mb-5 text-sm">
-                <div className="flex items-center gap-2 text-gray-600">
-                  <div className="w-3 h-3 rounded-full bg-green-400" />
-                  <span>여유 있음</span>
-                </div>
-                <div className="flex items-center gap-2 text-gray-600">
-                  <div className="w-3 h-3 rounded-full bg-orange-400" />
-                  <span>잔여 5명 이하</span>
-                </div>
-                <div className="flex items-center gap-2 text-gray-600">
-                  <div className="w-3 h-3 rounded-full bg-red-400" />
-                  <span>마감</span>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-2 mb-1">
-                <Users size={14} style={{ color: '#91ADC2' }} />
-                <span className="text-sm text-gray-600">시간대별 최대 {Math.min(...event.timeSlots.map(t => t.maxCapacity))}명</span>
-              </div>
 
               <button
                 onClick={() => event.status === 'active' && navigate(`/reserve/${event.id}`)}

@@ -8,7 +8,9 @@ export default function EventsManage() {
   const { events, deleteEvent, reservations } = useApp();
 
   const handleDelete = (id: string) => {
-    if (confirm('이 행사를 삭제하시겠습니까?')) deleteEvent(id);
+    if (confirm('이 행사를 삭제하시겠습니까? 관련 예약 내역이 모두 삭제됩니다.')) {
+      deleteEvent(id);
+    }
   };
 
   return (
@@ -64,8 +66,7 @@ export default function EventsManage() {
                       )}
                     </td>
                     <td className="px-4 py-3 text-gray-600 whitespace-nowrap">
-                      {event.timeSlots.length}개 ·
-                      최대 {event.timeSlots.reduce((s, t) => s + t.maxCapacity, 0)}명/일
+                      {event.timeSlots.length}개
                     </td>
                     <td className="px-4 py-3 font-semibold" style={{ color: '#91ADC2' }}>
                       {confirmed}건

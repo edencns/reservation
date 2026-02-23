@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import React, { createContext, useContext, useState, useCallback } from 'react';
 import type { Event, Reservation } from '../types';
 import { getEvents, saveEvents, getReservations, saveReservations } from '../utils/storage';
 import { SEED_EVENTS } from '../utils/seedData';
@@ -21,18 +21,15 @@ interface AppContextType {
 const AppContext = createContext<AppContextType | null>(null);
 
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [events, setEvents] = useState<Event[]>([]);
-  const [reservations, setReservations] = useState<Reservation[]>([]);
-
-  useEffect(() => {
+  const [events, setEvents] = useState<Event[]>(() => {
     let stored = getEvents();
     if (stored.length === 0) {
       stored = SEED_EVENTS;
       saveEvents(stored);
     }
-    setEvents(stored);
-    setReservations(getReservations());
-  }, []);
+    return stored;
+  });
+  const [reservations, setReservations] = useState<Reservation[]>(() => getReservations());
 
   const addEvent = useCallback((event: Event) => {
     setEvents(prev => { const next = [...prev, event]; saveEvents(next); return next; });
@@ -44,6 +41,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const deleteEvent = useCallback((id: string) => {
     setEvents(prev => { const next = prev.filter(e => e.id !== id); saveEvents(next); return next; });
+    setReservations(prev => { const next = prev.filter(r => r.eventId !== id); saveReservations(next); return next; });
   }, []);
 
   const addReservation = useCallback((r: Reservation) => {
@@ -88,6 +86,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   );
 };
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const useApp = (): AppContextType => {
   const ctx = useContext(AppContext);
   if (!ctx) throw new Error('useApp must be used within AppProvider');

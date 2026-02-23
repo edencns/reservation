@@ -18,17 +18,30 @@ function generateDateRange(start: string, end: string): string[] {
 }
 
 const DEFAULT_SLOTS: TimeSlotDef[] = [
-  { id: generateId(), time: '10:00', maxCapacity: 20 },
-  { id: generateId(), time: '11:00', maxCapacity: 20 },
-  { id: generateId(), time: '13:00', maxCapacity: 20 },
-  { id: generateId(), time: '14:00', maxCapacity: 20 },
-  { id: generateId(), time: '15:00', maxCapacity: 20 },
+  { id: generateId(), time: '10:00' },
+  { id: generateId(), time: '11:00' },
+  { id: generateId(), time: '13:00' },
+  { id: generateId(), time: '14:00' },
+  { id: generateId(), time: '15:00' },
 ];
 
 const BASE_FIELDS: CustomField[] = [
   { id: 'bf1', key: 'name', label: '이름', type: 'text', placeholder: '홍길동', required: true },
   { id: 'bf2', key: 'phone', label: '연락처', type: 'tel', placeholder: '01012345678', required: true },
+  { id: 'bf3', key: 'unitNumber', label: '동호수', type: 'text', placeholder: '예) 101동 501호', required: true },
 ];
+const BASE_FIELD_KEYS = new Set(BASE_FIELDS.map(f => f.key));
+
+const normalizeBaseFields = (fields: CustomField[]): CustomField[] => {
+  const byKey = new Map(fields.map(f => [f.key, f]));
+  const base = BASE_FIELDS.map(f => ({
+    ...f,
+    ...(byKey.get(f.key) ?? {}),
+    required: true,
+  }));
+  const rest = fields.filter(f => !BASE_FIELD_KEYS.has(f.key));
+  return [...base, ...rest];
+};
 
 const FIELD_TYPE_LABELS: Record<CustomFieldType, string> = {
   text: '텍스트',
@@ -63,7 +76,7 @@ export default function EventForm() {
   const [status, setStatus] = useState<'active' | 'closed' | 'draft'>(existing?.status ?? 'active');
   const [slug] = useState<string>(existing?.slug ?? generateSlug());
   const [customFields, setCustomFields] = useState<CustomField[]>(
-    existing?.customFields && existing.customFields.length > 0 ? existing.customFields : BASE_FIELDS
+    normalizeBaseFields(existing?.customFields && existing.customFields.length > 0 ? existing.customFields : BASE_FIELDS)
   );
   const [showAddField, setShowAddField] = useState(false);
   const [newField, setNewField] = useState<NewFieldState>({
@@ -72,10 +85,10 @@ export default function EventForm() {
   const [urlCopied, setUrlCopied] = useState(false);
 
   const addSlot = () =>
-    setTimeSlots(prev => [...prev, { id: generateId(), time: '10:00', maxCapacity: 20 }]);
+    setTimeSlots(prev => [...prev, { id: generateId(), time: '10:00' }]);
   const removeSlot = (sid: string) =>
     setTimeSlots(prev => prev.filter(t => t.id !== sid));
-  const updateSlot = (sid: string, key: keyof TimeSlotDef, value: string | number) =>
+  const updateSlot = (sid: string, key: keyof TimeSlotDef, value: string) =>
     setTimeSlots(prev => prev.map(t => t.id === sid ? { ...t, [key]: value } : t));
 
   const addCustomField = () => {
@@ -100,9 +113,14 @@ export default function EventForm() {
     setShowAddField(false);
   };
 
-  const removeField = (fid: string) => setCustomFields(prev => prev.filter(f => f.id !== fid));
+  const removeField = (fid: string) => setCustomFields(prev =>
+    prev.filter(f => f.id !== fid || BASE_FIELD_KEYS.has(f.key))
+  );
   const toggleRequired = (fid: string) =>
-    setCustomFields(prev => prev.map(f => f.id === fid ? { ...f, required: !f.required } : f));
+    setCustomFields(prev => prev.map(f => {
+      if (f.id !== fid || BASE_FIELD_KEYS.has(f.key)) return f;
+      return { ...f, required: !f.required };
+    }));
 
   const copyUrl = () => {
     navigator.clipboard.writeText(`${window.location.origin}/e/${slug}`);
@@ -121,7 +139,7 @@ export default function EventForm() {
       id: isEdit ? id : generateId(),
       slug,
       title, description, venue, address,
-      dates, timeSlots, customFields, status,
+      dates, timeSlots, customFields: normalizeBaseFields(customFields), status,
       createdAt: existing?.createdAt ?? new Date().toISOString(),
     };
     if (isEdit) { updateEvent(event); } else { addEvent(event); }
@@ -222,12 +240,12 @@ export default function EventForm() {
           )}
         </div>
 
-        {/* 시간대별 정원 */}
+        {/* 시간대 */}
         <div className="bg-white rounded-2xl shadow-sm p-5 space-y-4">
           <div className="flex items-center justify-between border-b pb-2">
             <div>
-              <h3 className="font-bold text-gray-700 text-sm">시간대별 방문 정원</h3>
-              <p className="text-xs text-gray-400 mt-0.5">각 시간대별로 최대 방문 가능 인원을 설정하세요</p>
+              <h3 className="font-bold text-gray-700 text-sm">방문 시간대 설정</h3>
+              <p className="text-xs text-gray-400 mt-0.5">예약 가능한 시간대를 추가하세요</p>
             </div>
             <button
               type="button"
@@ -252,20 +270,6 @@ export default function EventForm() {
                     className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#91ADC2]"
                   />
                 </div>
-                <div className="w-28 shrink-0">
-                  <label className="text-xs text-gray-500 mb-1 block">최대 인원</label>
-                  <div className="flex items-center gap-1">
-                    <input
-                      type="number"
-                      min={1}
-                      max={9999}
-                      value={ts.maxCapacity}
-                      onChange={e => updateSlot(ts.id, 'maxCapacity', Number(e.target.value))}
-                      className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#91ADC2]"
-                    />
-                    <span className="text-xs text-gray-400 shrink-0">명</span>
-                  </div>
-                </div>
                 <button
                   type="button"
                   onClick={() => removeSlot(ts.id)}
@@ -276,14 +280,6 @@ export default function EventForm() {
                 </button>
               </div>
             ))}
-          </div>
-
-          <div className="p-3 rounded-xl text-sm" style={{ backgroundColor: '#91ADC211' }}>
-            <p className="font-semibold text-gray-700 mb-1" style={{ color: '#91ADC2' }}>설정 요약</p>
-            <p className="text-gray-600">
-              하루 총 {timeSlots.length}개 시간대 운영 ·
-              최대 {timeSlots.reduce((s, t) => s + t.maxCapacity, 0)}명/일 방문 가능
-            </p>
           </div>
         </div>
 
@@ -328,21 +324,28 @@ export default function EventForm() {
                   )}
                 </div>
                 <div className="flex items-center gap-1.5 shrink-0">
-                  <button
-                    type="button"
-                    onClick={() => toggleRequired(f.id)}
-                    className={`text-xs px-2 py-0.5 rounded-full font-semibold border transition-all ${
-                      f.required
-                        ? 'border-red-300 text-red-500 bg-red-50'
-                        : 'border-gray-200 text-gray-400 hover:border-gray-300'
-                    }`}
-                  >
-                    {f.required ? '필수' : '선택'}
-                  </button>
+                  {BASE_FIELD_KEYS.has(f.key) ? (
+                    <span className="text-xs px-2 py-0.5 rounded-full font-semibold border border-red-300 text-red-500 bg-red-50">
+                      필수
+                    </span>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => toggleRequired(f.id)}
+                      className={`text-xs px-2 py-0.5 rounded-full font-semibold border transition-all ${
+                        f.required
+                          ? 'border-red-300 text-red-500 bg-red-50'
+                          : 'border-gray-200 text-gray-400 hover:border-gray-300'
+                      }`}
+                    >
+                      {f.required ? '필수' : '선택'}
+                    </button>
+                  )}
                   <button
                     type="button"
                     onClick={() => removeField(f.id)}
-                    className="p-1.5 text-red-400 hover:text-red-600 hover:bg-red-50 rounded-lg"
+                    disabled={BASE_FIELD_KEYS.has(f.key)}
+                    className="p-1.5 text-red-400 hover:text-red-600 hover:bg-red-50 rounded-lg disabled:opacity-30 disabled:cursor-not-allowed"
                   >
                     <Trash2 size={13} />
                   </button>

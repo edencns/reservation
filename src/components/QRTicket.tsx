@@ -23,9 +23,13 @@ export default function QRTicket({ reservation: r, extraFields = [], compact = f
   }, [r.id, compact]);
 
   // 커스텀 필드 값 목록 (레이블 + 값)
+  const definedKeys = new Set(extraFields.map(f => f.key));
   const customRows = extraFields
     .filter(f => r.extraFields[f.key])
     .map(f => ({ label: f.label, value: r.extraFields[f.key] }));
+  if (!definedKeys.has('unitNumber') && r.extraFields['unitNumber']) {
+    customRows.push({ label: '동호수', value: r.extraFields['unitNumber'] });
+  }
 
   if (compact) {
     return (

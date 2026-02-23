@@ -1,13 +1,12 @@
 import { useParams, useNavigate } from 'react-router-dom';
-import { MapPin, Clock, Users, Calendar, Info, ChevronRight } from 'lucide-react';
+import { MapPin, Clock, Calendar, Info, ChevronRight } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { formatDate } from '../utils/helpers';
-import { getSlotUsedCount } from '../utils/storage';
 
 export default function EventEntry() {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
-  const { getEventBySlug, reservations } = useApp();
+  const { getEventBySlug } = useApp();
   const event = getEventBySlug(slug ?? '');
 
   if (!event) {
@@ -33,10 +32,6 @@ export default function EventEntry() {
       </div>
     );
   }
-
-  // 오늘 또는 첫 번째 날짜 기준 잔여 현황 미리보기
-  const today = new Date().toISOString().split('T')[0];
-  const previewDate = event.dates.includes(today) ? today : event.dates[0];
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -69,10 +64,6 @@ export default function EventEntry() {
             <span>{event.timeSlots[0]?.time} ~ {event.timeSlots[event.timeSlots.length - 1]?.time}</span>
             <span className="text-gray-400">({event.timeSlots.length}개 시간대)</span>
           </div>
-          <div className="flex items-center gap-2 text-sm text-gray-600">
-            <Users size={15} style={{ color: '#91ADC2' }} />
-            <span>시간대별 최대 {Math.min(...event.timeSlots.map(t => t.maxCapacity))}명</span>
-          </div>
         </div>
 
         {/* 안내 */}
@@ -84,31 +75,6 @@ export default function EventEntry() {
             <p className="text-sm text-gray-600 leading-relaxed whitespace-pre-line">{event.description}</p>
           </div>
         )}
-
-        {/* 시간대 잔여 현황 */}
-        <div className="bg-white rounded-2xl shadow-sm p-5">
-          <h2 className="font-bold text-gray-800 text-sm mb-1">시간대별 잔여 현황</h2>
-          <p className="text-xs text-gray-400 mb-4">({formatDate(previewDate)} 기준)</p>
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-            {event.timeSlots.map(ts => {
-              const used = getSlotUsedCount(reservations, event.id, previewDate, ts.time);
-              const remain = ts.maxCapacity - used;
-              const pct = (used / ts.maxCapacity) * 100;
-              return (
-                <div key={ts.id} className="border rounded-xl p-3">
-                  <p className="font-bold text-gray-800 text-sm">{ts.time}</p>
-                  <p className={`text-xs mt-0.5 font-semibold ${remain === 0 ? 'text-red-500' : remain <= 5 ? 'text-orange-500' : 'text-green-600'}`}>
-                    {remain === 0 ? '마감' : `잔여 ${remain}명`}
-                  </p>
-                  <div className="mt-1.5 h-1.5 bg-gray-100 rounded-full">
-                    <div className="h-1.5 rounded-full"
-                      style={{ width: `${Math.min(pct, 100)}%`, backgroundColor: pct >= 100 ? '#ef4444' : pct >= 80 ? '#f97316' : '#91ADC2' }} />
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
 
         {/* CTA */}
         <button
