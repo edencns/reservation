@@ -31,44 +31,35 @@ function TimePicker({ value, onChange }: { value: string; onChange: (v: string) 
   };
 
   const parsed = parse(value);
-  const hour = parsed?.hour ?? 9;
-  const minute = parsed?.minute ?? 0;
+  const selCls = "border border-gray-200 rounded-lg px-2 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#667EEA] bg-white cursor-pointer";
 
-  const emit = (h: number, m: number) => onChange(`${h}:${String(m).padStart(2, '0')}`);
+  const handleHour = (hStr: string) => {
+    if (!hStr) { onChange(''); return; }
+    const m = parsed?.minute ?? 0;
+    onChange(`${hStr}:${String(m).padStart(2, '0')}`);
+  };
 
-  if (!parsed) {
-    return (
-      <button type="button" onClick={() => emit(9, 0)}
-        className="w-full py-3 border border-dashed border-gray-300 rounded-xl text-sm text-gray-400 hover:border-gray-400 hover:text-gray-600">
-        + 시간 설정
-      </button>
-    );
-  }
-
-  const btnCls = (disabled: boolean) =>
-    `flex items-center justify-center w-8 h-7 rounded text-sm font-bold select-none ${
-      disabled ? 'text-gray-200 cursor-not-allowed' : 'text-gray-400 hover:bg-gray-100 hover:text-gray-700'
-    }`;
+  const handleMinute = (mStr: string) => {
+    if (!mStr) { onChange(''); return; }
+    const h = parsed?.hour ?? 9;
+    onChange(`${h}:${mStr.padStart(2, '0')}`);
+  };
 
   return (
-    <div className="flex items-center border border-gray-200 rounded-xl px-4 py-2 bg-white gap-2">
-      <div className="flex flex-col items-center">
-        <button type="button" disabled={hour >= 12} className={btnCls(hour >= 12)}
-          onClick={() => emit(Math.min(12, hour + 1), minute)}>▲</button>
-        <span className="text-xl font-bold w-10 text-center tabular-nums py-1">{String(hour).padStart(2, '0')}</span>
-        <button type="button" disabled={hour <= 1} className={btnCls(hour <= 1)}
-          onClick={() => emit(Math.max(1, hour - 1), minute)}>▼</button>
-      </div>
-      <span className="text-xl font-bold text-gray-300 pb-0.5">:</span>
-      <div className="flex flex-col items-center">
-        <button type="button" disabled={minute >= 59} className={btnCls(minute >= 59)}
-          onClick={() => emit(hour, Math.min(59, minute + 1))}>▲</button>
-        <span className="text-xl font-bold w-10 text-center tabular-nums py-1">{String(minute).padStart(2, '0')}</span>
-        <button type="button" disabled={minute <= 0} className={btnCls(minute <= 0)}
-          onClick={() => emit(hour, Math.max(0, minute - 1))}>▼</button>
-      </div>
-      <button type="button" onClick={() => onChange('')}
-        className="ml-auto text-gray-300 hover:text-red-400 text-lg leading-none">✕</button>
+    <div className="flex items-center gap-1.5">
+      <select value={parsed?.hour ?? ''} onChange={e => handleHour(e.target.value)} className={selCls}>
+        <option value="">시</option>
+        {Array.from({ length: 12 }, (_, i) => i + 1).map(h => (
+          <option key={h} value={h}>{String(h).padStart(2, '0')}시</option>
+        ))}
+      </select>
+      <span className="text-gray-400 font-bold">:</span>
+      <select value={parsed?.minute ?? ''} onChange={e => handleMinute(e.target.value)} className={selCls}>
+        <option value="">분</option>
+        {Array.from({ length: 60 }, (_, i) => i).map(m => (
+          <option key={m} value={String(m).padStart(2, '0')}>{String(m).padStart(2, '0')}분</option>
+        ))}
+      </select>
     </div>
   );
 }
@@ -250,13 +241,14 @@ export default function EventForm() {
 
           <div>
             <label className={labelCls}>행사 진행 시간</label>
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <p className="text-xs text-gray-400 mb-1.5">시작 시간</p>
+            <div className="flex items-center gap-3 flex-wrap">
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-gray-500 shrink-0">시작</span>
                 <TimePicker value={startTime} onChange={setStartTime} />
               </div>
-              <div>
-                <p className="text-xs text-gray-400 mb-1.5">종료 시간</p>
+              <span className="text-gray-300">~</span>
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-gray-500 shrink-0">종료</span>
                 <TimePicker value={endTime} onChange={setEndTime} />
               </div>
             </div>

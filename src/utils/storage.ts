@@ -100,11 +100,11 @@ export const getSlotUsedCount = (
     .reduce((sum, r) => sum + r.attendeeCount, 0);
 
 export const isAdminLoggedIn = (): boolean =>
-  localStorage.getItem(ADMIN_AUTH_KEY) === 'true';
+  sessionStorage.getItem(ADMIN_AUTH_KEY) === 'true';
 
 export const adminLogin = (username: string, password: string): boolean => {
   if (username === 'admin' && password === 'admin123') {
-    localStorage.setItem(ADMIN_AUTH_KEY, 'true');
+    sessionStorage.setItem(ADMIN_AUTH_KEY, 'true');
     window.dispatchEvent(new Event('rv_auth_change'));
     return true;
   }
@@ -112,6 +112,6 @@ export const adminLogin = (username: string, password: string): boolean => {
 };
 
 export const adminLogout = () => {
-  localStorage.removeItem(ADMIN_AUTH_KEY);
+  sessionStorage.removeItem(ADMIN_AUTH_KEY);
   window.dispatchEvent(new Event('rv_auth_change'));
 };
