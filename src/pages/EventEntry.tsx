@@ -6,8 +6,19 @@ import { formatDate } from '../utils/helpers';
 export default function EventEntry() {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
-  const { getEventBySlug } = useApp();
+  const { getEventBySlug, isLoading } = useApp();
   const event = getEventBySlug(slug ?? '');
+
+  if (isLoading && !event) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <div className="w-10 h-10 border-4 border-[#667EEA] border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+          <p className="text-sm text-gray-400">행사 정보를 불러오는 중...</p>
+        </div>
+      </div>
+    );
+  }
 
   if (!event) {
     return (

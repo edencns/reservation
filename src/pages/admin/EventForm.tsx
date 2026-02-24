@@ -136,7 +136,7 @@ export default function EventForm() {
     label: '', type: 'text', required: false, placeholder: '', options: '',
   });
   const [urlCopied, setUrlCopied] = useState(false);
-  const shareUrl = getEventShareUrl(eventId);
+  const shareUrl = getEventShareUrl(slug);
 
   const addCustomField = () => {
     if (!newField.label.trim()) return;

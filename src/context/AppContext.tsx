@@ -17,6 +17,7 @@ interface AppContextType {
   events: Event[];
   reservations: Reservation[];
   companyInfo: CompanyInfo;
+  isLoading: boolean;
   addEvent: (event: Event) => void;
   updateEvent: (event: Event) => void;
   deleteEvent: (id: string) => void;
@@ -33,6 +34,7 @@ interface AppContextType {
 const AppContext = createContext<AppContextType | null>(null);
 
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [isLoading, setIsLoading] = useState(true);
   const [events, setEvents] = useState<Event[]>(() => {
     let stored = getEvents();
     if (stored.length === 0) {
@@ -75,6 +77,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         saveReservations(afterReservations);
       } catch {
         // Keep localStorage fallback for local dev / API unavailable environments.
+      } finally {
+        if (!disposed) setIsLoading(false);
       }
     };
 
@@ -160,7 +164,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   return (
     <AppContext.Provider value={{
-      events, reservations, companyInfo,
+      events, reservations, companyInfo, isLoading,
       addEvent, updateEvent, deleteEvent,
       addReservation, cancelReservation, checkIn,
       updateCompanyInfo,

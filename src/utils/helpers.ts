@@ -33,9 +33,9 @@ export const getPublicBaseUrl = (): string => {
   return window.location.origin;
 };
 
-export const getEventShareUrl = (eventId: string): string => {
+export const getEventShareUrl = (slug: string): string => {
   const base = getPublicBaseUrl();
-  return `${base}/events/${eventId}`;
+  return `${base}/e/${slug}`;
 };
 
 export interface UnitNumberParts {
