@@ -5,4 +5,4 @@ pages_build_output_dir = "dist"
 [[d1_databases]]
 binding = "DB"
 database_name = "reservation"
-database_id = "2e22d369f853afc9a6316aadcd2c5540"
+database_id = "32fd87bf-42bd-4c69-bacd-e2dbf9bfcb65"
