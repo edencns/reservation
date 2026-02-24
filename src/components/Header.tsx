@@ -16,13 +16,14 @@ export default function Header() {
     const refresh = () => setAdminLoggedIn(isAdminLoggedIn());
     refresh();
     window.addEventListener('storage', refresh);
-    const onVisibility = () => refresh();
-    document.addEventListener('visibilitychange', onVisibility);
+    window.addEventListener('rv_auth_change', refresh);
+    document.addEventListener('visibilitychange', refresh);
     return () => {
       window.removeEventListener('storage', refresh);
-      document.removeEventListener('visibilitychange', onVisibility);
+      window.removeEventListener('rv_auth_change', refresh);
+      document.removeEventListener('visibilitychange', refresh);
     };
-  }, []);
+  }, [location]);
 
   // 관리자 페이지에서는 헤더 숨김
   if (location.pathname.startsWith('/admin')) return null;

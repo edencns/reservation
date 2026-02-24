@@ -105,9 +105,13 @@ export const isAdminLoggedIn = (): boolean =>
 export const adminLogin = (username: string, password: string): boolean => {
   if (username === 'admin' && password === 'admin123') {
     localStorage.setItem(ADMIN_AUTH_KEY, 'true');
+    window.dispatchEvent(new Event('rv_auth_change'));
     return true;
   }
   return false;
 };
 
-export const adminLogout = () => localStorage.removeItem(ADMIN_AUTH_KEY);
+export const adminLogout = () => {
+  localStorage.removeItem(ADMIN_AUTH_KEY);
+  window.dispatchEvent(new Event('rv_auth_change'));
+};

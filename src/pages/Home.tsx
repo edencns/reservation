@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Container, Title, Text, Button, Group, Modal, TextInput, Paper, Grid, RingProgress, ThemeIcon
@@ -17,7 +17,12 @@ type LookupResult = Reservation | 'not-found' | null;
 export default function Home() {
   const navigate = useNavigate();
   const { reservations, checkIn, companyInfo } = useApp();
-  const loggedIn = isAdminLoggedIn();
+  const [loggedIn, setLoggedIn] = useState(isAdminLoggedIn());
+  useEffect(() => {
+    const onAuth = () => setLoggedIn(isAdminLoggedIn());
+    window.addEventListener('rv_auth_change', onAuth);
+    return () => window.removeEventListener('rv_auth_change', onAuth);
+  }, []);
 
   const [qrOpen, setQrOpen] = useState(false);
   const [lookupId, setLookupId] = useState('');
