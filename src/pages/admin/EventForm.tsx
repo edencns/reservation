@@ -19,6 +19,60 @@ function generateDateRange(start: string, end: string): string[] {
 
 const DEFAULT_TIME_SLOT = [{ id: 'none', time: '시간 미지정' }];
 
+function TimePicker({ value, onChange }: { value: string; onChange: (v: string) => void }) {
+  const parse = (v: string) => {
+    if (!v) return null;
+    const [h, m] = v.split(':').map(Number);
+    if (isNaN(h) || isNaN(m)) return null;
+    let hour = h;
+    if (hour === 0) hour = 12;
+    else if (hour > 12) hour = 12;
+    return { hour, minute: Math.min(59, Math.max(0, m)) };
+  };
+
+  const parsed = parse(value);
+  const hour = parsed?.hour ?? 9;
+  const minute = parsed?.minute ?? 0;
+
+  const emit = (h: number, m: number) => onChange(`${h}:${String(m).padStart(2, '0')}`);
+
+  if (!parsed) {
+    return (
+      <button type="button" onClick={() => emit(9, 0)}
+        className="w-full py-3 border border-dashed border-gray-300 rounded-xl text-sm text-gray-400 hover:border-gray-400 hover:text-gray-600">
+        + 시간 설정
+      </button>
+    );
+  }
+
+  const btnCls = (disabled: boolean) =>
+    `flex items-center justify-center w-8 h-7 rounded text-sm font-bold select-none ${
+      disabled ? 'text-gray-200 cursor-not-allowed' : 'text-gray-400 hover:bg-gray-100 hover:text-gray-700'
+    }`;
+
+  return (
+    <div className="flex items-center border border-gray-200 rounded-xl px-4 py-2 bg-white gap-2">
+      <div className="flex flex-col items-center">
+        <button type="button" disabled={hour >= 12} className={btnCls(hour >= 12)}
+          onClick={() => emit(Math.min(12, hour + 1), minute)}>▲</button>
+        <span className="text-xl font-bold w-10 text-center tabular-nums py-1">{String(hour).padStart(2, '0')}</span>
+        <button type="button" disabled={hour <= 1} className={btnCls(hour <= 1)}
+          onClick={() => emit(Math.max(1, hour - 1), minute)}>▼</button>
+      </div>
+      <span className="text-xl font-bold text-gray-300 pb-0.5">:</span>
+      <div className="flex flex-col items-center">
+        <button type="button" disabled={minute >= 59} className={btnCls(minute >= 59)}
+          onClick={() => emit(hour, Math.min(59, minute + 1))}>▲</button>
+        <span className="text-xl font-bold w-10 text-center tabular-nums py-1">{String(minute).padStart(2, '0')}</span>
+        <button type="button" disabled={minute <= 0} className={btnCls(minute <= 0)}
+          onClick={() => emit(hour, Math.max(0, minute - 1))}>▼</button>
+      </div>
+      <button type="button" onClick={() => onChange('')}
+        className="ml-auto text-gray-300 hover:text-red-400 text-lg leading-none">✕</button>
+    </div>
+  );
+}
+
 const BASE_FIELDS: CustomField[] = [
   { id: 'bf1', key: 'name', label: '이름', type: 'text', placeholder: '홍길동', required: true },
   { id: 'bf2', key: 'phone', label: '연락처', type: 'tel', placeholder: '01012345678', required: true },
@@ -197,20 +251,14 @@ export default function EventForm() {
           <div>
             <label className={labelCls}>행사 진행 시간</label>
             <div className="grid grid-cols-2 gap-3">
-              <input
-                type="time"
-                className={inputCls}
-                value={startTime}
-                onChange={e => setStartTime(e.target.value)}
-                placeholder="시작 시간"
-              />
-              <input
-                type="time"
-                className={inputCls}
-                value={endTime}
-                onChange={e => setEndTime(e.target.value)}
-                placeholder="종료 시간"
-              />
+              <div>
+                <p className="text-xs text-gray-400 mb-1.5">시작 시간</p>
+                <TimePicker value={startTime} onChange={setStartTime} />
+              </div>
+              <div>
+                <p className="text-xs text-gray-400 mb-1.5">종료 시간</p>
+                <TimePicker value={endTime} onChange={setEndTime} />
+              </div>
             </div>
           </div>
 
