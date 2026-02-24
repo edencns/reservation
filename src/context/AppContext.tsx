@@ -57,12 +57,16 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         ]);
         if (disposed) return;
 
-        // If server is empty but local has data, bootstrap once.
-        if (remoteEvents.length === 0 && events.length > 0) {
-          await Promise.all(events.map(e => apiCreateEvent(e)));
+        // Sync any local events/reservations not yet in remote.
+        const remoteEventIds = new Set(remoteEvents.map(e => e.id));
+        const localOnlyEvents = events.filter(e => !remoteEventIds.has(e.id));
+        if (localOnlyEvents.length > 0) {
+          await Promise.all(localOnlyEvents.map(e => apiCreateEvent(e)));
         }
-        if (remoteReservations.length === 0 && reservations.length > 0) {
-          await Promise.all(reservations.map(r => apiCreateReservation(r)));
+        const remoteResIds = new Set(remoteReservations.map(r => r.id));
+        const localOnlyRes = reservations.filter(r => !remoteResIds.has(r.id));
+        if (localOnlyRes.length > 0) {
+          await Promise.all(localOnlyRes.map(r => apiCreateReservation(r)));
         }
 
         const [afterEvents, afterReservations] = await Promise.all([
