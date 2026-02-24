@@ -125,10 +125,10 @@ export default function Home() {
           </Grid.Col>
 
           {/* ── Today's Summary ── */}
-          <Grid.Col span={{ base: 12, md: 6 }}>
-            <Paper withBorder radius="lg" p="xl" style={{ boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>
-              <Text size="lg" fw={700} mb="md">오늘의 방문 현황</Text>
-              {loggedIn ? (
+          {loggedIn && (
+            <Grid.Col span={{ base: 12, md: 6 }}>
+              <Paper withBorder radius="lg" p="xl" style={{ boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>
+                <Text size="lg" fw={700} mb="md">오늘의 방문 현황</Text>
                 <Grid>
                   <Grid.Col span={6}>
                     <RingProgress
@@ -148,14 +148,9 @@ export default function Home() {
                     <Text size="xl" c="teal" fw={700}>{checkedInVisitors}명</Text>
                   </Grid.Col>
                 </Grid>
-              ) : (
-                <Group justify="center">
-                    <IconLock size={24} />
-                    <Text>로그인 후 확인 가능</Text>
-                </Group>
-              )}
-            </Paper>
-          </Grid.Col>
+              </Paper>
+            </Grid.Col>
+          )}
         </Grid>
 
         {/* ── Company Info ── */}
