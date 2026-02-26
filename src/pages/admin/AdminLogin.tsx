@@ -1,7 +1,7 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Ticket, Eye, EyeOff } from 'lucide-react';
-import { adminLogin } from '../../utils/storage';
+import { adminLogin, isAdminLoggedIn } from '../../utils/storage';
 
 export default function AdminLogin() {
   const navigate = useNavigate();
@@ -9,6 +9,11 @@ export default function AdminLogin() {
   const [password, setPassword] = useState('');
   const [showPw, setShowPw] = useState(false);
   const [error, setError] = useState('');
+
+  // 이미 로그인된 경우 대시보드로 이동
+  useEffect(() => {
+    if (isAdminLoggedIn()) navigate('/admin/dashboard');
+  }, [navigate]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();

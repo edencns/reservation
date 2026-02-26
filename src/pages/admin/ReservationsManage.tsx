@@ -13,6 +13,7 @@ export default function ReservationsManage() {
   const [statusFilter, setStatusFilter] = useState('all');
   const [eventFilter, setEventFilter] = useState(searchParams.get('eventId') ?? 'all');
   const [selected, setSelected] = useState<Reservation | null>(null);
+  const [cancelTarget, setCancelTarget] = useState<string | null>(null);
 
   useEffect(() => {
     const next = searchParams.get('eventId') ?? 'all';
@@ -46,10 +47,15 @@ export default function ReservationsManage() {
   };
 
   const handleCancel = (id: string) => {
-    if (confirm('이 예약을 취소하시겠습니까?')) {
-      cancelReservation(id);
+    setCancelTarget(id);
+  };
+
+  const confirmCancel = () => {
+    if (cancelTarget) {
+      cancelReservation(cancelTarget);
       setSelected(null);
     }
+    setCancelTarget(null);
   };
 
   return (
@@ -190,6 +196,27 @@ export default function ReservationsManage() {
           ))}
         </div>
       </div>
+
+      {/* 취소 확인 모달 */}
+      {cancelTarget && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4"
+          style={{ backgroundColor: 'rgba(0,0,0,0.5)' }} onClick={() => setCancelTarget(null)}>
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-xs p-6" onClick={e => e.stopPropagation()}>
+            <h3 className="font-bold text-gray-800 text-lg mb-2">예약 취소</h3>
+            <p className="text-sm text-gray-500 mb-6">이 예약을 취소하시겠습니까?<br />취소 내역은 목록에 남습니다.</p>
+            <div className="flex gap-3">
+              <button onClick={() => setCancelTarget(null)}
+                className="flex-1 py-2.5 rounded-xl border border-gray-200 text-sm font-semibold text-gray-600 hover:bg-gray-50">
+                아니오
+              </button>
+              <button onClick={confirmCancel}
+                className="flex-1 py-2.5 rounded-xl bg-red-500 text-white text-sm font-semibold hover:bg-red-600">
+                취소하기
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* QR Modal */}
       {selected && (
