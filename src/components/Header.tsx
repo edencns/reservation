@@ -28,8 +28,8 @@ export default function Header() {
   // 관리자 페이지에서는 헤더 숨김
   if (location.pathname.startsWith('/admin')) return null;
 
-  // 슬러그 기반 이벤트 페이지: 최소화된 헤더
-  const isEventPage = location.pathname.startsWith('/e/');
+  // 슬러그 기반 이벤트 페이지: 최소화된 헤더 (vendors 페이지는 일반 헤더 사용)
+  const isEventPage = location.pathname.startsWith('/e/') && !location.pathname.includes('/vendors');
   const eventSlug = slug ?? location.pathname.split('/e/')[1]?.split('/')[0];
   const event = isEventPage && eventSlug ? getEventBySlug(eventSlug) : null;
 
@@ -86,7 +86,7 @@ export default function Header() {
         <div className="hidden md:flex items-center gap-4">
           {adminLoggedIn && (
             <button
-              onClick={() => navigate('/admin')}
+              onClick={() => navigate('/admin/dashboard')}
               className="px-4 py-2 rounded-lg text-white font-medium text-sm transition-opacity hover:opacity-90"
               style={{ backgroundColor: '#667EEA' }}
             >
