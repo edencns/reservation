@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
-import type { Event, Reservation, CompanyInfo } from '../types';
-import { getEvents, saveEvents, getReservations, saveReservations, getCompanyInfo, saveCompanyInfo } from '../utils/storage';
+import type { Event, Reservation, CompanyInfo, ManagedVendor } from '../types';
+import { getEvents, saveEvents, getReservations, saveReservations, getCompanyInfo, saveCompanyInfo, getManagedVendors, saveManagedVendors } from '../utils/storage';
 import { SEED_EVENTS } from '../utils/seedData';
 import {
   apiGetEvents,
@@ -17,6 +17,7 @@ interface AppContextType {
   events: Event[];
   reservations: Reservation[];
   companyInfo: CompanyInfo;
+  managedVendors: ManagedVendor[];
   isLoading: boolean;
   addEvent: (event: Event) => void;
   updateEvent: (event: Event) => void;
@@ -25,6 +26,9 @@ interface AppContextType {
   cancelReservation: (id: string) => void;
   checkIn: (id: string) => void;
   updateCompanyInfo: (info: CompanyInfo) => void;
+  addManagedVendor: (v: ManagedVendor) => void;
+  updateManagedVendor: (v: ManagedVendor) => void;
+  deleteManagedVendor: (id: string) => void;
   getEventById: (id: string) => Event | undefined;
   getEventBySlug: (slug: string) => Event | undefined;
   getUserReservations: (phone: string) => Reservation[];
@@ -45,6 +49,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   });
   const [reservations, setReservations] = useState<Reservation[]>(() => getReservations());
   const [companyInfo, setCompanyInfo] = useState<CompanyInfo>(() => getCompanyInfo());
+  const [managedVendors, setManagedVendors] = useState<ManagedVendor[]>(() => getManagedVendors());
 
   useEffect(() => {
     let disposed = false;
@@ -159,6 +164,16 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     saveCompanyInfo(info);
   }, []);
 
+  const addManagedVendor = useCallback((v: ManagedVendor) => {
+    setManagedVendors(prev => { const next = [...prev, v]; saveManagedVendors(next); return next; });
+  }, []);
+  const updateManagedVendor = useCallback((v: ManagedVendor) => {
+    setManagedVendors(prev => { const next = prev.map(x => x.id === v.id ? v : x); saveManagedVendors(next); return next; });
+  }, []);
+  const deleteManagedVendor = useCallback((id: string) => {
+    setManagedVendors(prev => { const next = prev.filter(x => x.id !== id); saveManagedVendors(next); return next; });
+  }, []);
+
   const getEventById = useCallback((id: string) => events.find(e => e.id === id), [events]);
   const getEventBySlug = useCallback((slug: string) => events.find(e => e.slug === slug), [events]);
   const getUserReservations = useCallback((phone: string) =>
@@ -168,10 +183,11 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   return (
     <AppContext.Provider value={{
-      events, reservations, companyInfo, isLoading,
+      events, reservations, companyInfo, managedVendors, isLoading,
       addEvent, updateEvent, deleteEvent,
       addReservation, cancelReservation, checkIn,
       updateCompanyInfo,
+      addManagedVendor, updateManagedVendor, deleteManagedVendor,
       getEventById, getEventBySlug,
       getUserReservations, getEventReservationsByPhone,
     }}>

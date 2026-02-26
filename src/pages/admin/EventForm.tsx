@@ -159,7 +159,7 @@ interface NewFieldState {
 export default function EventForm() {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
-  const { getEventById, addEvent, updateEvent } = useApp();
+  const { getEventById, addEvent, updateEvent, managedVendors } = useApp();
   const isEdit = id !== undefined && id !== 'create';
   const existing = isEdit ? getEventById(id) : undefined;
   const [eventId] = useState(existing?.id ?? generateId());
@@ -637,13 +637,31 @@ export default function EventForm() {
                     {/* 업체 추가 폼 */}
                     {addingVendorCatId === cat.id && (
                       <div className="bg-gray-50 rounded-xl p-3 space-y-2">
+                        {/* 기존 업체에서 선택 */}
+                        {managedVendors.length > 0 && (
+                          <div>
+                            <p className="text-xs text-gray-500 mb-1 font-semibold">기존 업체에서 선택</p>
+                            <select
+                              className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#667EEA]"
+                              defaultValue=""
+                              onChange={e => {
+                                const v = managedVendors.find(x => x.id === e.target.value);
+                                if (v) { setNewVendorName(v.name); setNewVendorImage(v.imageUrl ?? ''); }
+                              }}
+                            >
+                              <option value="">-- 선택 (직접 입력도 가능) --</option>
+                              {managedVendors.map(v => (
+                                <option key={v.id} value={v.id}>{v.name}{v.businessType ? ` (${v.businessType})` : ''}</option>
+                              ))}
+                            </select>
+                          </div>
+                        )}
                         <input
                           type="text"
                           placeholder="업체명"
                           value={newVendorName}
                           onChange={e => setNewVendorName(e.target.value)}
                           className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#667EEA]"
-                          autoFocus
                         />
                         <VendorImageInput value={newVendorImage} onChange={setNewVendorImage} />
                         <div className="flex gap-2">

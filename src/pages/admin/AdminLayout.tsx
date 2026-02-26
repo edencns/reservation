@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Outlet, useNavigate, useLocation, Link } from 'react-router-dom';
-import { LayoutDashboard, CalendarDays, ClipboardList, BarChart2, Wallet, LogOut, Ticket, Menu, X, QrCode, Building2 } from 'lucide-react';
+import { LayoutDashboard, CalendarDays, ClipboardList, BarChart2, Wallet, LogOut, Ticket, Menu, X, QrCode, Building2, Store } from 'lucide-react';
 import { isAdminLoggedIn, adminLogout } from '../../utils/storage';
 
 const navItems = [
@@ -10,6 +10,7 @@ const navItems = [
   { to: '/admin/checkin', icon: <QrCode size={18} />, label: 'QR 체크인' },
   { to: '/admin/statistics', icon: <BarChart2 size={18} />, label: '통계' },
   { to: '/admin/settlement', icon: <Wallet size={18} />, label: '방문 현황' },
+  { to: '/admin/vendors', icon: <Store size={18} />, label: '입점 업체 관리' },
   { to: '/admin/company', icon: <Building2 size={18} />, label: '회사 정보' },
 ];
 

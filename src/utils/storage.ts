@@ -1,4 +1,4 @@
-import type { Event, Reservation, CustomField, CompanyInfo } from '../types';
+import type { Event, Reservation, CustomField, CompanyInfo, ManagedVendor } from '../types';
 import { generateSlug } from './helpers';
 
 const EVENTS_KEY = 'rv_events';
@@ -88,6 +88,14 @@ export const getCompanyInfo = (): CompanyInfo => {
 
 export const saveCompanyInfo = (info: CompanyInfo) =>
   localStorage.setItem(COMPANY_INFO_KEY, JSON.stringify(info));
+
+const MANAGED_VENDORS_KEY = 'rv_managed_vendors';
+export const getManagedVendors = (): ManagedVendor[] => {
+  try { return JSON.parse(localStorage.getItem(MANAGED_VENDORS_KEY) || '[]') as ManagedVendor[]; }
+  catch { return []; }
+};
+export const saveManagedVendors = (vendors: ManagedVendor[]) =>
+  localStorage.setItem(MANAGED_VENDORS_KEY, JSON.stringify(vendors));
 
 export const getSlotUsedCount = (
   reservations: Reservation[],

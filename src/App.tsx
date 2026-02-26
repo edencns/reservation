@@ -21,6 +21,7 @@ import CheckIn from './pages/admin/CheckIn';
 import Statistics from './pages/admin/Statistics';
 import Settlement from './pages/admin/Settlement';
 import CompanyInfo from './pages/admin/CompanyInfo';
+import VendorsManage from './pages/admin/VendorsManage';
 
 export default function App() {
   return (
@@ -52,6 +53,7 @@ export default function App() {
             <Route path="checkin" element={<CheckIn />} />
             <Route path="statistics" element={<Statistics />} />
             <Route path="settlement" element={<Settlement />} />
+            <Route path="vendors" element={<VendorsManage />} />
             <Route path="company" element={<CompanyInfo />} />
           </Route>
 

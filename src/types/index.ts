@@ -60,6 +60,29 @@ export interface Reservation {
   createdAt: string;
 }
 
+export interface VendorDocument {
+  id: string;
+  name: string;     // 서류 이름 (예: "사업자등록증")
+  imageUrl: string;
+}
+
+export interface ManagedVendor {
+  id: string;
+  name: string;              // 상호
+  phone: string;             // 전화번호
+  email: string;             // 이메일
+  businessType: string;      // 업종
+  products: string;          // 취급상품
+  representativeName: string;// 대표자 이름
+  address: string;           // 주소
+  contactName: string;       // 담당자 이름
+  contactPhone: string;      // 담당자 번호
+  notes: string;             // 비고
+  imageUrl?: string;         // 업체 대표 이미지
+  documents: VendorDocument[];
+  createdAt: string;
+}
+
 export interface VendorCategory {
   id: string;
   name: string; // 예: "가구", "방충망", "입주청소"
