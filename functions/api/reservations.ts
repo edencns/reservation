@@ -1,6 +1,8 @@
 import type { Reservation } from '../../src/types';
+import type { Event } from '../../src/types';
 import { json, readBody, badRequest } from './_lib/db';
 import type { Env } from './_lib/db';
+import { sendSms, buildConfirmMessage, getTicketUrl } from './_lib/sms';
 
 interface ReservationRow {
   id: string;
@@ -39,6 +41,19 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
       JSON.stringify(reservation),
     )
     .run();
+
+  // 예약 확인 SMS 자동 발송 (API 키 설정 시)
+  try {
+    const eventRow = await env.DB.prepare('SELECT data FROM events WHERE id = ?')
+      .bind(reservation.eventId)
+      .first<{ data: string }>();
+    if (eventRow) {
+      const event = JSON.parse(eventRow.data) as Event;
+      const ticketUrl = getTicketUrl(env, event.slug, reservation.customer.phone);
+      const text = buildConfirmMessage(reservation, event, ticketUrl);
+      await sendSms(env, reservation.customer.phone, text);
+    }
+  } catch { /* SMS 실패 시 예약은 정상 처리 */ }
 
   return json({ ok: true });
 };

@@ -80,10 +80,23 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         ]);
         if (disposed) return;
 
-        setEvents(afterEvents);
-        setReservations(afterReservations);
-        saveEvents(afterEvents);
-        saveReservations(afterReservations);
+        // 로컬에 없는 원격 데이터만 추가 (로컬 변경사항 보존)
+        setEvents(prev => {
+          const localIds = new Set(prev.map(e => e.id));
+          const newFromRemote = afterEvents.filter(e => !localIds.has(e.id));
+          if (newFromRemote.length === 0) return prev;
+          const merged = [...prev, ...newFromRemote];
+          saveEvents(merged);
+          return merged;
+        });
+        setReservations(prev => {
+          const localIds = new Set(prev.map(r => r.id));
+          const newFromRemote = afterReservations.filter(r => !localIds.has(r.id));
+          if (newFromRemote.length === 0) return prev;
+          const merged = [...prev, ...newFromRemote];
+          saveReservations(merged);
+          return merged;
+        });
       } catch {
         // Keep localStorage fallback for local dev / API unavailable environments.
       } finally {

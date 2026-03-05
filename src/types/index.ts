@@ -1,5 +1,5 @@
 export type ReservationStatus = 'confirmed' | 'cancelled';
-export type CustomFieldType = 'text' | 'tel' | 'number' | 'email' | 'select';
+export type CustomFieldType = 'text' | 'tel' | 'number' | 'email' | 'select' | 'multiselect';
 
 export interface CustomField {
   id: string;
@@ -71,7 +71,8 @@ export interface ManagedVendor {
   name: string;              // 상호
   phone: string;             // 전화번호
   email: string;             // 이메일
-  businessType: string;      // 업종
+  category: string;          // 카테고리
+  businessType?: string;     // 구버전 호환 (deprecated)
   products: string;          // 취급상품
   representativeName: string;// 대표자 이름
   address: string;           // 주소
@@ -93,6 +94,7 @@ export interface Vendor {
   categoryId: string;
   name: string;
   imageUrl?: string;
+  managedVendorId?: string;  // 관리 업체 참조 ID
 }
 
 export interface CompanyInfo {

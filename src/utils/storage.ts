@@ -91,7 +91,14 @@ export const saveCompanyInfo = (info: CompanyInfo) =>
 
 const MANAGED_VENDORS_KEY = 'rv_managed_vendors';
 export const getManagedVendors = (): ManagedVendor[] => {
-  try { return JSON.parse(localStorage.getItem(MANAGED_VENDORS_KEY) || '[]') as ManagedVendor[]; }
+  try {
+    const raw = JSON.parse(localStorage.getItem(MANAGED_VENDORS_KEY) || '[]') as (ManagedVendor & { businessType?: string })[];
+    // Migrate: businessType → category
+    return raw.map(v => ({
+      ...v,
+      category: v.category ?? v.businessType ?? '',
+    })) as ManagedVendor[];
+  }
   catch { return []; }
 };
 export const saveManagedVendors = (vendors: ManagedVendor[]) =>

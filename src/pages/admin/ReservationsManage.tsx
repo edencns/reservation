@@ -1,9 +1,10 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Search, X } from 'lucide-react';
+import { Search, X, MessageSquare, Send } from 'lucide-react';
 import { useSearchParams } from 'react-router-dom';
 import { useApp } from '../../context/AppContext';
 import { formatDate } from '../../utils/helpers';
 import QRTicket from '../../components/QRTicket';
+import { apiSendSms, type SmsSendResult } from '../../utils/cloudApi';
 import type { Reservation } from '../../types';
 
 export default function ReservationsManage() {
@@ -14,6 +15,12 @@ export default function ReservationsManage() {
   const [eventFilter, setEventFilter] = useState(searchParams.get('eventId') ?? 'all');
   const [selected, setSelected] = useState<Reservation | null>(null);
   const [cancelTarget, setCancelTarget] = useState<string | null>(null);
+  const [showSmsModal, setShowSmsModal] = useState(false);
+  const [smsTemplate, setSmsTemplate] = useState<'confirm' | 'reminder'>('confirm');
+  const [smsDays, setSmsDays] = useState(7);
+  const [smsSending, setSmsSending] = useState(false);
+  const [smsResult, setSmsResult] = useState<SmsSendResult | null>(null);
+  const [smsError, setSmsError] = useState('');
 
   useEffect(() => {
     const next = searchParams.get('eventId') ?? 'all';
@@ -58,9 +65,40 @@ export default function ReservationsManage() {
     setCancelTarget(null);
   };
 
+  // SMS 발송 대상: 현재 필터 기준 확정 예약
+  const smsTargets = filtered.filter(r => r.status === 'confirmed');
+
+  const handleSmsSend = async () => {
+    if (smsTargets.length === 0) return;
+    setSmsSending(true);
+    setSmsResult(null);
+    setSmsError('');
+    try {
+      const result = await apiSendSms(
+        smsTargets.map(r => r.id),
+        smsTemplate,
+        smsTemplate === 'reminder' ? smsDays : undefined,
+      );
+      setSmsResult(result);
+    } catch (e) {
+      setSmsError(e instanceof Error ? e.message : '발송 중 오류가 발생했습니다.');
+    } finally {
+      setSmsSending(false);
+    }
+  };
+
   return (
     <div className="space-y-5">
-      <h2 className="font-bold text-gray-800">예약 관리</h2>
+      <div className="flex items-center justify-between">
+        <h2 className="font-bold text-gray-800">예약 관리</h2>
+        <button
+          onClick={() => { setShowSmsModal(true); setSmsResult(null); setSmsError(''); }}
+          className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-white font-semibold text-sm hover:opacity-90"
+          style={{ backgroundColor: '#667EEA' }}
+        >
+          <MessageSquare size={15} /> 문자 발송
+        </button>
+      </div>
 
       {/* Filters */}
       <div className="bg-white rounded-2xl shadow-sm p-4 flex flex-col sm:flex-row gap-3">
@@ -214,6 +252,136 @@ export default function ReservationsManage() {
                 취소하기
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* SMS 발송 모달 */}
+      {showSmsModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4"
+          style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}
+          onClick={() => { if (!smsSending) setShowSmsModal(false); }}>
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-6 space-y-5" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between">
+              <h3 className="font-bold text-gray-800 text-lg flex items-center gap-2">
+                <MessageSquare size={18} style={{ color: '#667EEA' }} /> 문자 일괄 발송
+              </h3>
+              {!smsSending && (
+                <button onClick={() => setShowSmsModal(false)} className="p-1 rounded-lg hover:bg-gray-100">
+                  <X size={18} className="text-gray-400" />
+                </button>
+              )}
+            </div>
+
+            {/* 발송 대상 */}
+            <div className="bg-blue-50 rounded-xl p-3">
+              <p className="text-xs font-semibold text-gray-600 mb-1">발송 대상</p>
+              <p className="text-sm text-gray-800">
+                현재 필터 기준 확정 예약 <span className="font-bold" style={{ color: '#667EEA' }}>{smsTargets.length}건</span>
+              </p>
+              {eventFilter !== 'all' && (
+                <p className="text-xs text-gray-400 mt-0.5">
+                  행사: {events.find(e => e.id === eventFilter)?.title ?? ''}
+                </p>
+              )}
+              {smsTargets.length === 0 && (
+                <p className="text-xs text-red-500 mt-1">발송 대상이 없습니다. 필터를 조정해주세요.</p>
+              )}
+            </div>
+
+            {/* 문자 유형 */}
+            <div>
+              <p className="text-xs font-semibold text-gray-600 mb-2">문자 유형</p>
+              <div className="grid grid-cols-2 gap-2">
+                {[
+                  { value: 'confirm' as const, label: '예약 확인 문자', desc: '예약 완료 안내 + QR 링크' },
+                  { value: 'reminder' as const, label: '리마인더 문자', desc: '행사 N일 전 방문 안내' },
+                ].map(opt => (
+                  <button
+                    key={opt.value}
+                    type="button"
+                    onClick={() => setSmsTemplate(opt.value)}
+                    className={`p-3 rounded-xl border-2 text-left transition-all ${
+                      smsTemplate === opt.value ? 'border-[#667EEA] bg-blue-50' : 'border-gray-200 hover:border-gray-300'
+                    }`}
+                  >
+                    <p className="text-xs font-bold text-gray-800">{opt.label}</p>
+                    <p className="text-xs text-gray-400 mt-0.5">{opt.desc}</p>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* 리마인더 일수 */}
+            {smsTemplate === 'reminder' && (
+              <div>
+                <p className="text-xs font-semibold text-gray-600 mb-2">발송 기준</p>
+                <div className="flex gap-2">
+                  {[{ label: '1일 전', days: 1 }, { label: '3일 전', days: 3 }, { label: '1주일 전', days: 7 }].map(d => (
+                    <button
+                      key={d.days}
+                      type="button"
+                      onClick={() => setSmsDays(d.days)}
+                      className={`flex-1 py-2 rounded-xl text-sm font-semibold border transition-all ${
+                        smsDays === d.days ? 'text-white border-transparent' : 'border-gray-200 text-gray-600 hover:border-gray-300'
+                      }`}
+                      style={smsDays === d.days ? { backgroundColor: '#667EEA' } : {}}
+                    >
+                      {d.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* 결과 표시 */}
+            {smsResult && (
+              <div className="bg-green-50 rounded-xl p-3 text-sm">
+                <p className="font-bold text-green-700">발송 완료</p>
+                <p className="text-green-600">성공: {smsResult.sent}건 / 실패: {smsResult.failed}건 / 전체: {smsResult.total}건</p>
+              </div>
+            )}
+            {smsError && (
+              <div className="bg-red-50 rounded-xl p-3 text-sm">
+                <p className="font-bold text-red-600">오류 발생</p>
+                <p className="text-red-500">{smsError}</p>
+                <p className="text-xs text-gray-400 mt-1">Cloudflare 환경변수(COOLSMS_API_KEY, COOLSMS_API_SECRET, COOLSMS_SENDER, SITE_URL)를 확인하세요.</p>
+              </div>
+            )}
+
+            {/* 버튼 */}
+            {!smsResult && (
+              <div className="flex gap-3 pt-1">
+                <button
+                  onClick={() => setShowSmsModal(false)}
+                  disabled={smsSending}
+                  className="flex-1 py-3 rounded-xl border border-gray-200 text-sm font-semibold text-gray-600 hover:bg-gray-50 disabled:opacity-50"
+                >
+                  취소
+                </button>
+                <button
+                  onClick={handleSmsSend}
+                  disabled={smsSending || smsTargets.length === 0}
+                  className="flex-1 py-3 rounded-xl text-white text-sm font-bold flex items-center justify-center gap-2 hover:opacity-90 disabled:opacity-50"
+                  style={{ backgroundColor: '#667EEA' }}
+                >
+                  {smsSending ? (
+                    <><div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" /> 발송 중...</>
+                  ) : (
+                    <><Send size={15} /> {smsTargets.length}건 발송</>
+                  )}
+                </button>
+              </div>
+            )}
+            {smsResult && (
+              <button
+                onClick={() => setShowSmsModal(false)}
+                className="w-full py-3 rounded-xl text-sm font-bold text-white hover:opacity-90"
+                style={{ backgroundColor: '#667EEA' }}
+              >
+                확인
+              </button>
+            )}
           </div>
         </div>
       )}

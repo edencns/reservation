@@ -65,3 +65,23 @@ export const apiCheckInReservation = async (id: string, checkedInAt: string): Pr
   });
   await parseJson<{ ok: true }>(res);
 };
+
+export interface SmsSendResult {
+  ok: boolean;
+  sent: number;
+  failed: number;
+  total: number;
+}
+
+export const apiSendSms = async (
+  reservationIds: string[],
+  template: 'confirm' | 'reminder',
+  daysLeft?: number,
+): Promise<SmsSendResult> => {
+  const res = await fetch('/api/sms/send', {
+    method: 'POST',
+    headers: jsonHeaders,
+    body: JSON.stringify({ reservationIds, template, daysLeft }),
+  });
+  return parseJson<SmsSendResult>(res);
+};

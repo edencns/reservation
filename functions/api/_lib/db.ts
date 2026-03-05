@@ -1,5 +1,9 @@
 export interface Env {
   DB: D1Database;
+  COOLSMS_API_KEY?: string;
+  COOLSMS_API_SECRET?: string;
+  COOLSMS_SENDER?: string;
+  SITE_URL?: string;
 }
 
 export const json = (data: unknown, status = 200): Response =>

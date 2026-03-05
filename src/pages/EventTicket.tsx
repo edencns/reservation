@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { Search, X, ChevronLeft } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import QRTicket from '../components/QRTicket';
@@ -9,11 +9,21 @@ import { formatDate } from '../utils/helpers';
 export default function EventTicket() {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { getEventBySlug, getEventReservationsByPhone } = useApp();
   const event = getEventBySlug(slug ?? '');
 
   const [phone, setPhone] = useState('');
   const [submitted, setSubmitted] = useState('');
+
+  // SMS 링크에서 넘어온 경우 전화번호 자동 입력 및 조회
+  useEffect(() => {
+    const p = searchParams.get('phone');
+    if (p) {
+      setPhone(p);
+      setSubmitted(p.replace(/-/g, ''));
+    }
+  }, [searchParams]);
   const [selected, setSelected] = useState<Reservation | null>(null);
 
   if (!event) {

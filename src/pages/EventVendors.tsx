@@ -6,7 +6,7 @@ import { useApp } from '../context/AppContext';
 export default function EventVendors() {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
-  const { getEventBySlug } = useApp();
+  const { getEventBySlug, managedVendors } = useApp();
   const event = getEventBySlug(slug ?? '');
   const [lightbox, setLightbox] = useState<string | null>(null);
 
@@ -53,15 +53,18 @@ export default function EventVendors() {
               <div key={cat.id}>
                 <h2 className="font-bold text-gray-800 text-base mb-3 px-1">{cat.name}</h2>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                  {catVendors.map(vendor => (
+                  {catVendors.map(vendor => {
+                    const img = vendor.imageUrl
+                      || (vendor.managedVendorId ? managedVendors.find(m => m.id === vendor.managedVendorId)?.imageUrl : undefined);
+                    return (
                     <div key={vendor.id} className="bg-white rounded-2xl shadow-sm overflow-hidden">
-                      {vendor.imageUrl ? (
+                      {img ? (
                         <div
                           className="w-full h-40 bg-gray-50 overflow-hidden cursor-pointer"
-                          onClick={() => setLightbox(vendor.imageUrl!)}
+                          onClick={() => setLightbox(img)}
                         >
                           <img
-                            src={vendor.imageUrl}
+                            src={img}
                             alt={vendor.name}
                             className="w-full h-full object-contain hover:scale-105 transition-transform duration-200"
                           />
@@ -75,7 +78,8 @@ export default function EventVendors() {
                         <p className="font-semibold text-sm text-gray-800 truncate">{vendor.name}</p>
                       </div>
                     </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
             );

@@ -4,8 +4,14 @@ import { useApp } from '../../context/AppContext';
 import { generateId } from '../../utils/helpers';
 import type { ManagedVendor, VendorDocument } from '../../types';
 
+const VENDOR_CATEGORIES = [
+  '가구', '방충망', '에어컨/냉난방', '입주청소', '이사', '인테리어',
+  '전동커튼/블라인드', '조명', '보안/방범', '주방기기', '욕실/위생',
+  '홈네트워크', '기타',
+];
+
 const EMPTY_VENDOR: Omit<ManagedVendor, 'id' | 'createdAt'> = {
-  name: '', phone: '', email: '', businessType: '', products: '',
+  name: '', phone: '', email: '', category: '', products: '',
   representativeName: '', address: '', contactName: '', contactPhone: '',
   notes: '', imageUrl: undefined, documents: [],
 };
@@ -113,8 +119,13 @@ export default function VendorsManage() {
                 <input className={inputCls} type="email" value={form.email} onChange={e => set('email', e.target.value)} placeholder="example@email.com" />
               </div>
               <div>
-                <label className={labelCls}>업종</label>
-                <input className={inputCls} value={form.businessType} onChange={e => set('businessType', e.target.value)} placeholder="예) 가구" />
+                <label className={labelCls}>카테고리</label>
+                <select className={inputCls} value={form.category} onChange={e => set('category', e.target.value)}>
+                  <option value="">선택하세요</option>
+                  {VENDOR_CATEGORIES.map(c => (
+                    <option key={c} value={c}>{c}</option>
+                  ))}
+                </select>
               </div>
               <div>
                 <label className={labelCls}>취급상품</label>
@@ -239,7 +250,7 @@ export default function VendorsManage() {
               )}
               <div className="flex-1 min-w-0">
                 <p className="font-bold text-gray-800 truncate">{v.name}</p>
-                <p className="text-xs text-gray-400 mt-0.5">{[v.businessType, v.phone].filter(Boolean).join(' · ')}</p>
+                <p className="text-xs text-gray-400 mt-0.5">{[v.category, v.phone].filter(Boolean).join(' · ')}</p>
                 {v.documents.length > 0 && (
                   <p className="text-xs text-gray-400 mt-0.5">서류 {v.documents.length}건</p>
                 )}

@@ -1,64 +1,10 @@
-import { useState, useRef } from 'react';
+import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Plus, Trash2, ChevronLeft, Copy, GripVertical, X } from 'lucide-react';
+import { Plus, Trash2, ChevronLeft, Copy, GripVertical } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { generateId, generateSlug, getEventShareUrl } from '../../utils/helpers';
 import type { Event, CustomField, CustomFieldType, VendorCategory, Vendor } from '../../types';
 
-function VendorImageInput({ value, onChange }: { value: string; onChange: (v: string) => void }) {
-  const [isDragging, setIsDragging] = useState(false);
-  const fileRef = useRef<HTMLInputElement>(null);
-  const isDataUrl = value.startsWith('data:');
-
-  const handleFile = (file: File) => {
-    if (!file.type.startsWith('image/')) return;
-    const reader = new FileReader();
-    reader.onload = e => onChange(e.target?.result as string ?? '');
-    reader.readAsDataURL(file);
-  };
-
-  return (
-    <div className="space-y-2">
-      {!isDataUrl && (
-        <input
-          type="url"
-          placeholder="이미지 URL 입력 (선택)"
-          value={value}
-          onChange={e => onChange(e.target.value)}
-          className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#667EEA]"
-        />
-      )}
-      {value ? (
-        <div className="relative inline-flex">
-          <img src={value} alt="미리보기" className="h-20 w-auto object-contain rounded-xl border border-gray-100 bg-white p-1" />
-          <button
-            type="button"
-            onClick={() => onChange('')}
-            className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center text-white hover:bg-red-600"
-          >
-            <X size={10} />
-          </button>
-        </div>
-      ) : (
-        <div
-          onDragOver={e => { e.preventDefault(); setIsDragging(true); }}
-          onDragLeave={() => setIsDragging(false)}
-          onDrop={e => { e.preventDefault(); setIsDragging(false); const f = e.dataTransfer.files[0]; if (f) handleFile(f); }}
-          onClick={() => fileRef.current?.click()}
-          className={`border-2 border-dashed rounded-xl py-3 text-center cursor-pointer transition-colors ${
-            isDragging ? 'border-[#667EEA] bg-blue-50' : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
-          }`}
-        >
-          <p className="text-xs text-gray-400">
-            드래그하거나 <span className="font-semibold" style={{ color: '#667EEA' }}>클릭하여 업로드</span>
-          </p>
-        </div>
-      )}
-      <input ref={fileRef} type="file" accept="image/*" className="hidden"
-        onChange={e => { const f = e.target.files?.[0]; if (f) handleFile(f); e.target.value = ''; }} />
-    </div>
-  );
-}
 
 function generateDateRange(start: string, end: string): string[] {
   if (!start || !end) return [];
@@ -145,7 +91,8 @@ const FIELD_TYPE_LABELS: Record<CustomFieldType, string> = {
   tel: '전화번호',
   email: '이메일',
   number: '숫자',
-  select: '선택지',
+  select: '단일 선택',
+  multiselect: '복수 선택 (체크박스)',
 };
 
 interface NewFieldState {
@@ -199,35 +146,49 @@ export default function EventForm() {
   // 입점 업체 관리
   const [vendorCategories, setVendorCategories] = useState<VendorCategory[]>(existing?.vendorCategories ?? []);
   const [vendors, setVendors] = useState<Vendor[]>(existing?.vendors ?? []);
-  const [newCategoryName, setNewCategoryName] = useState('');
-  const [showAddCategory, setShowAddCategory] = useState(false);
-  const [addingVendorCatId, setAddingVendorCatId] = useState<string | null>(null);
-  const [newVendorName, setNewVendorName] = useState('');
-  const [newVendorImage, setNewVendorImage] = useState('');
+  const [showVendorSelector, setShowVendorSelector] = useState(false);
 
-  const addCategory = () => {
-    if (!newCategoryName.trim()) return;
-    setVendorCategories(prev => [...prev, { id: generateId(), name: newCategoryName.trim() }]);
-    setNewCategoryName('');
-    setShowAddCategory(false);
+  // 관리 업체에서 이벤트에 추가 (카테고리 자동 분류)
+  const addManagedVendorToEvent = (mv: { id: string; name: string; category: string }) => {
+    const categoryName = mv.category || '기타';
+    let catId: string;
+    const existing = vendorCategories.find(c => c.name === categoryName);
+    if (existing) {
+      catId = existing.id;
+    } else {
+      catId = generateId();
+      setVendorCategories(prev => [...prev, { id: catId, name: categoryName }]);
+    }
+    setVendors(prev => [...prev, {
+      id: generateId(),
+      categoryId: catId,
+      name: mv.name,
+      managedVendorId: mv.id,
+    }]);
   };
+
   const removeCategory = (catId: string) => {
     setVendorCategories(prev => prev.filter(c => c.id !== catId));
     setVendors(prev => prev.filter(v => v.categoryId !== catId));
   };
-  const addVendor = (catId: string) => {
-    if (!newVendorName.trim()) return;
-    setVendors(prev => [...prev, {
-      id: generateId(),
-      categoryId: catId,
-      name: newVendorName.trim(),
-      imageUrl: newVendorImage.trim() || undefined,
-    }]);
-    setNewVendorName('');
-    setNewVendorImage('');
-    setAddingVendorCatId(null);
+
+  const removeVendor = (vendorId: string) => {
+    setVendors(prev => {
+      const next = prev.filter(v => v.id !== vendorId);
+      // 빈 카테고리 자동 제거
+      const usedCatIds = new Set(next.map(v => v.categoryId));
+      setVendorCategories(cats => cats.filter(c => usedCatIds.has(c.id)));
+      return next;
+    });
   };
-  const removeVendor = (vendorId: string) => setVendors(prev => prev.filter(v => v.id !== vendorId));
+
+  // 카테고리 이름 기준 정렬
+  const sortedCategories = [...vendorCategories].sort((a, b) =>
+    a.name.localeCompare(b.name, 'ko')
+  );
+  // 이미 추가된 관리 업체 ID 목록
+  const addedManagedVendorIds = new Set(vendors.map(v => v.managedVendorId).filter(Boolean));
+  const availableManagedVendors = managedVendors.filter(mv => !addedManagedVendorIds.has(mv.id));
 
   const addCustomField = () => {
     if (!newField.label.trim()) return;
@@ -242,7 +203,7 @@ export default function EventForm() {
       type: newField.type,
       required: newField.required,
       placeholder: newField.placeholder.trim() || undefined,
-      options: newField.type === 'select'
+      options: (newField.type === 'select' || newField.type === 'multiselect')
         ? newField.options.split(',').map(s => s.trim()).filter(Boolean)
         : undefined,
     };
@@ -525,7 +486,7 @@ export default function EventForm() {
                   className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#667EEA]"
                 />
               </div>
-              {newField.type === 'select' && (
+              {(newField.type === 'select' || newField.type === 'multiselect') && (
                 <div>
                   <label className="text-xs text-gray-500 mb-1 block">선택지 (쉼표로 구분)</label>
                   <input
@@ -573,114 +534,87 @@ export default function EventForm() {
           <div className="flex items-center justify-between border-b pb-2">
             <div>
               <h3 className="font-bold text-gray-700 text-sm">입점 업체 관리</h3>
-              <p className="text-xs text-gray-400 mt-0.5">카테고리별 업체명과 이미지를 등록하세요</p>
+              <p className="text-xs text-gray-400 mt-0.5">업체 선택 시 카테고리가 자동 분류됩니다</p>
             </div>
-            {!showAddCategory && (
-              <button
-                type="button"
-                onClick={() => setShowAddCategory(true)}
-                className="flex items-center gap-1 text-xs px-3 py-1.5 rounded-lg text-white font-semibold"
-                style={{ backgroundColor: '#667EEA' }}
-              >
-                <Plus size={13} /> 카테고리 추가
-              </button>
-            )}
+            <button
+              type="button"
+              onClick={() => setShowVendorSelector(v => !v)}
+              className="flex items-center gap-1 text-xs px-3 py-1.5 rounded-lg text-white font-semibold"
+              style={{ backgroundColor: '#667EEA' }}
+            >
+              <Plus size={13} /> 업체 추가
+            </button>
           </div>
 
-          {/* 카테고리 추가 폼 */}
-          {showAddCategory && (
-            <div className="flex gap-2">
-              <input
-                type="text"
-                placeholder="예) 가구, 방충망, 입주청소"
-                value={newCategoryName}
-                onChange={e => setNewCategoryName(e.target.value)}
-                onKeyDown={e => e.key === 'Enter' && (e.preventDefault(), addCategory())}
-                className="flex-1 px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#667EEA]"
-                autoFocus
-              />
-              <button type="button" onClick={addCategory} disabled={!newCategoryName.trim()}
-                className="px-4 py-2 rounded-xl text-white text-sm font-semibold disabled:opacity-40"
-                style={{ backgroundColor: '#667EEA' }}>추가</button>
-              <button type="button" onClick={() => { setShowAddCategory(false); setNewCategoryName(''); }}
-                className="px-4 py-2 rounded-xl bg-gray-100 text-gray-600 text-sm font-semibold">취소</button>
+          {/* 업체 선택 패널 */}
+          {showVendorSelector && (
+            <div className="bg-blue-50 border border-blue-100 rounded-xl p-3 space-y-2">
+              <p className="text-xs font-bold text-gray-600 mb-2">업체 선택</p>
+              {managedVendors.length === 0 ? (
+                <p className="text-sm text-gray-400 text-center py-3">
+                  먼저 <span className="font-semibold">입점 업체 관리</span> 탭에서 업체를 등록해주세요
+                </p>
+              ) : availableManagedVendors.length === 0 ? (
+                <p className="text-sm text-gray-400 text-center py-3">모든 업체가 이미 추가되었습니다</p>
+              ) : (
+                <div className="space-y-1.5 max-h-48 overflow-y-auto">
+                  {availableManagedVendors.map(mv => (
+                    <button
+                      key={mv.id}
+                      type="button"
+                      onClick={() => addManagedVendorToEvent(mv)}
+                      className="w-full flex items-center gap-3 px-3 py-2 bg-white rounded-lg hover:bg-gray-50 border border-gray-100 text-left transition-colors"
+                    >
+                      {mv.imageUrl ? (
+                        <img src={mv.imageUrl} alt={mv.name} className="w-8 h-8 object-contain rounded-lg bg-gray-50 border border-gray-100 shrink-0" />
+                      ) : (
+                        <div className="w-8 h-8 rounded-lg bg-gray-100 shrink-0" />
+                      )}
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-semibold text-gray-800 truncate">{mv.name}</p>
+                        {mv.category && <p className="text-xs text-gray-400">{mv.category}</p>}
+                      </div>
+                      <Plus size={14} className="text-gray-400 shrink-0" />
+                    </button>
+                  ))}
+                </div>
+              )}
+              <button
+                type="button"
+                onClick={() => setShowVendorSelector(false)}
+                className="w-full py-1.5 text-sm rounded-lg bg-white border border-gray-200 text-gray-600 font-semibold mt-1"
+              >
+                닫기
+              </button>
             </div>
           )}
 
-          {/* 카테고리 목록 */}
-          {vendorCategories.length === 0 ? (
-            <p className="text-sm text-gray-400 text-center py-4">카테고리를 추가해주세요</p>
+          {/* 카테고리별 업체 목록 (자동 정렬) */}
+          {sortedCategories.length === 0 ? (
+            <p className="text-sm text-gray-400 text-center py-4">추가된 업체가 없습니다</p>
           ) : (
             <div className="space-y-4">
-              {vendorCategories.map(cat => {
+              {sortedCategories.map(cat => {
                 const catVendors = vendors.filter(v => v.categoryId === cat.id);
                 return (
                   <div key={cat.id} className="border border-gray-100 rounded-xl p-4 space-y-3">
                     <div className="flex items-center justify-between">
                       <span className="font-bold text-sm text-gray-800">{cat.name}</span>
-                      <div className="flex items-center gap-2">
-                        <button
-                          type="button"
-                          onClick={() => { setAddingVendorCatId(cat.id); setNewVendorName(''); setNewVendorImage(''); }}
-                          className="text-xs px-2.5 py-1 rounded-lg font-semibold text-white"
-                          style={{ backgroundColor: '#667EEA' }}
-                        >
-                          + 업체 추가
-                        </button>
-                        <button type="button" onClick={() => removeCategory(cat.id)}
-                          className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors">
-                          <Trash2 size={13} />
-                        </button>
-                      </div>
+                      <button type="button" onClick={() => removeCategory(cat.id)}
+                        className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors">
+                        <Trash2 size={13} />
+                      </button>
                     </div>
-
-                    {/* 업체 추가 폼 */}
-                    {addingVendorCatId === cat.id && (
-                      <div className="bg-gray-50 rounded-xl p-3 space-y-2">
-                        {/* 기존 업체에서 선택 */}
-                        {managedVendors.length > 0 && (
-                          <div>
-                            <p className="text-xs text-gray-500 mb-1 font-semibold">기존 업체에서 선택</p>
-                            <select
-                              className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#667EEA]"
-                              defaultValue=""
-                              onChange={e => {
-                                const v = managedVendors.find(x => x.id === e.target.value);
-                                if (v) { setNewVendorName(v.name); setNewVendorImage(v.imageUrl ?? ''); }
-                              }}
-                            >
-                              <option value="">-- 선택 (직접 입력도 가능) --</option>
-                              {managedVendors.map(v => (
-                                <option key={v.id} value={v.id}>{v.name}{v.businessType ? ` (${v.businessType})` : ''}</option>
-                              ))}
-                            </select>
-                          </div>
-                        )}
-                        <input
-                          type="text"
-                          placeholder="업체명"
-                          value={newVendorName}
-                          onChange={e => setNewVendorName(e.target.value)}
-                          className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#667EEA]"
-                        />
-                        <VendorImageInput value={newVendorImage} onChange={setNewVendorImage} />
-                        <div className="flex gap-2">
-                          <button type="button" onClick={() => addVendor(cat.id)} disabled={!newVendorName.trim()}
-                            className="flex-1 py-1.5 text-sm rounded-lg text-white font-semibold disabled:opacity-40"
-                            style={{ backgroundColor: '#667EEA' }}>추가</button>
-                          <button type="button" onClick={() => setAddingVendorCatId(null)}
-                            className="flex-1 py-1.5 text-sm rounded-lg bg-white border border-gray-200 text-gray-600 font-semibold">취소</button>
-                        </div>
-                      </div>
-                    )}
-
-                    {/* 업체 목록 */}
-                    {catVendors.length > 0 && (
-                      <div className="grid grid-cols-2 gap-2">
-                        {catVendors.map(vendor => (
+                    <div className="grid grid-cols-2 gap-2">
+                      {catVendors.map(vendor => {
+                        const mvImage = vendor.managedVendorId
+                          ? managedVendors.find(m => m.id === vendor.managedVendorId)?.imageUrl
+                          : undefined;
+                        const img = vendor.imageUrl || mvImage;
+                        return (
                           <div key={vendor.id} className="flex items-center gap-2 bg-gray-50 rounded-xl p-2">
-                            {vendor.imageUrl ? (
-                              <img src={vendor.imageUrl} alt={vendor.name} className="w-10 h-10 object-contain rounded-lg bg-white border border-gray-100 shrink-0" />
+                            {img ? (
+                              <img src={img} alt={vendor.name} className="w-10 h-10 object-contain rounded-lg bg-white border border-gray-100 shrink-0" />
                             ) : (
                               <div className="w-10 h-10 rounded-lg bg-gray-200 shrink-0" />
                             )}
@@ -690,9 +624,9 @@ export default function EventForm() {
                               <Trash2 size={12} />
                             </button>
                           </div>
-                        ))}
-                      </div>
-                    )}
+                        );
+                      })}
+                    </div>
                   </div>
                 );
               })}
