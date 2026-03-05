@@ -185,6 +185,55 @@ export default function EventReserve() {
                 />
               ))}
 
+              {/* 관심 서비스 (행사에 입점 업체 카테고리가 있을 때 자동 표시) */}
+              {(event.vendorCategories?.length ?? 0) > 0 && (() => {
+                const MAX = 5;
+                const selected = (fieldValues['interestedServices'] ?? '')
+                  .split(',').map(s => s.trim()).filter(Boolean);
+                return (
+                  <div className="pt-1">
+                    <div className="flex items-baseline gap-2 mb-2">
+                      <label className="block text-sm font-semibold text-gray-700">관심 서비스</label>
+                      <span className="text-xs text-gray-400">최대 {MAX}개 선택</span>
+                      {selected.length > 0 && (
+                        <span className="text-xs font-semibold ml-auto" style={{ color: '#667EEA' }}>
+                          {selected.length}/{MAX}
+                        </span>
+                      )}
+                    </div>
+                    <div className="grid grid-cols-2 gap-x-4 gap-y-2.5">
+                      {event.vendorCategories!.map(cat => {
+                        const checked = selected.includes(cat.name);
+                        const disabled = !checked && selected.length >= MAX;
+                        const toggle = () => {
+                          if (disabled) return;
+                          const next = checked
+                            ? selected.filter(s => s !== cat.name)
+                            : [...selected, cat.name];
+                          handleFieldChange('interestedServices', next.join(', '));
+                        };
+                        return (
+                          <label key={cat.id}
+                            className={`flex items-center gap-2 cursor-pointer group ${disabled ? 'opacity-40 cursor-not-allowed' : ''}`}>
+                            <input
+                              type="checkbox"
+                              checked={checked}
+                              disabled={disabled}
+                              onChange={toggle}
+                              className="w-4 h-4 accent-[#667EEA] rounded"
+                            />
+                            <span className="text-sm text-gray-700 group-hover:text-gray-900">{cat.name}</span>
+                          </label>
+                        );
+                      })}
+                    </div>
+                    {selected.length >= MAX && (
+                      <p className="text-xs mt-2" style={{ color: '#667EEA' }}>최대 {MAX}개까지 선택할 수 있습니다.</p>
+                    )}
+                  </div>
+                );
+              })()}
+
               <label className="flex items-start gap-2.5 cursor-pointer mt-2">
                 <input
                   type="checkbox"

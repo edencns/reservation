@@ -5,7 +5,10 @@ import { useApp } from '../context/AppContext';
 import StepIndicator from '../components/StepIndicator';
 import QRTicket from '../components/QRTicket';
 import { formatDate, generateId, normalizeUnitNumber, isValidEmail, isValidKoreanName, isValidPhone010 } from '../utils/helpers';
+import { getVendorCategoryOptions } from '../utils/storage';
 import type { Reservation } from '../types';
+
+const MAX_SERVICES = 5;
 
 const STEPS = ['날짜 선택', '예약자 정보', '예약 완료'];
 
@@ -32,9 +35,23 @@ export default function Reserve() {
     unitNumber: '',
     agree: false,
   });
+  const [interestedServices, setInterestedServices] = useState<string[]>([]);
   const [showErrors, setShowErrors] = useState(false);
   const [unitDuplicate, setUnitDuplicate] = useState(false);
   const [completed, setCompleted] = useState<Reservation | null>(null);
+
+  // 행사 카테고리 or 전역 카테고리 옵션
+  const serviceOptions = (event?.vendorCategories && event.vendorCategories.length > 0)
+    ? event.vendorCategories.map(c => c.name)
+    : getVendorCategoryOptions();
+
+  const toggleService = (name: string) => {
+    setInterestedServices(prev => {
+      if (prev.includes(name)) return prev.filter(s => s !== name);
+      if (prev.length >= MAX_SERVICES) return prev;
+      return [...prev, name];
+    });
+  };
 
   if (!event) return (
     <div className="min-h-screen flex items-center justify-center text-gray-500">행사를 찾을 수 없습니다.</div>
@@ -88,7 +105,10 @@ export default function Reserve() {
         timeSlotId: 'none',
           attendeeCount: 1,
           customer: { name: customer.name, phone: customer.phone, email: customer.email },
-          extraFields: { unitNumber: customer.unitNumber },
+          extraFields: {
+            unitNumber: customer.unitNumber,
+            ...(interestedServices.length > 0 && { interestedServices: interestedServices.join(', ') }),
+          },
           status: 'confirmed',
           checkedIn: false,
           createdAt: new Date().toISOString(),
@@ -196,6 +216,43 @@ export default function Reserve() {
                   )}
                 </div>
               ))}
+
+              {/* 관심 서비스 */}
+              <div className="pt-1">
+                <div className="flex items-baseline gap-2 mb-2">
+                  <label className="block text-sm font-semibold text-gray-700">관심 서비스</label>
+                  <span className="text-xs text-gray-400">최대 {MAX_SERVICES}개 선택</span>
+                  {interestedServices.length > 0 && (
+                    <span className="text-xs font-semibold ml-auto" style={{ color: '#667EEA' }}>
+                      {interestedServices.length}/{MAX_SERVICES}
+                    </span>
+                  )}
+                </div>
+                <div className="grid grid-cols-2 gap-x-4 gap-y-2.5">
+                  {serviceOptions.map(name => {
+                    const checked = interestedServices.includes(name);
+                    const disabled = !checked && interestedServices.length >= MAX_SERVICES;
+                    return (
+                      <label
+                        key={name}
+                        className={`flex items-center gap-2 cursor-pointer group ${disabled ? 'opacity-40 cursor-not-allowed' : ''}`}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={checked}
+                          disabled={disabled}
+                          onChange={() => toggleService(name)}
+                          className="w-4 h-4 accent-[#667EEA] rounded"
+                        />
+                        <span className="text-sm text-gray-700 group-hover:text-gray-900">{name}</span>
+                      </label>
+                    );
+                  })}
+                </div>
+                {interestedServices.length >= MAX_SERVICES && (
+                  <p className="text-xs mt-2" style={{ color: '#667EEA' }}>최대 {MAX_SERVICES}개까지 선택할 수 있습니다.</p>
+                )}
+              </div>
 
               <label className="flex items-start gap-2.5 cursor-pointer mt-2">
                 <input
