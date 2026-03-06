@@ -130,6 +130,17 @@ export const getVendorContracts = (): VendorContract[] => {
 export const saveVendorContracts = (contracts: VendorContract[]) =>
   localStorage.setItem(VENDOR_CONTRACTS_KEY, JSON.stringify(contracts));
 
+export const getVendorContractTemplate = (vendorId: string): string[] => {
+  try {
+    const raw = localStorage.getItem(`rv_vendor_template_${vendorId}`);
+    return raw ? (JSON.parse(raw) as string[]) : [];
+  } catch { return []; }
+};
+export const saveVendorContractTemplate = (vendorId: string, images: string[]) =>
+  localStorage.setItem(`rv_vendor_template_${vendorId}`, JSON.stringify(images));
+export const clearVendorContractTemplate = (vendorId: string) =>
+  localStorage.removeItem(`rv_vendor_template_${vendorId}`);
+
 export const getVendorPreSignature = (vendorId: string): string | null =>
   localStorage.getItem(`rv_vendor_sig_${vendorId}`);
 export const saveVendorPreSignature = (vendorId: string, dataUrl: string) =>

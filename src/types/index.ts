@@ -94,7 +94,7 @@ export interface ContractItem {
   amount: number;        // quantity × unitPrice
 }
 
-export type ContractType = 'electronic' | 'upload';
+export type ContractType = 'electronic' | 'upload' | 'template';
 export type ContractStatus = 'draft' | 'completed';
 
 export interface VendorContract {

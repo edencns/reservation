@@ -3,7 +3,7 @@ import { ChevronLeft, Pencil } from 'lucide-react';
 import { getVendorContracts } from '../../utils/storage';
 import type { ManagedVendor } from '../../types';
 
-const TYPE_LABEL: Record<string, string> = { electronic: '전자계약서', upload: '파일 업로드' };
+const TYPE_LABEL: Record<string, string> = { electronic: '전자계약서', upload: '파일 업로드', template: '내 양식 계약서' };
 const STATUS_LABEL: Record<string, string> = { draft: '임시저장', completed: '완료' };
 
 function Row({ label, value }: { label: string; value: React.ReactNode }) {
@@ -160,14 +160,16 @@ export default function ContractView() {
         </div>
       )}
 
-      {/* 업로드 이미지 */}
-      {contract.type === 'upload' && (contract.uploadedImages?.length ?? 0) > 0 && (
+      {/* 업로드 이미지 / 내 양식 */}
+      {(contract.type === 'upload' || contract.type === 'template') && (contract.uploadedImages?.length ?? 0) > 0 && (
         <div className="bg-white rounded-2xl shadow-sm p-5">
-          <h3 className="font-bold text-gray-700 text-sm border-b pb-2 mb-3">계약서 이미지</h3>
-          <div className="grid grid-cols-2 gap-3">
+          <h3 className="font-bold text-gray-700 text-sm border-b pb-2 mb-3">
+            {contract.type === 'template' ? '계약서 양식' : '계약서 이미지'}
+          </h3>
+          <div className="space-y-3">
             {contract.uploadedImages!.map((img, i) => (
-              <img key={i} src={img} alt={`계약서 ${i + 1}`}
-                className="w-full border border-gray-100 rounded-xl object-cover aspect-[3/4]" />
+              <img key={i} src={img} alt={`계약서 ${i + 1}페이지`}
+                className="w-full border border-gray-100 rounded-xl object-contain" />
             ))}
           </div>
         </div>

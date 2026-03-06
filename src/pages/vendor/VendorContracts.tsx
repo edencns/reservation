@@ -1,7 +1,7 @@
 import { useOutletContext, useNavigate, useSearchParams } from 'react-router-dom';
 import { useState, useRef } from 'react';
 import { Plus, FileText, Trash2, ChevronRight, Pen, X, Upload } from 'lucide-react';
-import { getEvents, getVendorContracts, saveVendorContracts, getVendorPreSignature, saveVendorPreSignature, clearVendorPreSignature } from '../../utils/storage';
+import { getEvents, getVendorContracts, saveVendorContracts, getVendorPreSignature, saveVendorPreSignature, clearVendorPreSignature, getVendorContractTemplate, saveVendorContractTemplate, clearVendorContractTemplate } from '../../utils/storage';
 import SignaturePad, { type SignaturePadHandle } from '../../components/SignaturePad';
 import type { ManagedVendor } from '../../types';
 
@@ -18,6 +18,38 @@ export default function VendorContracts() {
   const [preSig, setPreSig] = useState<string | null>(() => getVendorPreSignature(vendor.id));
   const sigRef = useRef<SignaturePadHandle>(null);
   const sigFileRef = useRef<HTMLInputElement>(null);
+
+  // 계약서 양식 템플릿
+  const [template, setTemplate] = useState<string[]>(() => getVendorContractTemplate(vendor.id));
+  const templateFileRef = useRef<HTMLInputElement>(null);
+
+  const handleTemplateUpload = (files: FileList | null) => {
+    if (!files) return;
+    Array.from(files).forEach(file => {
+      if (!file.type.startsWith('image/')) return;
+      const reader = new FileReader();
+      reader.onload = e => {
+        const result = e.target?.result as string;
+        if (result) {
+          setTemplate(prev => {
+            const next = [...prev, result];
+            saveVendorContractTemplate(vendor.id, next);
+            return next;
+          });
+        }
+      };
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const removeTemplateImage = (idx: number) => {
+    setTemplate(prev => {
+      const next = prev.filter((_, i) => i !== idx);
+      if (next.length === 0) clearVendorContractTemplate(vendor.id);
+      else saveVendorContractTemplate(vendor.id, next);
+      return next;
+    });
+  };
 
   const handleSigSave = () => {
     if (sigTab === 'draw') {
@@ -137,6 +169,56 @@ export default function VendorContracts() {
         {preSig && (
           <div className="mt-3 border border-gray-100 rounded-xl p-2 bg-gray-50">
             <img src={preSig} alt="사전 서명" className="h-12 object-contain" />
+          </div>
+        )}
+      </div>
+
+      {/* 계약서 양식 템플릿 */}
+      <div className="bg-white rounded-2xl shadow-sm p-4 space-y-3">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Upload size={15} className="text-gray-400" />
+            <span className="text-sm font-semibold text-gray-700">계약서 양식</span>
+            {template.length > 0
+              ? <span className="text-xs text-green-600 font-medium bg-green-50 px-2 py-0.5 rounded-full">{template.length}페이지</span>
+              : <span className="text-xs text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full">미등록</span>
+            }
+          </div>
+          <div className="flex items-center gap-2">
+            {template.length > 0 && (
+              <button
+                onClick={() => { clearVendorContractTemplate(vendor.id); setTemplate([]); }}
+                className="text-xs text-red-400 hover:text-red-600 flex items-center gap-1"
+              >
+                <X size={12} /> 전체 삭제
+              </button>
+            )}
+            <button
+              onClick={() => templateFileRef.current?.click()}
+              className="text-xs font-semibold px-3 py-1.5 rounded-xl text-white hover:opacity-90"
+              style={{ backgroundColor: '#667EEA' }}
+            >
+              {template.length > 0 ? '페이지 추가' : '양식 업로드'}
+            </button>
+          </div>
+        </div>
+        <p className="text-xs text-gray-400">양식을 등록하면 "내 양식으로 계약" 옵션으로 전자계약서를 작성할 수 있습니다.</p>
+        <input ref={templateFileRef} type="file" accept="image/*" multiple className="hidden"
+          onChange={e => handleTemplateUpload(e.target.files)} />
+        {template.length > 0 && (
+          <div className="grid grid-cols-3 gap-2">
+            {template.map((img, i) => (
+              <div key={i} className="relative">
+                <img src={img} alt={`양식 ${i + 1}페이지`} className="w-full rounded-xl border border-gray-100 object-cover aspect-[3/4] bg-gray-50" />
+                <button
+                  onClick={() => removeTemplateImage(i)}
+                  className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center text-white hover:bg-red-600"
+                >
+                  <X size={10} />
+                </button>
+                <span className="absolute bottom-1 left-1 text-xs bg-black/40 text-white rounded px-1">{i + 1}p</span>
+              </div>
+            ))}
           </div>
         )}
       </div>
