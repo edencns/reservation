@@ -1,193 +1,183 @@
-import { useState, useRef } from 'react';
-import { Trash2, Type, PenLine, X } from 'lucide-react';
+import { useRef, useState } from 'react';
+import { Plus, Trash2, X, PenLine } from 'lucide-react';
 import SignaturePad, { type SignaturePadHandle } from '../../components/SignaturePad';
 import { generateId } from '../../utils/helpers';
 import type { TemplateField } from '../../types';
 
+const TYPE_LABELS: Record<TemplateField['type'], string> = {
+  text: '텍스트',
+  date: '날짜',
+  amount: '금액',
+  signature: '서명',
+};
+
+const TYPE_OPTIONS = Object.entries(TYPE_LABELS) as [TemplateField['type'], string][];
+
 interface Props {
   pages: string[];
   fields: TemplateField[];
-  onChange: (fields: TemplateField[]) => void;
+  onChange?: (fields: TemplateField[]) => void;
   readonly?: boolean;
 }
 
 export default function TemplateContractEditor({ pages, fields, onChange, readonly = false }: Props) {
-  const [addMode, setAddMode] = useState<'text' | 'signature' | null>(null);
   const [signingFieldId, setSigningFieldId] = useState<string | null>(null);
   const sigRef = useRef<SignaturePadHandle>(null);
 
-  const handlePageClick = (e: React.MouseEvent<HTMLDivElement>, pageIndex: number) => {
-    if (!addMode || readonly) return;
-    const rect = e.currentTarget.getBoundingClientRect();
-    const x = ((e.clientX - rect.left) / rect.width) * 100;
-    const y = ((e.clientY - rect.top) / rect.height) * 100;
-    const newField: TemplateField = {
-      id: generateId(),
-      pageIndex,
-      x,
-      y,
-      type: addMode,
-      value: '',
-    };
-    onChange([...fields, newField]);
-    setAddMode(null);
-  };
+  const update = (id: string, patch: Partial<TemplateField>) =>
+    onChange?.(fields.map(f => f.id === id ? { ...f, ...patch } : f));
 
-  const updateField = (id: string, value: string) =>
-    onChange(fields.map(f => f.id === id ? { ...f, value } : f));
+  const remove = (id: string) =>
+    onChange?.(fields.filter(f => f.id !== id));
 
-  const removeField = (id: string) =>
-    onChange(fields.filter(f => f.id !== id));
+  const addField = () =>
+    onChange?.([...fields, { id: generateId(), label: '', type: 'text', value: '' }]);
 
   const confirmSig = () => {
     if (!sigRef.current || sigRef.current.isEmpty() || !signingFieldId) return;
-    updateField(signingFieldId, sigRef.current.toDataURL());
+    update(signingFieldId, { value: sigRef.current.toDataURL() });
     setSigningFieldId(null);
   };
 
+  const inputCls = 'w-full px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#667EEA] bg-white';
+
   return (
-    <div className="space-y-4">
-      {/* 툴바 */}
-      {!readonly && (
-        <div className="flex items-center gap-2 flex-wrap p-3 bg-gray-50 rounded-xl border border-gray-200">
-          <span className="text-xs font-semibold text-gray-500 mr-1">필드 추가:</span>
-          <button
-            type="button"
-            onClick={() => setAddMode(addMode === 'text' ? null : 'text')}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-              addMode === 'text' ? 'text-white' : 'bg-white border border-gray-200 text-gray-600 hover:border-indigo-300'
-            }`}
-            style={addMode === 'text' ? { backgroundColor: '#667EEA' } : {}}
-          >
-            <Type size={13} /> 텍스트
-          </button>
-          <button
-            type="button"
-            onClick={() => setAddMode(addMode === 'signature' ? null : 'signature')}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-              addMode === 'signature' ? 'text-white' : 'bg-white border border-gray-200 text-gray-600 hover:border-indigo-300'
-            }`}
-            style={addMode === 'signature' ? { backgroundColor: '#667EEA' } : {}}
-          >
-            <PenLine size={13} /> 서명
-          </button>
-          {addMode ? (
-            <span className="text-xs font-semibold ml-1" style={{ color: '#667EEA' }}>
-              ▶ 양식에서 원하는 위치를 클릭하세요
-            </span>
-          ) : (
-            <span className="text-xs text-gray-400 ml-1">버튼 선택 후 양식 위 원하는 위치 클릭</span>
-          )}
+    <div className="space-y-5">
+      {/* 양식 이미지 미리보기 */}
+      {pages.length > 0 && (
+        <div className="space-y-2">
+          <p className="text-xs font-semibold text-gray-500">계약서 양식 원본</p>
+          <div className="max-h-96 overflow-y-auto space-y-2 border border-gray-100 rounded-xl p-2 bg-gray-50">
+            {pages.map((img, i) => (
+              <img key={i} src={img} alt={`양식 ${i + 1}페이지`}
+                className="w-full rounded-lg border border-gray-200 object-contain" />
+            ))}
+          </div>
         </div>
       )}
 
-      {/* 페이지별 렌더링 */}
-      {pages.map((pageImg, pageIndex) => {
-        const pageFields = fields.filter(f => f.pageIndex === pageIndex);
-        return (
-          <div key={pageIndex} className="space-y-1">
-            <p className="text-xs text-gray-400 text-center">{pageIndex + 1} / {pages.length} 페이지</p>
-            <div
-              className={`relative select-none ${!readonly && addMode ? 'cursor-crosshair ring-2 ring-indigo-300 ring-offset-1 rounded-xl' : ''}`}
-              onClick={(e) => handlePageClick(e, pageIndex)}
+      {/* 필드 목록 */}
+      <div className="space-y-3">
+        <div className="flex items-center justify-between">
+          <p className="text-xs font-semibold text-gray-500">
+            {readonly ? '작성 내용' : '입력 필드'}
+          </p>
+          {!readonly && (
+            <button
+              type="button"
+              onClick={addField}
+              className="flex items-center gap-1 text-xs px-2.5 py-1.5 rounded-lg font-semibold border border-gray-200 text-gray-600 hover:bg-gray-50"
             >
-              <img
-                src={pageImg}
-                alt={`양식 ${pageIndex + 1}페이지`}
-                className="w-full rounded-xl border border-gray-200"
-                draggable={false}
-              />
+              <Plus size={12} /> 필드 추가
+            </button>
+          )}
+        </div>
 
-              {/* 필드 오버레이 */}
-              {pageFields.map(field => (
-                <div
-                  key={field.id}
-                  className="absolute"
-                  style={{ left: `${field.x}%`, top: `${field.y}%`, transform: 'translateY(-50%)', zIndex: 10 }}
-                  onClick={e => e.stopPropagation()}
-                >
-                  {field.type === 'text' ? (
-                    <div className="flex items-center gap-1">
-                      <input
-                        type="text"
-                        value={field.value}
-                        onChange={e => updateField(field.id, e.target.value)}
-                        placeholder="입력"
-                        readOnly={readonly}
-                        className="border-b-2 border-[#667EEA] bg-white/80 text-sm px-1 py-0.5 outline-none min-w-[80px] max-w-[180px] rounded-sm"
-                      />
-                      {!readonly && (
+        {fields.length === 0 && (
+          <p className="text-sm text-gray-400 text-center py-6">
+            {readonly ? '작성된 내용이 없습니다.' : 'AI 분석 후 필드가 자동 생성됩니다.'}
+          </p>
+        )}
+
+        <div className="space-y-2">
+          {fields.map(field => (
+            <div key={field.id} className={`rounded-xl border ${readonly ? 'border-gray-100 bg-gray-50 p-3' : 'border-gray-200 bg-white p-3'}`}>
+              {readonly ? (
+                /* 읽기 전용 */
+                <div className="flex items-start gap-3">
+                  <span className="text-xs text-gray-400 w-20 shrink-0 pt-0.5">{field.label}</span>
+                  {field.type === 'signature' ? (
+                    field.value
+                      ? <img src={field.value} alt="서명" className="h-12 border border-gray-200 rounded bg-white object-contain" />
+                      : <span className="text-sm text-gray-300 italic">미서명</span>
+                  ) : (
+                    <span className="text-sm font-medium text-gray-800 break-all">
+                      {field.value || <span className="text-gray-300 italic">미입력</span>}
+                    </span>
+                  )}
+                </div>
+              ) : (
+                /* 편집 모드 */
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="text"
+                      value={field.label}
+                      onChange={e => update(field.id, { label: e.target.value })}
+                      placeholder="필드명 (예: 고객명)"
+                      className="flex-1 px-2.5 py-1.5 border border-gray-200 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-[#667EEA]"
+                    />
+                    <select
+                      value={field.type}
+                      onChange={e => update(field.id, { type: e.target.value as TemplateField['type'], value: '' })}
+                      className="px-2 py-1.5 border border-gray-200 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-[#667EEA] bg-white"
+                    >
+                      {TYPE_OPTIONS.map(([v, l]) => (
+                        <option key={v} value={v}>{l}</option>
+                      ))}
+                    </select>
+                    <button type="button" onClick={() => remove(field.id)}
+                      className="p-1.5 text-gray-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors shrink-0">
+                      <Trash2 size={13} />
+                    </button>
+                  </div>
+
+                  {/* 입력 */}
+                  {field.type === 'signature' ? (
+                    <div>
+                      {field.value ? (
+                        <div className="flex items-center gap-2">
+                          <img src={field.value} alt="서명" className="h-12 border border-gray-200 rounded bg-gray-50 object-contain" />
+                          <button type="button" onClick={() => { update(field.id, { value: '' }); setSigningFieldId(field.id); }}
+                            className="text-xs px-2.5 py-1 border border-gray-200 rounded-lg text-gray-500 hover:bg-gray-50">
+                            재서명
+                          </button>
+                        </div>
+                      ) : (
                         <button
                           type="button"
-                          onClick={() => removeField(field.id)}
-                          className="w-4 h-4 bg-red-500 rounded-full flex items-center justify-center text-white hover:bg-red-600 shrink-0"
+                          onClick={() => setSigningFieldId(field.id)}
+                          className="flex items-center gap-1.5 text-sm px-4 py-2 border-2 border-dashed border-[#667EEA] rounded-xl text-indigo-600 font-semibold hover:bg-blue-50 w-full justify-center"
                         >
-                          <X size={9} />
+                          <PenLine size={15} /> 서명하기
                         </button>
                       )}
                     </div>
-                  ) : (
-                    <div className="flex items-center gap-1">
-                      {field.value ? (
-                        <>
-                          <img src={field.value} alt="서명" className="h-10 border border-gray-200 rounded bg-white/90 shadow-sm" />
-                          {!readonly && (
-                            <>
-                              <button
-                                type="button"
-                                onClick={() => { updateField(field.id, ''); setSigningFieldId(field.id); }}
-                                className="text-xs bg-white border border-gray-200 rounded px-1.5 py-0.5 text-gray-500 hover:text-gray-700 shadow-sm"
-                              >재서명</button>
-                              <button
-                                type="button"
-                                onClick={() => removeField(field.id)}
-                                className="w-4 h-4 bg-red-500 rounded-full flex items-center justify-center text-white hover:bg-red-600 shrink-0"
-                              >
-                                <X size={9} />
-                              </button>
-                            </>
-                          )}
-                        </>
-                      ) : (
-                        <>
-                          <button
-                            type="button"
-                            onClick={() => !readonly && setSigningFieldId(field.id)}
-                            className="text-xs px-2.5 py-1 bg-white/90 border-2 border-dashed border-[#667EEA] rounded text-indigo-600 font-semibold hover:bg-blue-50 shadow-sm"
-                          >
-                            ✍ 서명
-                          </button>
-                          {!readonly && (
-                            <button
-                              type="button"
-                              onClick={() => removeField(field.id)}
-                              className="w-4 h-4 bg-red-500 rounded-full flex items-center justify-center text-white hover:bg-red-600 shrink-0"
-                            >
-                              <X size={9} />
-                            </button>
-                          )}
-                        </>
-                      )}
+                  ) : field.type === 'date' ? (
+                    <input type="date" className={inputCls} value={field.value}
+                      onChange={e => update(field.id, { value: e.target.value })} />
+                  ) : field.type === 'amount' ? (
+                    <div className="relative">
+                      <input
+                        type="text"
+                        inputMode="numeric"
+                        className={inputCls}
+                        value={field.value}
+                        placeholder="0"
+                        onChange={e => {
+                          const raw = e.target.value.replace(/[^0-9]/g, '');
+                          update(field.id, { value: raw ? Number(raw).toLocaleString() : '' });
+                        }}
+                      />
+                      <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-gray-400">원</span>
                     </div>
+                  ) : (
+                    <input type="text" className={inputCls} value={field.value}
+                      placeholder={`${field.label || '내용'} 입력`}
+                      onChange={e => update(field.id, { value: e.target.value })} />
                   )}
                 </div>
-              ))}
+              )}
             </div>
-          </div>
-        );
-      })}
-
-      {fields.length === 0 && !readonly && (
-        <p className="text-xs text-gray-400 text-center py-2">위 버튼으로 텍스트 또는 서명 필드를 추가하세요</p>
-      )}
+          ))}
+        </div>
+      </div>
 
       {/* 서명 모달 */}
       {signingFieldId && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-4"
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4"
           style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}
-          onClick={() => setSigningFieldId(null)}
-        >
+          onClick={() => setSigningFieldId(null)}>
           <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm p-5" onClick={e => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-3">
               <h3 className="font-bold text-gray-800">서명</h3>
@@ -197,24 +187,15 @@ export default function TemplateContractEditor({ pages, fields, onChange, readon
             </div>
             <SignaturePad ref={sigRef} label="아래에 서명해주세요" />
             <div className="flex gap-2 mt-3">
-              <button
-                type="button"
-                onClick={() => setSigningFieldId(null)}
-                className="flex-1 py-2.5 rounded-xl border border-gray-200 text-sm font-semibold text-gray-600"
-              >취소</button>
-              <button
-                type="button"
-                onClick={confirmSig}
+              <button type="button" onClick={() => setSigningFieldId(null)}
+                className="flex-1 py-2.5 rounded-xl border border-gray-200 text-sm font-semibold text-gray-600">취소</button>
+              <button type="button" onClick={confirmSig}
                 className="flex-1 py-2.5 rounded-xl text-white text-sm font-semibold"
-                style={{ backgroundColor: '#667EEA' }}
-              >확인</button>
+                style={{ backgroundColor: '#667EEA' }}>확인</button>
             </div>
           </div>
         </div>
       )}
-
-      {/* 사용되지 않는 import 방지용 */}
-      <span className="hidden"><Trash2 size={0} /></span>
     </div>
   );
 }

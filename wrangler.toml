@@ -6,3 +6,6 @@ pages_build_output_dir = "dist"
 binding = "DB"
 database_name = "reservation"
 database_id = "d7157116-7bf3-49e6-a7c9-e8e455846cf5"
+
+[ai]
+binding = "AI"

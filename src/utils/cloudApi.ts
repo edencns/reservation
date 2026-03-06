@@ -1,4 +1,4 @@
-import type { Event, Reservation } from '../types';
+import type { Event, Reservation, TemplateField } from '../types';
 
 const jsonHeaders = { 'Content-Type': 'application/json' };
 
@@ -91,6 +91,21 @@ export const apiSendContractSms = async (data: ContractSmsPayload): Promise<{ ok
     body: JSON.stringify(data),
   });
   return parseJson<{ ok: boolean }>(res);
+};
+
+export const apiAnalyzeContractTemplate = async (imageBase64: string): Promise<TemplateField[]> => {
+  const res = await fetch('/api/contract/analyze', {
+    method: 'POST',
+    headers: jsonHeaders,
+    body: JSON.stringify({ image: imageBase64 }),
+  });
+  const data = await parseJson<{ fields: Omit<TemplateField, 'id' | 'value'>[] }>(res);
+  return (data.fields ?? []).map((f, i) => ({
+    id: `field_${Date.now()}_${i}`,
+    label: f.label,
+    type: f.type,
+    value: '',
+  }));
 };
 
 export const apiSendSms = async (

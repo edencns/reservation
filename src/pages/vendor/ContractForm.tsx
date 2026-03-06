@@ -5,7 +5,7 @@ import SignaturePad, { type SignaturePadHandle } from '../../components/Signatur
 import {
   getEvents, getVendorContracts, saveVendorContracts,
   getVendorPreSignature, saveVendorPreSignature, clearVendorPreSignature,
-  getVendorContractTemplate,
+  getVendorContractTemplate, getVendorTemplateFields,
 } from '../../utils/storage';
 import { generateId } from '../../utils/helpers';
 import { apiSendContractSms } from '../../utils/cloudApi';
@@ -36,7 +36,12 @@ export default function ContractForm() {
 
   const [contractType, setContractType] = useState<'electronic' | 'upload' | 'template'>(existing?.type ?? 'electronic');
   const vendorTemplate = getVendorContractTemplate(vendor.id);
-  const [templateFields, setTemplateFields] = useState<TemplateField[]>(existing?.templateFields ?? []);
+  const vendorTemplateFieldDefs = getVendorTemplateFields(vendor.id);
+  const [templateFields, setTemplateFields] = useState<TemplateField[]>(
+    existing?.templateFields?.length
+      ? existing.templateFields
+      : vendorTemplateFieldDefs.map(f => ({ ...f, value: '' }))
+  );
   const [eventId, setEventId] = useState(existing?.eventId ?? searchParams.get('eventId') ?? (myEvents[0]?.id ?? ''));
   const [contractDate, setContractDate] = useState(existing?.contractDate ?? new Date().toISOString().slice(0, 10));
   const [unitNumber, setUnitNumber] = useState(existing?.unitNumber ?? '');
@@ -192,7 +197,7 @@ export default function ContractForm() {
         <div className="grid grid-cols-1 gap-2">
           {([
             { value: 'electronic', label: '전자계약서', desc: '품목 입력 + 서명' },
-            { value: 'template', label: '내 양식으로 계약', desc: '등록된 양식 + 서명', disabled: vendorTemplate.length === 0 },
+            { value: 'template', label: '내 양식으로 계약', desc: `등록된 양식 + AI 감지 필드 (${vendorTemplateFieldDefs.length}개)`, disabled: vendorTemplate.length === 0 || vendorTemplateFieldDefs.length === 0 },
             { value: 'upload', label: '파일 업로드', desc: '종이계약서 사진 업로드' },
           ] as const).map(opt => (
             <button
@@ -207,7 +212,7 @@ export default function ContractForm() {
               <p className="text-sm font-bold text-gray-800">{opt.label}</p>
               <p className="text-xs text-gray-400 mt-0.5">
                 {opt.value === 'template' && vendorTemplate.length === 0
-                  ? '양식을 먼저 등록해주세요 (계약 목록 → 계약서 양식)'
+                  ? '양식 업로드 후 AI 분석이 필요합니다 (계약 목록 → 계약서 양식)'
                   : opt.desc}
               </p>
             </button>

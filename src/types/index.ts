@@ -99,11 +99,9 @@ export type ContractStatus = 'draft' | 'completed';
 
 export interface TemplateField {
   id: string;
-  pageIndex: number;
-  x: number;       // % from left
-  y: number;       // % from top
-  type: 'text' | 'signature';
-  value: string;   // text content or base64 signature
+  label: string;
+  type: 'text' | 'date' | 'amount' | 'signature';
+  value: string;   // 입력값 또는 base64 서명
 }
 
 export interface VendorContract {

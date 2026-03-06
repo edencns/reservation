@@ -1,9 +1,10 @@
 import { useOutletContext, useNavigate, useSearchParams } from 'react-router-dom';
 import { useState, useRef } from 'react';
-import { Plus, FileText, Trash2, ChevronRight, Pen, X, Upload } from 'lucide-react';
-import { getEvents, getVendorContracts, saveVendorContracts, getVendorPreSignature, saveVendorPreSignature, clearVendorPreSignature, getVendorContractTemplate, saveVendorContractTemplate, clearVendorContractTemplate } from '../../utils/storage';
+import { Plus, FileText, Trash2, ChevronRight, Pen, X, Upload, Sparkles, Pencil } from 'lucide-react';
+import { getEvents, getVendorContracts, saveVendorContracts, getVendorPreSignature, saveVendorPreSignature, clearVendorPreSignature, getVendorContractTemplate, saveVendorContractTemplate, clearVendorContractTemplate, getVendorTemplateFields, saveVendorTemplateFields, clearVendorTemplateFields } from '../../utils/storage';
 import SignaturePad, { type SignaturePadHandle } from '../../components/SignaturePad';
-import type { ManagedVendor } from '../../types';
+import { apiAnalyzeContractTemplate } from '../../utils/cloudApi';
+import type { ManagedVendor, TemplateField } from '../../types';
 
 const STATUS_LABEL: Record<string, string> = { draft: '임시저장', completed: '완료' };
 
@@ -21,6 +22,10 @@ export default function VendorContracts() {
 
   // 계약서 양식 템플릿
   const [template, setTemplate] = useState<string[]>(() => getVendorContractTemplate(vendor.id));
+  const [templateFields, setTemplateFields] = useState<TemplateField[]>(() => getVendorTemplateFields(vendor.id));
+  const [analyzing, setAnalyzing] = useState(false);
+  const [analyzeError, setAnalyzeError] = useState<string | null>(null);
+  const [editingFields, setEditingFields] = useState(false);
   const templateFileRef = useRef<HTMLInputElement>(null);
 
   const handleTemplateUpload = (files: FileList | null) => {
@@ -49,6 +54,27 @@ export default function VendorContracts() {
       else saveVendorContractTemplate(vendor.id, next);
       return next;
     });
+  };
+
+  const handleAnalyze = async () => {
+    if (template.length === 0) return;
+    setAnalyzing(true);
+    setAnalyzeError(null);
+    try {
+      const fields = await apiAnalyzeContractTemplate(template[0]);
+      setTemplateFields(fields);
+      saveVendorTemplateFields(vendor.id, fields);
+      setEditingFields(true);
+    } catch (e) {
+      setAnalyzeError('분석에 실패했습니다. 다시 시도해주세요.');
+    } finally {
+      setAnalyzing(false);
+    }
+  };
+
+  const saveTemplateFields = (fields: TemplateField[]) => {
+    setTemplateFields(fields);
+    saveVendorTemplateFields(vendor.id, fields);
   };
 
   const handleSigSave = () => {
@@ -187,10 +213,10 @@ export default function VendorContracts() {
           <div className="flex items-center gap-2">
             {template.length > 0 && (
               <button
-                onClick={() => { clearVendorContractTemplate(vendor.id); setTemplate([]); }}
+                onClick={() => { clearVendorContractTemplate(vendor.id); clearVendorTemplateFields(vendor.id); setTemplate([]); setTemplateFields([]); }}
                 className="text-xs text-red-400 hover:text-red-600 flex items-center gap-1"
               >
-                <X size={12} /> 전체 삭제
+                <X size={12} /> 삭제
               </button>
             )}
             <button
@@ -202,24 +228,99 @@ export default function VendorContracts() {
             </button>
           </div>
         </div>
-        <p className="text-xs text-gray-400">양식을 등록하면 "내 양식으로 계약" 옵션으로 전자계약서를 작성할 수 있습니다.</p>
+        <p className="text-xs text-gray-400">양식 이미지를 업로드하고 AI로 분석하면 계약 작성 시 입력 필드가 자동 생성됩니다.</p>
         <input ref={templateFileRef} type="file" accept="image/*" multiple className="hidden"
           onChange={e => handleTemplateUpload(e.target.files)} />
+
         {template.length > 0 && (
-          <div className="grid grid-cols-3 gap-2">
-            {template.map((img, i) => (
-              <div key={i} className="relative">
-                <img src={img} alt={`양식 ${i + 1}페이지`} className="w-full rounded-xl border border-gray-100 object-cover aspect-[3/4] bg-gray-50" />
-                <button
-                  onClick={() => removeTemplateImage(i)}
-                  className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center text-white hover:bg-red-600"
-                >
-                  <X size={10} />
-                </button>
-                <span className="absolute bottom-1 left-1 text-xs bg-black/40 text-white rounded px-1">{i + 1}p</span>
+          <>
+            <div className="grid grid-cols-3 gap-2">
+              {template.map((img, i) => (
+                <div key={i} className="relative">
+                  <img src={img} alt={`양식 ${i + 1}페이지`} className="w-full rounded-xl border border-gray-100 object-cover aspect-[3/4] bg-gray-50" />
+                  <button onClick={() => removeTemplateImage(i)}
+                    className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center text-white hover:bg-red-600">
+                    <X size={10} />
+                  </button>
+                  <span className="absolute bottom-1 left-1 text-xs bg-black/40 text-white rounded px-1">{i + 1}p</span>
+                </div>
+              ))}
+            </div>
+
+            {/* AI 분석 버튼 */}
+            <button
+              onClick={handleAnalyze}
+              disabled={analyzing}
+              className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold border-2 border-dashed border-indigo-300 text-indigo-600 hover:bg-indigo-50 disabled:opacity-50 transition-all"
+            >
+              <Sparkles size={15} />
+              {analyzing ? 'AI 분석 중...' : 'AI로 입력 필드 자동 감지'}
+            </button>
+            {analyzeError && <p className="text-xs text-red-500 text-center">{analyzeError}</p>}
+
+            {/* 감지된 필드 목록 */}
+            {templateFields.length > 0 && (
+              <div className="border border-gray-100 rounded-xl p-3 space-y-2">
+                <div className="flex items-center justify-between">
+                  <p className="text-xs font-semibold text-gray-600">감지된 입력 필드 ({templateFields.length}개)</p>
+                  <button onClick={() => setEditingFields(v => !v)}
+                    className="flex items-center gap-1 text-xs text-indigo-500 hover:text-indigo-700">
+                    <Pencil size={11} /> {editingFields ? '완료' : '수정'}
+                  </button>
+                </div>
+                <div className="space-y-1">
+                  {templateFields.map((f, i) => (
+                    <div key={f.id} className="flex items-center gap-2">
+                      {editingFields ? (
+                        <>
+                          <input
+                            value={f.label}
+                            onChange={e => {
+                              const next = templateFields.map((tf, idx) => idx === i ? { ...tf, label: e.target.value } : tf);
+                              saveTemplateFields(next);
+                            }}
+                            className="flex-1 px-2 py-1 border border-gray-200 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-[#667EEA]"
+                          />
+                          <select
+                            value={f.type}
+                            onChange={e => {
+                              const next = templateFields.map((tf, idx) => idx === i ? { ...tf, type: e.target.value as TemplateField['type'] } : tf);
+                              saveTemplateFields(next);
+                            }}
+                            className="px-2 py-1 border border-gray-200 rounded-lg text-xs bg-white focus:outline-none"
+                          >
+                            <option value="text">텍스트</option>
+                            <option value="date">날짜</option>
+                            <option value="amount">금액</option>
+                            <option value="signature">서명</option>
+                          </select>
+                          <button onClick={() => saveTemplateFields(templateFields.filter((_, idx) => idx !== i))}
+                            className="p-1 text-gray-300 hover:text-red-500 rounded shrink-0">
+                            <X size={12} />
+                          </button>
+                        </>
+                      ) : (
+                        <>
+                          <span className="flex-1 text-xs text-gray-700">{f.label}</span>
+                          <span className="text-xs text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded">
+                            {f.type === 'text' ? '텍스트' : f.type === 'date' ? '날짜' : f.type === 'amount' ? '금액' : '서명'}
+                          </span>
+                        </>
+                      )}
+                    </div>
+                  ))}
+                </div>
+                {editingFields && (
+                  <button
+                    onClick={() => saveTemplateFields([...templateFields, { id: `field_${Date.now()}`, label: '', type: 'text', value: '' }])}
+                    className="flex items-center gap-1 text-xs text-indigo-500 hover:text-indigo-700 mt-1"
+                  >
+                    <Plus size={11} /> 필드 추가
+                  </button>
+                )}
               </div>
-            ))}
-          </div>
+            )}
+          </>
         )}
       </div>
 
