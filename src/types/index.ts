@@ -134,8 +134,10 @@ export interface VendorContract {
   vendorSignature?: string;
   // 파일 업로드
   uploadedImages?: string[];   // base64 image array
-  // 내 양식 계약서 필드
+  // 내 양식 계약서 필드 (오버레이 방식)
   templateFields?: TemplateField[];
+  // 내 양식 계약서 필기 (직접 필기 방식)
+  templateAnnotations?: string[];
   type: ContractType;
   status: ContractStatus;
   createdAt: string;

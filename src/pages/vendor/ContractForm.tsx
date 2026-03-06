@@ -10,7 +10,7 @@ import {
 import { generateId } from '../../utils/helpers';
 import { apiSendContractSms } from '../../utils/cloudApi';
 import type { ManagedVendor, VendorContract, ContractItem, TemplateField } from '../../types';
-import TemplateContractEditor from './TemplateContractEditor';
+import DrawableContractEditor from './DrawableContractEditor';
 
 const PAYMENT_OPTIONS = ['현금', '카드', '계좌이체', '기타'];
 
@@ -37,10 +37,13 @@ export default function ContractForm() {
   const [contractType, setContractType] = useState<'electronic' | 'upload' | 'template'>(existing?.type ?? 'electronic');
   const vendorTemplate = getVendorContractTemplate(vendor.id);
   const vendorTemplateFieldDefs = getVendorTemplateFields(vendor.id);
-  const [templateFields, setTemplateFields] = useState<TemplateField[]>(
+  const [templateFields] = useState<TemplateField[]>(
     existing?.templateFields?.length
       ? existing.templateFields
       : vendorTemplateFieldDefs.map(f => ({ ...f, value: '' }))
+  );
+  const [templateAnnotations, setTemplateAnnotations] = useState<string[]>(
+    existing?.templateAnnotations ?? []
   );
   const [eventId, setEventId] = useState(existing?.eventId ?? searchParams.get('eventId') ?? (myEvents[0]?.id ?? ''));
   const [contractDate, setContractDate] = useState(existing?.contractDate ?? new Date().toISOString().slice(0, 10));
@@ -141,8 +144,9 @@ export default function ContractForm() {
       contractDate,
       customerSignature: customerSig,
       vendorSignature: vendorSig,
-      uploadedImages: contractType === 'upload' ? uploadedImages : contractType === 'template' ? vendorTemplate : [],
+      uploadedImages: contractType === 'upload' ? uploadedImages : [],
       templateFields: contractType === 'template' ? templateFields : undefined,
+      templateAnnotations: contractType === 'template' ? templateAnnotations : undefined,
       type: contractType,
       status: asDraft ? 'draft' : 'completed',
       createdAt: existing?.createdAt ?? new Date().toISOString(),
@@ -197,7 +201,7 @@ export default function ContractForm() {
         <div className="grid grid-cols-1 gap-2">
           {([
             { value: 'electronic', label: '전자계약서', desc: '품목 입력 + 서명' },
-            { value: 'template', label: '내 양식으로 계약', desc: `등록된 양식 + AI 감지 필드 (${vendorTemplateFieldDefs.length}개)`, disabled: vendorTemplate.length === 0 || vendorTemplateFieldDefs.length === 0 },
+            { value: 'template', label: '내 양식으로 계약', desc: '등록된 양식 위에 직접 필기', disabled: vendorTemplate.length === 0 },
             { value: 'upload', label: '파일 업로드', desc: '종이계약서 사진 업로드' },
           ] as const).map(opt => (
             <button
@@ -212,7 +216,7 @@ export default function ContractForm() {
               <p className="text-sm font-bold text-gray-800">{opt.label}</p>
               <p className="text-xs text-gray-400 mt-0.5">
                 {opt.value === 'template' && vendorTemplate.length === 0
-                  ? '양식 업로드 후 AI 분석이 필요합니다 (계약 목록 → 계약서 양식)'
+                  ? '양식 이미지를 먼저 업로드하세요 (계약 목록 → 계약서 양식)'
                   : opt.desc}
               </p>
             </button>
@@ -412,17 +416,23 @@ export default function ContractForm() {
         </>
       )}
 
-      {/* 내 양식으로 계약 */}
+      {/* 내 양식으로 계약 - 직접 필기 */}
       {contractType === 'template' && (
         <div className="bg-white rounded-2xl shadow-sm p-5 space-y-4">
           <div className="border-b pb-2">
             <h3 className="font-bold text-gray-700 text-sm">계약서 작성</h3>
-            <p className="text-xs text-gray-400 mt-0.5">텍스트/서명 필드를 추가한 뒤 빈칸 위치에 배치하세요</p>
+            <p className="text-xs text-gray-400 mt-0.5">펜으로 직접 빈칸에 필기하세요</p>
           </div>
-          <TemplateContractEditor
+          <DrawableContractEditor
             pages={vendorTemplate}
-            fields={templateFields}
-            onChange={setTemplateFields}
+            annotations={templateAnnotations}
+            onChange={(pageIdx, dataUrl) =>
+              setTemplateAnnotations(prev => {
+                const next = [...prev];
+                next[pageIdx] = dataUrl;
+                return next;
+              })
+            }
           />
         </div>
       )}

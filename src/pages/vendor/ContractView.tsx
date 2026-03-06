@@ -2,7 +2,6 @@ import { useOutletContext, useNavigate, useParams } from 'react-router-dom';
 import { ChevronLeft, Pencil } from 'lucide-react';
 import { getVendorContracts } from '../../utils/storage';
 import type { ManagedVendor } from '../../types';
-import TemplateContractEditor from './TemplateContractEditor';
 
 const TYPE_LABEL: Record<string, string> = { electronic: '전자계약서', upload: '파일 업로드', template: '내 양식 계약서' };
 const STATUS_LABEL: Record<string, string> = { draft: '임시저장', completed: '완료' };
@@ -161,16 +160,16 @@ export default function ContractView() {
         </div>
       )}
 
-      {/* 내 양식 계약서 */}
-      {contract.type === 'template' && (contract.uploadedImages?.length ?? 0) > 0 && (
+      {/* 내 양식 계약서 - 직접 필기 */}
+      {contract.type === 'template' && (contract.templateAnnotations?.length ?? 0) > 0 && (
         <div className="bg-white rounded-2xl shadow-sm p-5">
-          <h3 className="font-bold text-gray-700 text-sm border-b pb-2 mb-3">계약서 양식</h3>
-          <TemplateContractEditor
-            pages={contract.uploadedImages!}
-            fields={contract.templateFields ?? []}
-            onChange={() => {}}
-            readonly
-          />
+          <h3 className="font-bold text-gray-700 text-sm border-b pb-2 mb-3">계약서</h3>
+          <div className="space-y-3">
+            {contract.templateAnnotations!.map((img, i) => (
+              <img key={i} src={img} alt={`계약서 ${i + 1}페이지`}
+                className="w-full rounded-xl border border-gray-100 object-contain" />
+            ))}
+          </div>
         </div>
       )}
 
