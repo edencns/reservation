@@ -5,7 +5,7 @@ import { getEvents, getVendorContracts, saveVendorContracts, getVendorPreSignatu
 import SignaturePad, { type SignaturePadHandle } from '../../components/SignaturePad';
 import { apiExtractContractFields } from '../../utils/cloudApi';
 import { preprocessImage } from '../../utils/imagePreprocess';
-import { runOcr, matchFieldsToPositions } from '../../utils/ocrService';
+import { runOcr, detectFieldsFromWords } from '../../utils/ocrService';
 import type { ManagedVendor, TemplateField } from '../../types';
 
 const STATUS_LABEL: Record<string, string> = { draft: '임시저장', completed: '완료' };
@@ -91,27 +91,34 @@ export default function VendorContracts() {
       setRawText(combinedText);
       saveVendorTemplateRawText(vendor.id, combinedText);
 
-      // 3. Claude AI 필드 추출 (없으면 정규식 폴백)
-      setAnalyzeStatus('AI 필드 분석 중...');
-      setAnalyzeProgress(90);
-      const { fields: rawFields, method } = await apiExtractContractFields(combinedText);
-      setExtractMethod(method);
+      // 3. 단어 위치 기반 필드 자동 감지 (API 불필요)
+      setAnalyzeStatus('입력 필드 위치 분석 중...');
+      setAnalyzeProgress(92);
+      const fields = detectFieldsFromWords(ocrPages);
+      setExtractMethod('regex');
 
-      const namedFields: TemplateField[] = rawFields.map((f, i) => ({
-        id: `field_${Date.now()}_${i}`,
-        label: f.label,
-        type: f.type,
-        value: '',
-      }));
-
-      // 4. 위치 매칭 + 체크박스 감지
-      setAnalyzeStatus('위치 데이터 매칭 중...');
-      setAnalyzeProgress(95);
-      const fields = matchFieldsToPositions(namedFields, ocrPages);
-
-      // 5. 저장
-      setTemplateFields(fields);
-      saveVendorTemplateFields(vendor.id, fields);
+      // 4. API 키가 있으면 Claude로 필드명/타입 보완 (선택적)
+      if (fields.length === 0) {
+        // 위치 기반 감지 실패 시 텍스트 기반 폴백
+        try {
+          const { fields: rawFields } = await apiExtractContractFields(combinedText);
+          const fallbackFields: TemplateField[] = rawFields.map((f, i) => ({
+            id: `field_${Date.now()}_${i}`,
+            label: f.label,
+            type: f.type,
+            value: '',
+          }));
+          setTemplateFields(fallbackFields);
+          saveVendorTemplateFields(vendor.id, fallbackFields);
+        } catch {
+          setTemplateFields([]);
+          saveVendorTemplateFields(vendor.id, []);
+        }
+      } else {
+        // 5. 저장
+        setTemplateFields(fields);
+        saveVendorTemplateFields(vendor.id, fields);
+      }
       setAnalyzeProgress(100);
       setAnalyzeStatus('완료');
       setEditingFields(true);
