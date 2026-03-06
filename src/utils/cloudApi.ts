@@ -93,13 +93,30 @@ export const apiSendContractSms = async (data: ContractSmsPayload): Promise<{ ok
   return parseJson<{ ok: boolean }>(res);
 };
 
+const resizeImageForAI = (dataUrl: string, maxWidth = 1200): Promise<string> =>
+  new Promise(resolve => {
+    const img = new Image();
+    img.onload = () => {
+      if (img.width <= maxWidth) { resolve(dataUrl); return; }
+      const scale = maxWidth / img.width;
+      const canvas = document.createElement('canvas');
+      canvas.width = maxWidth;
+      canvas.height = Math.round(img.height * scale);
+      const ctx = canvas.getContext('2d')!;
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+      resolve(canvas.toDataURL('image/jpeg', 0.85));
+    };
+    img.src = dataUrl;
+  });
+
 export const apiAnalyzeContractTemplate = async (imageBase64: string): Promise<TemplateField[]> => {
+  const resized = await resizeImageForAI(imageBase64);
   const res = await fetch('/api/contract/analyze', {
     method: 'POST',
     headers: jsonHeaders,
-    body: JSON.stringify({ image: imageBase64 }),
+    body: JSON.stringify({ image: resized }),
   });
-  const data = await parseJson<{ fields: Omit<TemplateField, 'id' | 'value'>[] }>(res);
+  const data = await parseJson<{ fields: Omit<TemplateField, 'id' | 'value'>[]; error?: string }>(res);
   return (data.fields ?? []).map((f, i) => ({
     id: `field_${Date.now()}_${i}`,
     label: f.label,

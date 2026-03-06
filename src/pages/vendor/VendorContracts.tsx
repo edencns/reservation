@@ -66,7 +66,7 @@ export default function VendorContracts() {
       saveVendorTemplateFields(vendor.id, fields);
       setEditingFields(true);
     } catch (e) {
-      setAnalyzeError('분석에 실패했습니다. 다시 시도해주세요.');
+      setAnalyzeError(e instanceof Error ? e.message : '분석에 실패했습니다. 다시 시도해주세요.');
     } finally {
       setAnalyzing(false);
     }
