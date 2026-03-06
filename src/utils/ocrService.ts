@@ -1,4 +1,4 @@
-import { createWorker } from 'tesseract.js';
+import { createWorker, PSM } from 'tesseract.js';
 
 export type OcrProgressCallback = (progress: number, status: string) => void;
 
@@ -16,14 +16,20 @@ export async function runOcr(images: string[], onProgress?: OcrProgressCallback)
       } else if (m.status === 'initialized tesseract') {
         onProgress?.(20, 'OCR 준비 완료');
       } else if (m.status === 'recognizing text') {
-        // per-page progress is 20..85
         onProgress?.(20 + m.progress * 65, 'OCR 텍스트 인식 중...');
       }
     },
   });
 
+  // 계약서에 최적화된 Tesseract 파라미터
+  await worker.setParameters({
+    tessedit_pageseg_mode: PSM.SINGLE_BLOCK,   // 단일 텍스트 블록으로 처리
+    preserve_interword_spaces: '1',             // 단어 간 공백 유지
+  });
+
   const texts: string[] = [];
   for (let i = 0; i < images.length; i++) {
+    onProgress?.(20 + (i / images.length) * 65, `페이지 ${i + 1}/${images.length} 인식 중...`);
     const { data: { text } } = await worker.recognize(images[i]);
     texts.push(text);
   }
