@@ -1,11 +1,12 @@
 import { useOutletContext, useNavigate, useSearchParams } from 'react-router-dom';
 import { useState, useRef } from 'react';
-import { Plus, FileText, Trash2, ChevronRight, Pen, X, Upload, Sparkles, Pencil } from 'lucide-react';
+import { Plus, FileText, Trash2, ChevronRight, Pen, X, Upload, Sparkles, Pencil, MousePointer2 } from 'lucide-react';
 import { getEvents, getVendorContracts, saveVendorContracts, getVendorPreSignature, saveVendorPreSignature, clearVendorPreSignature, getVendorContractTemplate, saveVendorContractTemplate, clearVendorContractTemplate, getVendorTemplateFields, saveVendorTemplateFields, clearVendorTemplateFields, getVendorTemplateRawText, saveVendorTemplateRawText } from '../../utils/storage';
 import SignaturePad, { type SignaturePadHandle } from '../../components/SignaturePad';
 import { apiExtractContractFields } from '../../utils/cloudApi';
 import { preprocessImage } from '../../utils/imagePreprocess';
 import { runOcr, detectFieldsFromWords } from '../../utils/ocrService';
+import FieldPlacementEditor from './FieldPlacementEditor';
 import type { ManagedVendor, TemplateField } from '../../types';
 
 const STATUS_LABEL: Record<string, string> = { draft: '임시저장', completed: '완료' };
@@ -31,6 +32,7 @@ export default function VendorContracts() {
   const [analyzeError, setAnalyzeError] = useState<string | null>(null);
   const [editingFields, setEditingFields] = useState(false);
   const [extractMethod, setExtractMethod] = useState<'llm' | 'regex' | 'none' | null>(null);
+  const [templateMode, setTemplateMode] = useState<'manual' | 'ai'>('manual');
   const [rawText, setRawText] = useState(() => getVendorTemplateRawText(vendor.id));
   const [showRawText, setShowRawText] = useState(false);
   const templateFileRef = useRef<HTMLInputElement>(null);
@@ -291,6 +293,7 @@ export default function VendorContracts() {
 
         {template.length > 0 && (
           <>
+            {/* 썸네일 */}
             <div className="grid grid-cols-3 gap-2">
               {template.map((img, i) => (
                 <div key={i} className="relative">
@@ -304,120 +307,121 @@ export default function VendorContracts() {
               ))}
             </div>
 
-            {/* AI 분석 버튼 */}
-            <button
-              onClick={handleAnalyze}
-              disabled={analyzing}
-              className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold border-2 border-dashed border-indigo-300 text-indigo-600 hover:bg-indigo-50 disabled:opacity-50 transition-all"
-            >
-              <Sparkles size={15} />
-              {analyzing ? analyzeStatus || 'AI 분석 중...' : 'AI로 입력 필드 자동 감지'}
-            </button>
-
-            {/* 진행 바 */}
-            {analyzing && (
-              <div className="space-y-1">
-                <div className="w-full bg-gray-100 rounded-full h-2 overflow-hidden">
-                  <div
-                    className="h-2 rounded-full transition-all duration-300"
-                    style={{ width: `${analyzeProgress}%`, backgroundColor: '#667EEA' }}
-                  />
-                </div>
-                <div className="flex justify-between text-xs text-gray-400">
-                  <span>{analyzeStatus}</span>
-                  <span>{Math.round(analyzeProgress)}%</span>
-                </div>
-              </div>
-            )}
-
-            {analyzeError && (
-              <p className="text-xs text-red-500 text-center">{analyzeError}</p>
-            )}
-
-            {/* OCR 원문 토글 */}
-            {rawText && !analyzing && (
+            {/* 모드 전환 탭 */}
+            <div className="flex gap-2 p-1 bg-gray-100 rounded-xl">
               <button
-                onClick={() => setShowRawText(v => !v)}
-                className="text-xs text-gray-400 hover:text-gray-600 underline"
+                onClick={() => setTemplateMode('manual')}
+                className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg text-xs font-semibold transition-all"
+                style={templateMode === 'manual' ? { backgroundColor: '#fff', color: '#667EEA', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' } : { color: '#9ca3af' }}
               >
-                {showRawText ? 'OCR 원문 숨기기' : 'OCR 원문 보기'}
+                <MousePointer2 size={12} /> 직접 배치
               </button>
-            )}
-            {showRawText && rawText && (
-              <pre className="text-xs text-gray-500 bg-gray-50 rounded-xl p-3 max-h-40 overflow-y-auto whitespace-pre-wrap break-words">
-                {rawText}
-              </pre>
-            )}
+              <button
+                onClick={() => setTemplateMode('ai')}
+                className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg text-xs font-semibold transition-all"
+                style={templateMode === 'ai' ? { backgroundColor: '#fff', color: '#667EEA', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' } : { color: '#9ca3af' }}
+              >
+                <Sparkles size={12} /> AI 자동 감지
+              </button>
+            </div>
 
-            {/* 감지된 필드 목록 */}
-            {templateFields.length > 0 && (
-              <div className="border border-gray-100 rounded-xl p-3 space-y-2">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <p className="text-xs font-semibold text-gray-600">감지된 입력 필드 ({templateFields.length}개)</p>
-                    {extractMethod === 'llm' && (
-                      <span className="text-xs bg-indigo-50 text-indigo-500 px-1.5 py-0.5 rounded-full font-medium">AI 분석</span>
-                    )}
-                    {extractMethod === 'regex' && (
-                      <span className="text-xs bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded-full font-medium">패턴 분석</span>
-                    )}
-                  </div>
-                  <button onClick={() => setEditingFields(v => !v)}
-                    className="flex items-center gap-1 text-xs text-indigo-500 hover:text-indigo-700">
-                    <Pencil size={11} /> {editingFields ? '완료' : '수정'}
-                  </button>
-                </div>
-                <div className="space-y-1">
-                  {templateFields.map((f, i) => (
-                    <div key={f.id} className="flex items-center gap-2">
-                      {editingFields ? (
-                        <>
-                          <input
-                            value={f.label}
-                            onChange={e => {
-                              const next = templateFields.map((tf, idx) => idx === i ? { ...tf, label: e.target.value } : tf);
-                              saveTemplateFields(next);
-                            }}
-                            className="flex-1 px-2 py-1 border border-gray-200 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-[#667EEA]"
-                          />
-                          <select
-                            value={f.type}
-                            onChange={e => {
-                              const next = templateFields.map((tf, idx) => idx === i ? { ...tf, type: e.target.value as TemplateField['type'] } : tf);
-                              saveTemplateFields(next);
-                            }}
-                            className="px-2 py-1 border border-gray-200 rounded-lg text-xs bg-white focus:outline-none"
-                          >
-                            <option value="text">텍스트</option>
-                            <option value="date">날짜</option>
-                            <option value="amount">금액</option>
-                            <option value="signature">서명</option>
-                          </select>
-                          <button onClick={() => saveTemplateFields(templateFields.filter((_, idx) => idx !== i))}
-                            className="p-1 text-gray-300 hover:text-red-500 rounded shrink-0">
-                            <X size={12} />
-                          </button>
-                        </>
-                      ) : (
-                        <>
-                          <span className="flex-1 text-xs text-gray-700">{f.label}</span>
-                          <span className="text-xs text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded">
-                            {f.type === 'text' ? '텍스트' : f.type === 'date' ? '날짜' : f.type === 'amount' ? '금액' : '서명'}
-                          </span>
-                        </>
-                      )}
+            {templateMode === 'manual' ? (
+              /* 직접 배치 모드 */
+              <FieldPlacementEditor
+                pages={template}
+                fields={templateFields}
+                onChange={saveTemplateFields}
+              />
+            ) : (
+              /* AI 자동 감지 모드 */
+              <>
+                <button
+                  onClick={handleAnalyze}
+                  disabled={analyzing}
+                  className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold border-2 border-dashed border-indigo-300 text-indigo-600 hover:bg-indigo-50 disabled:opacity-50 transition-all"
+                >
+                  <Sparkles size={15} />
+                  {analyzing ? analyzeStatus || 'AI 분석 중...' : 'AI로 입력 필드 자동 감지'}
+                </button>
+
+                {analyzing && (
+                  <div className="space-y-1">
+                    <div className="w-full bg-gray-100 rounded-full h-2 overflow-hidden">
+                      <div className="h-2 rounded-full transition-all duration-300"
+                        style={{ width: `${analyzeProgress}%`, backgroundColor: '#667EEA' }} />
                     </div>
-                  ))}
-                </div>
-                {editingFields && (
-                  <button
-                    onClick={() => saveTemplateFields([...templateFields, { id: `field_${Date.now()}`, label: '', type: 'text', value: '' }])}
-                    className="flex items-center gap-1 text-xs text-indigo-500 hover:text-indigo-700 mt-1"
-                  >
-                    <Plus size={11} /> 필드 추가
+                    <div className="flex justify-between text-xs text-gray-400">
+                      <span>{analyzeStatus}</span>
+                      <span>{Math.round(analyzeProgress)}%</span>
+                    </div>
+                  </div>
+                )}
+
+                {analyzeError && <p className="text-xs text-red-500 text-center">{analyzeError}</p>}
+
+                {rawText && !analyzing && (
+                  <button onClick={() => setShowRawText(v => !v)}
+                    className="text-xs text-gray-400 hover:text-gray-600 underline">
+                    {showRawText ? 'OCR 원문 숨기기' : 'OCR 원문 보기'}
                   </button>
                 )}
-              </div>
+                {showRawText && rawText && (
+                  <pre className="text-xs text-gray-500 bg-gray-50 rounded-xl p-3 max-h-40 overflow-y-auto whitespace-pre-wrap break-words">
+                    {rawText}
+                  </pre>
+                )}
+
+                {templateFields.length > 0 && !analyzing && (
+                  <div className="border border-gray-100 rounded-xl p-3 space-y-1.5">
+                    <div className="flex items-center justify-between mb-1">
+                      <div className="flex items-center gap-2">
+                        <p className="text-xs font-semibold text-gray-600">감지된 필드 ({templateFields.length}개)</p>
+                        {extractMethod === 'llm' && <span className="text-xs bg-indigo-50 text-indigo-500 px-1.5 py-0.5 rounded-full font-medium">AI</span>}
+                        {extractMethod === 'regex' && <span className="text-xs bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded-full font-medium">패턴</span>}
+                      </div>
+                      <button onClick={() => setEditingFields(v => !v)}
+                        className="flex items-center gap-1 text-xs text-indigo-500 hover:text-indigo-700">
+                        <Pencil size={11} /> {editingFields ? '완료' : '수정'}
+                      </button>
+                    </div>
+                    {templateFields.map((f, i) => (
+                      <div key={f.id} className="flex items-center gap-2">
+                        {editingFields ? (
+                          <>
+                            <input value={f.label}
+                              onChange={e => saveTemplateFields(templateFields.map((tf, idx) => idx === i ? { ...tf, label: e.target.value } : tf))}
+                              className="flex-1 px-2 py-1 border border-gray-200 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-[#667EEA]" />
+                            <select value={f.type}
+                              onChange={e => saveTemplateFields(templateFields.map((tf, idx) => idx === i ? { ...tf, type: e.target.value as TemplateField['type'] } : tf))}
+                              className="px-2 py-1 border border-gray-200 rounded-lg text-xs bg-white focus:outline-none">
+                              <option value="text">텍스트</option>
+                              <option value="date">날짜</option>
+                              <option value="amount">금액</option>
+                              <option value="signature">서명</option>
+                              <option value="checkbox">체크박스</option>
+                            </select>
+                            <button onClick={() => saveTemplateFields(templateFields.filter((_, idx) => idx !== i))}
+                              className="p-1 text-gray-300 hover:text-red-500 rounded shrink-0"><X size={12} /></button>
+                          </>
+                        ) : (
+                          <>
+                            <span className="flex-1 text-xs text-gray-700">{f.label}</span>
+                            <span className="text-xs text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded">
+                              {f.type === 'text' ? '텍스트' : f.type === 'date' ? '날짜' : f.type === 'amount' ? '금액' : f.type === 'signature' ? '서명' : '체크박스'}
+                            </span>
+                          </>
+                        )}
+                      </div>
+                    ))}
+                    {editingFields && (
+                      <button onClick={() => saveTemplateFields([...templateFields, { id: `field_${Date.now()}`, label: '', type: 'text', value: '' }])}
+                        className="flex items-center gap-1 text-xs text-indigo-500 hover:text-indigo-700 mt-1">
+                        <Plus size={11} /> 필드 추가
+                      </button>
+                    )}
+                  </div>
+                )}
+              </>
             )}
           </>
         )}
