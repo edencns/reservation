@@ -30,6 +30,7 @@ export default function VendorContracts() {
   const [analyzeStatus, setAnalyzeStatus] = useState('');
   const [analyzeError, setAnalyzeError] = useState<string | null>(null);
   const [editingFields, setEditingFields] = useState(false);
+  const [extractMethod, setExtractMethod] = useState<'llm' | 'regex' | 'none' | null>(null);
   const [rawText, setRawText] = useState(() => getVendorTemplateRawText(vendor.id));
   const [showRawText, setShowRawText] = useState(false);
   const templateFileRef = useRef<HTMLInputElement>(null);
@@ -90,10 +91,11 @@ export default function VendorContracts() {
       setRawText(ocredText);
       saveVendorTemplateRawText(vendor.id, ocredText);
 
-      // 3. Claude AI 필드 추출
+      // 3. Claude AI 필드 추출 (없으면 정규식 폴백)
       setAnalyzeStatus('AI 필드 분석 중...');
       setAnalyzeProgress(90);
-      const { fields: rawFields } = await apiExtractContractFields(ocredText);
+      const { fields: rawFields, method } = await apiExtractContractFields(ocredText);
+      setExtractMethod(method);
       const fields: TemplateField[] = rawFields.map((f, i) => ({
         id: `field_${Date.now()}_${i}`,
         label: f.label,
@@ -338,7 +340,15 @@ export default function VendorContracts() {
             {templateFields.length > 0 && (
               <div className="border border-gray-100 rounded-xl p-3 space-y-2">
                 <div className="flex items-center justify-between">
-                  <p className="text-xs font-semibold text-gray-600">감지된 입력 필드 ({templateFields.length}개)</p>
+                  <div className="flex items-center gap-2">
+                    <p className="text-xs font-semibold text-gray-600">감지된 입력 필드 ({templateFields.length}개)</p>
+                    {extractMethod === 'llm' && (
+                      <span className="text-xs bg-indigo-50 text-indigo-500 px-1.5 py-0.5 rounded-full font-medium">AI 분석</span>
+                    )}
+                    {extractMethod === 'regex' && (
+                      <span className="text-xs bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded-full font-medium">패턴 분석</span>
+                    )}
+                  </div>
                   <button onClick={() => setEditingFields(v => !v)}
                     className="flex items-center gap-1 text-xs text-indigo-500 hover:text-indigo-700">
                     <Pencil size={11} /> {editingFields ? '완료' : '수정'}

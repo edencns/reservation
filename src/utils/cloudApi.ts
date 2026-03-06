@@ -136,13 +136,13 @@ export const apiAnalyzeContractTemplate = async (
 
 export const apiExtractContractFields = async (
   rawText: string,
-): Promise<{ fields: Omit<TemplateField, 'id' | 'value'>[] }> => {
+): Promise<{ fields: Omit<TemplateField, 'id' | 'value'>[]; method: 'llm' | 'regex' | 'none' }> => {
   const res = await fetch('/api/contract/extract-fields', {
     method: 'POST',
     headers: jsonHeaders,
     body: JSON.stringify({ rawText }),
   });
-  return parseJson<{ fields: Omit<TemplateField, 'id' | 'value'>[] }>(res);
+  return parseJson<{ fields: Omit<TemplateField, 'id' | 'value'>[]; method: 'llm' | 'regex' | 'none' }>(res);
 };
 
 export const apiSendSms = async (
