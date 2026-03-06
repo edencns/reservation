@@ -108,6 +108,39 @@ export default function VendorContracts() {
         ))}
       </div>
 
+      {/* 사전 서명 등록 */}
+      <div className="bg-white rounded-2xl shadow-sm p-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Pen size={15} className="text-gray-400" />
+            <span className="text-sm font-semibold text-gray-700">사전 서명</span>
+            {preSig
+              ? <span className="text-xs text-green-600 font-medium bg-green-50 px-2 py-0.5 rounded-full">등록됨</span>
+              : <span className="text-xs text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full">미등록</span>
+            }
+          </div>
+          <div className="flex items-center gap-2">
+            {preSig && (
+              <button onClick={handleDeleteSig} className="text-xs text-red-400 hover:text-red-600 flex items-center gap-1">
+                <X size={12} /> 삭제
+              </button>
+            )}
+            <button
+              onClick={() => setShowSigModal(true)}
+              className="text-xs font-semibold px-3 py-1.5 rounded-xl text-white hover:opacity-90"
+              style={{ backgroundColor: '#667EEA' }}
+            >
+              {preSig ? '변경' : '등록'}
+            </button>
+          </div>
+        </div>
+        {preSig && (
+          <div className="mt-3 border border-gray-100 rounded-xl p-2 bg-gray-50">
+            <img src={preSig} alt="사전 서명" className="h-12 object-contain" />
+          </div>
+        )}
+      </div>
+
       <p className="text-sm text-gray-500">총 {sorted.length}건</p>
 
       {sorted.length === 0 ? (
@@ -164,6 +197,53 @@ export default function VendorContracts() {
               </div>
             </div>
           ))}
+        </div>
+      )}
+
+      {/* 사전 서명 모달 */}
+      {showSigModal && (
+        <div className="fixed inset-0 z-50 flex items-end justify-center"
+          style={{ backgroundColor: 'rgba(0,0,0,0.5)' }} onClick={() => setShowSigModal(false)}>
+          <div className="bg-white rounded-t-2xl shadow-xl w-full max-w-lg p-6" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="font-bold text-gray-800">사전 서명 등록</h3>
+              <button onClick={() => setShowSigModal(false)}><X size={18} className="text-gray-400" /></button>
+            </div>
+            <div className="flex gap-2 mb-4">
+              <button
+                onClick={() => setSigTab('draw')}
+                className={`flex-1 py-2 rounded-xl text-sm font-semibold transition-all ${sigTab === 'draw' ? 'text-white' : 'bg-gray-100 text-gray-600'}`}
+                style={sigTab === 'draw' ? { backgroundColor: '#667EEA' } : {}}
+              >직접 서명</button>
+              <button
+                onClick={() => setSigTab('upload')}
+                className={`flex-1 py-2 rounded-xl text-sm font-semibold transition-all ${sigTab === 'upload' ? 'text-white' : 'bg-gray-100 text-gray-600'}`}
+                style={sigTab === 'upload' ? { backgroundColor: '#667EEA' } : {}}
+              >이미지 업로드</button>
+            </div>
+            {sigTab === 'draw' ? (
+              <div>
+                <SignaturePad ref={sigRef} />
+                <button
+                  onClick={handleSigSave}
+                  className="mt-3 w-full py-2.5 rounded-xl text-white font-semibold text-sm hover:opacity-90"
+                  style={{ backgroundColor: '#667EEA' }}
+                >저장</button>
+              </div>
+            ) : (
+              <div>
+                <input ref={sigFileRef} type="file" accept="image/*" className="hidden"
+                  onChange={e => { if (e.target.files?.[0]) handleSigImageUpload(e.target.files[0]); }} />
+                <button
+                  onClick={() => sigFileRef.current?.click()}
+                  className="w-full border-2 border-dashed border-gray-200 rounded-xl py-8 flex flex-col items-center gap-2 text-gray-400 hover:border-indigo-300 hover:text-indigo-400 transition-all"
+                >
+                  <Upload size={24} />
+                  <span className="text-sm">이미지 선택</span>
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       )}
 
