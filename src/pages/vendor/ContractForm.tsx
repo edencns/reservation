@@ -9,7 +9,8 @@ import {
 } from '../../utils/storage';
 import { generateId } from '../../utils/helpers';
 import { apiSendContractSms } from '../../utils/cloudApi';
-import type { ManagedVendor, VendorContract, ContractItem } from '../../types';
+import type { ManagedVendor, VendorContract, ContractItem, TemplateField } from '../../types';
+import TemplateContractEditor from './TemplateContractEditor';
 
 const PAYMENT_OPTIONS = ['현금', '카드', '계좌이체', '기타'];
 
@@ -35,6 +36,7 @@ export default function ContractForm() {
 
   const [contractType, setContractType] = useState<'electronic' | 'upload' | 'template'>(existing?.type ?? 'electronic');
   const vendorTemplate = getVendorContractTemplate(vendor.id);
+  const [templateFields, setTemplateFields] = useState<TemplateField[]>(existing?.templateFields ?? []);
   const [eventId, setEventId] = useState(existing?.eventId ?? searchParams.get('eventId') ?? (myEvents[0]?.id ?? ''));
   const [contractDate, setContractDate] = useState(existing?.contractDate ?? new Date().toISOString().slice(0, 10));
   const [unitNumber, setUnitNumber] = useState(existing?.unitNumber ?? '');
@@ -135,6 +137,7 @@ export default function ContractForm() {
       customerSignature: customerSig,
       vendorSignature: vendorSig,
       uploadedImages: contractType === 'upload' ? uploadedImages : contractType === 'template' ? vendorTemplate : [],
+      templateFields: contractType === 'template' ? templateFields : undefined,
       type: contractType,
       status: asDraft ? 'draft' : 'completed',
       createdAt: existing?.createdAt ?? new Date().toISOString(),
@@ -407,59 +410,15 @@ export default function ContractForm() {
       {/* 내 양식으로 계약 */}
       {contractType === 'template' && (
         <div className="bg-white rounded-2xl shadow-sm p-5 space-y-4">
-          <h3 className="font-bold text-gray-700 text-sm border-b pb-2">계약서 양식 미리보기</h3>
-          <div className="space-y-3">
-            {vendorTemplate.map((img, i) => (
-              <img key={i} src={img} alt={`양식 ${i + 1}페이지`}
-                className="w-full rounded-xl border border-gray-100 object-contain" />
-            ))}
+          <div className="border-b pb-2">
+            <h3 className="font-bold text-gray-700 text-sm">계약서 작성</h3>
+            <p className="text-xs text-gray-400 mt-0.5">텍스트/서명 필드를 추가한 뒤 빈칸 위치에 배치하세요</p>
           </div>
-
-          {/* 서명 */}
-          <div className="space-y-5 pt-2 border-t border-gray-100">
-            <p className="text-sm font-bold text-gray-700">서명</p>
-            <div>
-              <p className="text-sm font-semibold text-gray-600 mb-2">고객 서명</p>
-              {existing?.customerSignature && (
-                <div className="mb-2">
-                  <p className="text-xs text-gray-400 mb-1">기존 서명 (새로 그리면 덮어씁니다)</p>
-                  <img src={existing.customerSignature} alt="기존 고객서명"
-                    className="border border-gray-100 rounded-xl h-20 object-contain bg-gray-50 w-full" />
-                </div>
-              )}
-              <SignaturePad ref={customerSigRef} label="아래에 서명해주세요" />
-            </div>
-            <div>
-              <div className="flex items-center justify-between mb-2">
-                <p className="text-sm font-semibold text-gray-600">업체 서명</p>
-                {preSig && (
-                  <button type="button"
-                    onClick={() => setDrawNewVendorSig(v => !v)}
-                    className="text-xs px-3 py-1 rounded-lg border border-gray-200 text-gray-500 hover:bg-gray-50">
-                    {drawNewVendorSig ? '기본 서명 사용' : '새로 그리기'}
-                  </button>
-                )}
-              </div>
-              {preSig && !drawNewVendorSig ? (
-                <div className="space-y-2">
-                  <p className="text-xs text-gray-400">사전 등록된 서명이 자동으로 사용됩니다.</p>
-                  <img src={preSig} alt="업체 기본 서명"
-                    className="border border-gray-100 rounded-xl h-24 object-contain bg-gray-50 w-full" />
-                </div>
-              ) : (
-                <div>
-                  <SignaturePad ref={vendorSigRef} label="아래에 서명해주세요" />
-                  <label className="flex items-center gap-2 mt-2 cursor-pointer">
-                    <input type="checkbox" checked={saveAsDefault} onChange={e => setSaveAsDefault(e.target.checked)}
-                      className="accent-[#667EEA]" />
-                    <span className="text-xs text-gray-500 flex items-center gap-1">
-                      <Save size={11} /> 이 서명을 기본 서명으로 저장
-                    </span>
-                  </label>
-                </div>
-              )}
-            </div>
-          </div>
+          <TemplateContractEditor
+            pages={vendorTemplate}
+            fields={templateFields}
+            onChange={setTemplateFields}
+          />
         </div>
       )}
 

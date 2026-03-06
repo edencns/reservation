@@ -97,6 +97,15 @@ export interface ContractItem {
 export type ContractType = 'electronic' | 'upload' | 'template';
 export type ContractStatus = 'draft' | 'completed';
 
+export interface TemplateField {
+  id: string;
+  pageIndex: number;
+  x: number;       // % from left
+  y: number;       // % from top
+  type: 'text' | 'signature';
+  value: string;   // text content or base64 signature
+}
+
 export interface VendorContract {
   id: string;
   vendorId: string;        // ManagedVendor.id
@@ -120,6 +129,8 @@ export interface VendorContract {
   vendorSignature?: string;
   // 파일 업로드
   uploadedImages?: string[];   // base64 image array
+  // 내 양식 계약서 필드
+  templateFields?: TemplateField[];
   type: ContractType;
   status: ContractStatus;
   createdAt: string;
