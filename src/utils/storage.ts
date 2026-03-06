@@ -130,6 +130,11 @@ export const getVendorContracts = (): VendorContract[] => {
 export const saveVendorContracts = (contracts: VendorContract[]) =>
   localStorage.setItem(VENDOR_CONTRACTS_KEY, JSON.stringify(contracts));
 
+export const getVendorTemplateRawText = (vendorId: string): string =>
+  localStorage.getItem(`rv_vendor_template_text_${vendorId}`) ?? '';
+export const saveVendorTemplateRawText = (vendorId: string, text: string) =>
+  localStorage.setItem(`rv_vendor_template_text_${vendorId}`, text);
+
 export const getVendorTemplateFields = (vendorId: string): import('../types').TemplateField[] => {
   try {
     const raw = localStorage.getItem(`rv_vendor_template_fields_${vendorId}`);

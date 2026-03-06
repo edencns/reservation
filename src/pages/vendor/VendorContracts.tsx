@@ -1,7 +1,7 @@
 import { useOutletContext, useNavigate, useSearchParams } from 'react-router-dom';
 import { useState, useRef } from 'react';
 import { Plus, FileText, Trash2, ChevronRight, Pen, X, Upload, Sparkles, Pencil } from 'lucide-react';
-import { getEvents, getVendorContracts, saveVendorContracts, getVendorPreSignature, saveVendorPreSignature, clearVendorPreSignature, getVendorContractTemplate, saveVendorContractTemplate, clearVendorContractTemplate, getVendorTemplateFields, saveVendorTemplateFields, clearVendorTemplateFields } from '../../utils/storage';
+import { getEvents, getVendorContracts, saveVendorContracts, getVendorPreSignature, saveVendorPreSignature, clearVendorPreSignature, getVendorContractTemplate, saveVendorContractTemplate, clearVendorContractTemplate, getVendorTemplateFields, saveVendorTemplateFields, clearVendorTemplateFields, getVendorTemplateRawText, saveVendorTemplateRawText } from '../../utils/storage';
 import SignaturePad, { type SignaturePadHandle } from '../../components/SignaturePad';
 import { apiAnalyzeContractTemplate } from '../../utils/cloudApi';
 import type { ManagedVendor, TemplateField } from '../../types';
@@ -26,6 +26,8 @@ export default function VendorContracts() {
   const [analyzing, setAnalyzing] = useState(false);
   const [analyzeError, setAnalyzeError] = useState<string | null>(null);
   const [editingFields, setEditingFields] = useState(false);
+  const [rawText] = useState(() => getVendorTemplateRawText(vendor.id));
+  const [showRawText, setShowRawText] = useState(false);
   const templateFileRef = useRef<HTMLInputElement>(null);
 
   const handleTemplateUpload = (files: FileList | null) => {
@@ -61,12 +63,13 @@ export default function VendorContracts() {
     setAnalyzing(true);
     setAnalyzeError(null);
     try {
-      const fields = await apiAnalyzeContractTemplate(template[0]);
+      const { fields, rawText: raw } = await apiAnalyzeContractTemplate(template[0]);
       setTemplateFields(fields);
       saveVendorTemplateFields(vendor.id, fields);
+      if (raw) saveVendorTemplateRawText(vendor.id, raw);
       setEditingFields(true);
     } catch (e) {
-      setAnalyzeError(e instanceof Error ? e.message : '분석에 실패했습니다. 다시 시도해주세요.');
+      setAnalyzeError(e instanceof Error ? e.message : '분석에 실패했습니다.');
     } finally {
       setAnalyzing(false);
     }

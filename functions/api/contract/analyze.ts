@@ -1,9 +1,5 @@
-import { Env } from '../_lib/db';
-
-interface EnvWithAI extends Env {
-  AI?: {
-    run: (model: string, input: Record<string, unknown>) => Promise<unknown>;
-  };
+interface EnvWithVision {
+  GOOGLE_VISION_API_KEY?: string;
 }
 
 interface FieldDef {
@@ -11,11 +7,73 @@ interface FieldDef {
   type: 'text' | 'date' | 'amount' | 'signature';
 }
 
-export const onRequestPost: PagesFunction<EnvWithAI> = async (context) => {
+function classifyType(label: string): FieldDef['type'] {
+  if (/날짜|일자|연월일|년.*월|계약일|작성일|기간/.test(label)) return 'date';
+  if (/금액|금$|원$|비용|가격|계약금|잔금|총액|보증금|월세|대금/.test(label)) return 'amount';
+  if (/서명|날인|싸인|sign/i.test(label)) return 'signature';
+  return 'text';
+}
+
+function extractFields(fullText: string): FieldDef[] {
+  const fields: FieldDef[] = [];
+  const seen = new Set<string>();
+  const lines = fullText.split('\n').map(l => l.trim()).filter(Boolean);
+
+  for (const line of lines) {
+    // 패턴 1: "레이블:" 또는 "레이블：" 형태 (빈칸 입력 필드)
+    const colonMatch = line.match(/^([가-힣a-zA-Z ()（）]{1,15})[：:]\s*[_\s□]*$/);
+    if (colonMatch) {
+      const label = colonMatch[1].trim();
+      if (label && label.length >= 2 && !seen.has(label)) {
+        seen.add(label);
+        fields.push({ label, type: classifyType(label) });
+      }
+      continue;
+    }
+
+    // 패턴 2: 레이블: 뒤에 밑줄이 있는 경우
+    const underlineMatch = line.match(/^([가-힣a-zA-Z ()（）]{1,15})[：:]\s*_{3,}/);
+    if (underlineMatch) {
+      const label = underlineMatch[1].trim();
+      if (label && !seen.has(label)) {
+        seen.add(label);
+        fields.push({ label, type: classifyType(label) });
+      }
+      continue;
+    }
+
+    // 패턴 3: 서명/날인 영역
+    if (/서명|날인|\(인\)|\(印\)/.test(line)) {
+      // 앞에 붙는 주체 이름 추출 (예: "임대인 서명", "갑 (인)")
+      const sigMatch = line.match(/([가-힣a-zA-Z]{1,10})\s*[（(]?[서날][명인]/);
+      const label = sigMatch ? `${sigMatch[1]} 서명` : line.replace(/[_\s□]/g, '').slice(0, 10) || '서명';
+      if (!seen.has(label)) {
+        seen.add(label);
+        fields.push({ label, type: 'signature' });
+      }
+      continue;
+    }
+
+    // 패턴 4: 연 월 일 날짜 필드
+    if (/년\s*월\s*일/.test(line) && !line.includes(':')) {
+      const dateMatch = line.match(/^([가-힣a-zA-Z\s]{1,15})/);
+      const label = (dateMatch?.[1]?.trim() || '날짜').replace(/\s+/g, ' ');
+      if (label.length >= 2 && !seen.has(label)) {
+        seen.add(label);
+        fields.push({ label, type: 'date' });
+      }
+    }
+  }
+
+  return fields;
+}
+
+export const onRequestPost: PagesFunction<EnvWithVision> = async (context) => {
   try {
-    if (!context.env.AI) {
+    const apiKey = context.env.GOOGLE_VISION_API_KEY;
+    if (!apiKey) {
       return Response.json(
-        { error: 'AI 바인딩이 설정되지 않았습니다. Cloudflare 대시보드에서 Workers AI를 활성화해주세요.' },
+        { error: 'Google Vision API 키가 설정되지 않았습니다. Cloudflare 환경변수에 GOOGLE_VISION_API_KEY를 추가해주세요.' },
         { status: 503 }
       );
     }
@@ -27,57 +85,46 @@ export const onRequestPost: PagesFunction<EnvWithAI> = async (context) => {
 
     const base64 = image.replace(/^data:image\/\w+;base64,/, '');
 
-    // 이미지 크기 체크 (base64 기준 ~4MB = 원본 ~3MB)
-    if (base64.length > 4 * 1024 * 1024) {
-      return Response.json(
-        { error: '이미지가 너무 큽니다. 더 작은 이미지를 사용해주세요.' },
-        { status: 413 }
-      );
-    }
-
-    const imageBytes = Uint8Array.from(atob(base64), c => c.charCodeAt(0));
-
-    const prompt = `이것은 한국어 계약서 양식 이미지입니다.
-이 양식에서 사용자가 직접 작성해야 하는 모든 빈칸 필드를 찾아주세요.
-
-찾아야 할 것:
-- 밑줄(___)이나 빈 줄로 표시된 입력 영역
-- "성명:", "이름:", "주소:", "연락처:", "금액:", "날짜:" 등의 레이블 뒤 빈칸
-- "서명", "인", "날인", "(인)" 표시가 있는 서명 영역
-- 네모 박스(□) 형태의 입력 칸
-
-각 필드에 대해 다음 JSON 형식으로 반환해주세요:
-[{"label": "한글 필드명", "type": "text|date|amount|signature"}]
-
-type 규칙: 날짜→"date", 금액/숫자→"amount", 서명/날인→"signature", 나머지→"text"
-JSON 배열만 반환하세요.`;
-
-    const response = await context.env.AI.run('@cf/meta/llama-3.2-11b-vision-instruct', {
-      image: [...imageBytes],
-      prompt,
-      max_tokens: 1024,
-    });
-
-    const text = ((response as { response?: string }).response ?? '').trim();
-    let fields: FieldDef[] = [];
-
-    const jsonMatch = text.match(/\[[\s\S]*?\]/);
-    if (jsonMatch) {
-      try {
-        const parsed = JSON.parse(jsonMatch[0]) as unknown[];
-        fields = parsed.filter(
-          (f): f is FieldDef =>
-            typeof f === 'object' && f !== null &&
-            'label' in f && typeof (f as FieldDef).label === 'string' &&
-            'type' in f && ['text', 'date', 'amount', 'signature'].includes((f as FieldDef).type)
-        );
-      } catch {
-        // JSON 파싱 실패 - 빈 배열 반환
+    // Google Vision API 호출
+    const visionRes = await fetch(
+      `https://vision.googleapis.com/v1/images:annotate?key=${apiKey}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          requests: [{
+            image: { content: base64 },
+            features: [{ type: 'DOCUMENT_TEXT_DETECTION', maxResults: 1 }],
+          }],
+        }),
       }
+    );
+
+    if (!visionRes.ok) {
+      const errText = await visionRes.text();
+      return Response.json({ error: `Google Vision 오류: ${errText}` }, { status: 502 });
     }
 
-    // AI가 응답했지만 필드를 찾지 못한 경우 raw 응답도 포함
-    return Response.json({ fields, rawResponse: fields.length === 0 ? text : undefined });
+    const visionData = await visionRes.json() as {
+      responses: Array<{
+        fullTextAnnotation?: { text: string };
+        error?: { message: string };
+      }>;
+    };
+
+    const response = visionData.responses?.[0];
+    if (response?.error) {
+      return Response.json({ error: `Vision API: ${response.error.message}` }, { status: 502 });
+    }
+
+    const fullText = response?.fullTextAnnotation?.text ?? '';
+    if (!fullText) {
+      return Response.json({ fields: [], rawText: '' });
+    }
+
+    const fields = extractFields(fullText);
+
+    return Response.json({ fields, rawText: fullText });
 
   } catch (err) {
     return Response.json({ error: String(err) }, { status: 500 });

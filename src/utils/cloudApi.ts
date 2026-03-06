@@ -109,20 +109,29 @@ const resizeImageForAI = (dataUrl: string, maxWidth = 1200): Promise<string> =>
     img.src = dataUrl;
   });
 
-export const apiAnalyzeContractTemplate = async (imageBase64: string): Promise<TemplateField[]> => {
+export const apiAnalyzeContractTemplate = async (
+  imageBase64: string
+): Promise<{ fields: TemplateField[]; rawText: string }> => {
   const resized = await resizeImageForAI(imageBase64);
   const res = await fetch('/api/contract/analyze', {
     method: 'POST',
     headers: jsonHeaders,
     body: JSON.stringify({ image: resized }),
   });
-  const data = await parseJson<{ fields: Omit<TemplateField, 'id' | 'value'>[]; error?: string }>(res);
-  return (data.fields ?? []).map((f, i) => ({
-    id: `field_${Date.now()}_${i}`,
-    label: f.label,
-    type: f.type,
-    value: '',
-  }));
+  const data = await parseJson<{
+    fields: Omit<TemplateField, 'id' | 'value'>[];
+    rawText?: string;
+    error?: string;
+  }>(res);
+  return {
+    fields: (data.fields ?? []).map((f, i) => ({
+      id: `field_${Date.now()}_${i}`,
+      label: f.label,
+      type: f.type,
+      value: '',
+    })),
+    rawText: data.rawText ?? '',
+  };
 };
 
 export const apiSendSms = async (
