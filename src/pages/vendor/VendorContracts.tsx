@@ -5,7 +5,7 @@ import { getEvents, getVendorContracts, saveVendorContracts, getVendorPreSignatu
 import SignaturePad, { type SignaturePadHandle } from '../../components/SignaturePad';
 import { apiExtractContractFields } from '../../utils/cloudApi';
 import { preprocessImage } from '../../utils/imagePreprocess';
-import { runOcr } from '../../utils/ocrService';
+import { runOcr, matchFieldsToPositions } from '../../utils/ocrService';
 import type { ManagedVendor, TemplateField } from '../../types';
 
 const STATUS_LABEL: Record<string, string> = { draft: '임시저장', completed: '완료' };
@@ -81,29 +81,35 @@ export default function VendorContracts() {
         setAnalyzeProgress(1 + (i + 1) / template.length * 10);
       }
 
-      // 2. Tesseract OCR
+      // 2. Tesseract OCR (위치 데이터 포함)
       setAnalyzeStatus('OCR 텍스트 인식 중...');
-      const ocredText = await runOcr(preprocessed, (pct, status) => {
+      const { pages: ocrPages, combinedText } = await runOcr(preprocessed, (pct, status) => {
         setAnalyzeProgress(11 + pct * 0.77);
         setAnalyzeStatus(status);
       });
 
-      setRawText(ocredText);
-      saveVendorTemplateRawText(vendor.id, ocredText);
+      setRawText(combinedText);
+      saveVendorTemplateRawText(vendor.id, combinedText);
 
       // 3. Claude AI 필드 추출 (없으면 정규식 폴백)
       setAnalyzeStatus('AI 필드 분석 중...');
       setAnalyzeProgress(90);
-      const { fields: rawFields, method } = await apiExtractContractFields(ocredText);
+      const { fields: rawFields, method } = await apiExtractContractFields(combinedText);
       setExtractMethod(method);
-      const fields: TemplateField[] = rawFields.map((f, i) => ({
+
+      const namedFields: TemplateField[] = rawFields.map((f, i) => ({
         id: `field_${Date.now()}_${i}`,
         label: f.label,
         type: f.type,
         value: '',
       }));
 
-      // 4. 저장
+      // 4. 위치 매칭 + 체크박스 감지
+      setAnalyzeStatus('위치 데이터 매칭 중...');
+      setAnalyzeProgress(95);
+      const fields = matchFieldsToPositions(namedFields, ocrPages);
+
+      // 5. 저장
       setTemplateFields(fields);
       saveVendorTemplateFields(vendor.id, fields);
       setAnalyzeProgress(100);

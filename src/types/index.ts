@@ -100,8 +100,15 @@ export type ContractStatus = 'draft' | 'completed';
 export interface TemplateField {
   id: string;
   label: string;
-  type: 'text' | 'date' | 'amount' | 'signature';
+  type: 'text' | 'date' | 'amount' | 'signature' | 'checkbox';
   value: string;   // 입력값 또는 base64 서명
+  bbox?: {
+    x: number;    // image 너비 대비 left %
+    y: number;    // image 높이 대비 top %
+    w: number;    // image 너비 대비 width %
+    h: number;    // image 높이 대비 height %
+    page: number; // 0-indexed 페이지
+  };
 }
 
 export interface VendorContract {
