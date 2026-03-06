@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { Plus, Trash2, ChevronLeft, Copy, GripVertical, Tag } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { generateId, generateSlug, getEventShareUrl } from '../../utils/helpers';
+import { getVendorCategoryOptions } from '../../utils/storage';
 import type { Event, CustomField, CustomFieldType, VendorCategory, Vendor } from '../../types';
 
 
@@ -20,7 +21,6 @@ function generateDateRange(start: string, end: string): string[] {
 
 const DEFAULT_TIME_SLOT = [{ id: 'none', time: '시간 미지정' }];
 
-const PRESET_CATEGORIES = ['가구', '가전', '인테리어', '입주청소', '방충망', '에어컨청소', '발코니', '조명', '커튼/블라인드', '이사', '도배', '바닥재'];
 
 function TimePicker({ value, onChange }: { value: string; onChange: (v: string) => void }) {
   const parse = (v: string) => {
@@ -146,6 +146,7 @@ export default function EventForm() {
   const shareUrl = getEventShareUrl(slug);
 
   // 입점 업체 관리
+  const presetCategories = getVendorCategoryOptions();
   const [vendorCategories, setVendorCategories] = useState<VendorCategory[]>(existing?.vendorCategories ?? []);
   const [vendors, setVendors] = useState<Vendor[]>(existing?.vendors ?? []);
   const [showVendorSelector, setShowVendorSelector] = useState(false);
@@ -574,7 +575,7 @@ export default function EventForm() {
             <div className="bg-purple-50 border border-purple-100 rounded-xl p-3 space-y-3">
               <p className="text-xs font-bold text-gray-600">카테고리 선택</p>
               <div className="flex flex-wrap gap-2">
-                {PRESET_CATEGORIES.map(name => {
+                {presetCategories.map(name => {
                   const already = vendorCategories.some(c => c.name === name);
                   return (
                     <button
