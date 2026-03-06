@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Plus, Trash2, ChevronLeft, Copy, GripVertical } from 'lucide-react';
+import { Plus, Trash2, ChevronLeft, Copy, GripVertical, Tag } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { generateId, generateSlug, getEventShareUrl } from '../../utils/helpers';
 import type { Event, CustomField, CustomFieldType, VendorCategory, Vendor } from '../../types';
@@ -19,6 +19,8 @@ function generateDateRange(start: string, end: string): string[] {
 }
 
 const DEFAULT_TIME_SLOT = [{ id: 'none', time: '시간 미지정' }];
+
+const PRESET_CATEGORIES = ['가구', '가전', '인테리어', '입주청소', '방충망', '에어컨청소', '발코니', '조명', '커튼/블라인드', '이사', '도배', '바닥재'];
 
 function TimePicker({ value, onChange }: { value: string; onChange: (v: string) => void }) {
   const parse = (v: string) => {
@@ -147,14 +149,29 @@ export default function EventForm() {
   const [vendorCategories, setVendorCategories] = useState<VendorCategory[]>(existing?.vendorCategories ?? []);
   const [vendors, setVendors] = useState<Vendor[]>(existing?.vendors ?? []);
   const [showVendorSelector, setShowVendorSelector] = useState(false);
+  const [showCategoryPanel, setShowCategoryPanel] = useState(false);
+  const [categoryInput, setCategoryInput] = useState('');
+  const [vendorCategoryFilter, setVendorCategoryFilter] = useState<string | null>(null);
 
-  // 관리 업체에서 이벤트에 추가 (카테고리 자동 분류)
+  const addCategory = (name: string) => {
+    if (vendorCategories.some(c => c.name === name)) return;
+    setVendorCategories(prev => [...prev, { id: generateId(), name }]);
+  };
+
+  const addCategoryCustom = () => {
+    const name = categoryInput.trim();
+    if (!name) return;
+    addCategory(name);
+    setCategoryInput('');
+  };
+
+  // 관리 업체에서 이벤트에 추가 (카테고리 필터 기반)
   const addManagedVendorToEvent = (mv: { id: string; name: string; category: string }) => {
-    const categoryName = mv.category || '기타';
+    const categoryName = vendorCategoryFilter ?? (mv.category || '기타');
     let catId: string;
-    const existing = vendorCategories.find(c => c.name === categoryName);
-    if (existing) {
-      catId = existing.id;
+    const existingCat = vendorCategories.find(c => c.name === categoryName);
+    if (existingCat) {
+      catId = existingCat.id;
     } else {
       catId = generateId();
       setVendorCategories(prev => [...prev, { id: catId, name: categoryName }]);
@@ -173,13 +190,7 @@ export default function EventForm() {
   };
 
   const removeVendor = (vendorId: string) => {
-    setVendors(prev => {
-      const next = prev.filter(v => v.id !== vendorId);
-      // 빈 카테고리 자동 제거
-      const usedCatIds = new Set(next.map(v => v.categoryId));
-      setVendorCategories(cats => cats.filter(c => usedCatIds.has(c.id)));
-      return next;
-    });
+    setVendors(prev => prev.filter(v => v.id !== vendorId));
   };
 
   // 카테고리 이름 기준 정렬
@@ -189,6 +200,9 @@ export default function EventForm() {
   // 이미 추가된 관리 업체 ID 목록
   const addedManagedVendorIds = new Set(vendors.map(v => v.managedVendorId).filter(Boolean));
   const availableManagedVendors = managedVendors.filter(mv => !addedManagedVendorIds.has(mv.id));
+  const filteredAvailableVendors = availableManagedVendors.filter(mv =>
+    vendorCategoryFilter === null || mv.category === vendorCategoryFilter
+  );
 
   const addCustomField = () => {
     if (!newField.label.trim()) return;
@@ -534,31 +548,117 @@ export default function EventForm() {
           <div className="flex items-center justify-between border-b pb-2">
             <div>
               <h3 className="font-bold text-gray-700 text-sm">입점 업체 관리</h3>
-              <p className="text-xs text-gray-400 mt-0.5">업체 선택 시 카테고리가 자동 분류됩니다</p>
+              <p className="text-xs text-gray-400 mt-0.5">카테고리를 먼저 추가하면 예약 시 관심 서비스로 표시됩니다</p>
             </div>
-            <button
-              type="button"
-              onClick={() => setShowVendorSelector(v => !v)}
-              className="flex items-center gap-1 text-xs px-3 py-1.5 rounded-lg text-white font-semibold"
-              style={{ backgroundColor: '#667EEA' }}
-            >
-              <Plus size={13} /> 업체 추가
-            </button>
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={() => { setShowCategoryPanel(v => !v); setShowVendorSelector(false); }}
+                className="flex items-center gap-1 text-xs px-3 py-1.5 rounded-lg font-semibold border border-gray-200 text-gray-600 hover:bg-gray-50"
+              >
+                <Tag size={13} /> 카테고리 추가
+              </button>
+              <button
+                type="button"
+                onClick={() => { setShowVendorSelector(v => !v); setShowCategoryPanel(false); }}
+                className="flex items-center gap-1 text-xs px-3 py-1.5 rounded-lg text-white font-semibold"
+                style={{ backgroundColor: '#667EEA' }}
+              >
+                <Plus size={13} /> 업체 추가
+              </button>
+            </div>
           </div>
+
+          {/* 카테고리 추가 패널 */}
+          {showCategoryPanel && (
+            <div className="bg-purple-50 border border-purple-100 rounded-xl p-3 space-y-3">
+              <p className="text-xs font-bold text-gray-600">카테고리 선택</p>
+              <div className="flex flex-wrap gap-2">
+                {PRESET_CATEGORIES.map(name => {
+                  const already = vendorCategories.some(c => c.name === name);
+                  return (
+                    <button
+                      key={name}
+                      type="button"
+                      disabled={already}
+                      onClick={() => addCategory(name)}
+                      className={`px-3 py-1.5 rounded-full text-xs font-semibold border transition-all ${
+                        already
+                          ? 'bg-gray-100 text-gray-400 border-gray-200 cursor-default'
+                          : 'bg-white text-gray-700 border-gray-300 hover:border-indigo-400 hover:text-indigo-600'
+                      }`}
+                    >
+                      {already ? '✓ ' : '+ '}{name}
+                    </button>
+                  );
+                })}
+              </div>
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  value={categoryInput}
+                  onChange={e => setCategoryInput(e.target.value)}
+                  placeholder="직접 입력 (예: 인테리어)"
+                  className="flex-1 px-3 py-2 border border-gray-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#667EEA]"
+                  onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addCategoryCustom(); } }}
+                />
+                <button
+                  type="button"
+                  onClick={addCategoryCustom}
+                  disabled={!categoryInput.trim()}
+                  className="px-4 py-2 rounded-lg text-white text-sm font-semibold disabled:opacity-50"
+                  style={{ backgroundColor: '#667EEA' }}
+                >
+                  추가
+                </button>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowCategoryPanel(false)}
+                className="w-full py-1.5 text-sm rounded-lg bg-white border border-gray-200 text-gray-600 font-semibold"
+              >
+                닫기
+              </button>
+            </div>
+          )}
 
           {/* 업체 선택 패널 */}
           {showVendorSelector && (
             <div className="bg-blue-50 border border-blue-100 rounded-xl p-3 space-y-2">
               <p className="text-xs font-bold text-gray-600 mb-2">업체 선택</p>
+              {/* 카테고리 필터 */}
+              {vendorCategories.length > 0 && (
+                <div className="flex gap-1.5 overflow-x-auto pb-1">
+                  <button
+                    type="button"
+                    onClick={() => setVendorCategoryFilter(null)}
+                    className={`shrink-0 px-2.5 py-1 rounded-full text-xs font-semibold transition-all ${vendorCategoryFilter === null ? 'text-white' : 'bg-white text-gray-500'}`}
+                    style={vendorCategoryFilter === null ? { backgroundColor: '#667EEA' } : {}}
+                  >전체</button>
+                  {vendorCategories.map(cat => (
+                    <button
+                      key={cat.id}
+                      type="button"
+                      onClick={() => setVendorCategoryFilter(cat.name)}
+                      className={`shrink-0 px-2.5 py-1 rounded-full text-xs font-semibold transition-all ${vendorCategoryFilter === cat.name ? 'text-white' : 'bg-white text-gray-500'}`}
+                      style={vendorCategoryFilter === cat.name ? { backgroundColor: '#667EEA' } : {}}
+                    >{cat.name}</button>
+                  ))}
+                </div>
+              )}
               {managedVendors.length === 0 ? (
                 <p className="text-sm text-gray-400 text-center py-3">
                   먼저 <span className="font-semibold">입점 업체 관리</span> 탭에서 업체를 등록해주세요
                 </p>
-              ) : availableManagedVendors.length === 0 ? (
-                <p className="text-sm text-gray-400 text-center py-3">모든 업체가 이미 추가되었습니다</p>
+              ) : filteredAvailableVendors.length === 0 ? (
+                <p className="text-sm text-gray-400 text-center py-3">
+                  {vendorCategoryFilter
+                    ? `'${vendorCategoryFilter}' 카테고리에 해당하는 업체가 없습니다`
+                    : '모든 업체가 이미 추가되었습니다'}
+                </p>
               ) : (
                 <div className="space-y-1.5 max-h-48 overflow-y-auto">
-                  {availableManagedVendors.map(mv => (
+                  {filteredAvailableVendors.map(mv => (
                     <button
                       key={mv.id}
                       type="button"
@@ -589,9 +689,9 @@ export default function EventForm() {
             </div>
           )}
 
-          {/* 카테고리별 업체 목록 (자동 정렬) */}
+          {/* 카테고리별 업체 목록 */}
           {sortedCategories.length === 0 ? (
-            <p className="text-sm text-gray-400 text-center py-4">추가된 업체가 없습니다</p>
+            <p className="text-sm text-gray-400 text-center py-4">카테고리를 먼저 추가해주세요</p>
           ) : (
             <div className="space-y-4">
               {sortedCategories.map(cat => {
@@ -599,34 +699,41 @@ export default function EventForm() {
                 return (
                   <div key={cat.id} className="border border-gray-100 rounded-xl p-4 space-y-3">
                     <div className="flex items-center justify-between">
-                      <span className="font-bold text-sm text-gray-800">{cat.name}</span>
+                      <div className="flex items-center gap-2">
+                        <span className="font-bold text-sm text-gray-800">{cat.name}</span>
+                        {catVendors.length === 0 && (
+                          <span className="text-xs text-purple-500 bg-purple-50 px-2 py-0.5 rounded-full">관심 서비스만</span>
+                        )}
+                      </div>
                       <button type="button" onClick={() => removeCategory(cat.id)}
                         className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors">
                         <Trash2 size={13} />
                       </button>
                     </div>
-                    <div className="grid grid-cols-2 gap-2">
-                      {catVendors.map(vendor => {
-                        const mvImage = vendor.managedVendorId
-                          ? managedVendors.find(m => m.id === vendor.managedVendorId)?.imageUrl
-                          : undefined;
-                        const img = vendor.imageUrl || mvImage;
-                        return (
-                          <div key={vendor.id} className="flex items-center gap-2 bg-gray-50 rounded-xl p-2">
-                            {img ? (
-                              <img src={img} alt={vendor.name} className="w-10 h-10 object-contain rounded-lg bg-white border border-gray-100 shrink-0" />
-                            ) : (
-                              <div className="w-10 h-10 rounded-lg bg-gray-200 shrink-0" />
-                            )}
-                            <span className="flex-1 text-sm font-medium text-gray-700 truncate">{vendor.name}</span>
-                            <button type="button" onClick={() => removeVendor(vendor.id)}
-                              className="p-1 text-gray-400 hover:text-red-500 shrink-0">
-                              <Trash2 size={12} />
-                            </button>
-                          </div>
-                        );
-                      })}
-                    </div>
+                    {catVendors.length > 0 && (
+                      <div className="grid grid-cols-2 gap-2">
+                        {catVendors.map(vendor => {
+                          const mvImage = vendor.managedVendorId
+                            ? managedVendors.find(m => m.id === vendor.managedVendorId)?.imageUrl
+                            : undefined;
+                          const img = vendor.imageUrl || mvImage;
+                          return (
+                            <div key={vendor.id} className="flex items-center gap-2 bg-gray-50 rounded-xl p-2">
+                              {img ? (
+                                <img src={img} alt={vendor.name} className="w-10 h-10 object-contain rounded-lg bg-white border border-gray-100 shrink-0" />
+                              ) : (
+                                <div className="w-10 h-10 rounded-lg bg-gray-200 shrink-0" />
+                              )}
+                              <span className="flex-1 text-sm font-medium text-gray-700 truncate">{vendor.name}</span>
+                              <button type="button" onClick={() => removeVendor(vendor.id)}
+                                className="p-1 text-gray-400 hover:text-red-500 shrink-0">
+                                <Trash2 size={12} />
+                              </button>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
                   </div>
                 );
               })}
