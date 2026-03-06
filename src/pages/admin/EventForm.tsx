@@ -237,9 +237,33 @@ export default function EventForm() {
     }));
 
   const copyUrl = () => {
-    navigator.clipboard.writeText(shareUrl);
-    setUrlCopied(true);
-    setTimeout(() => setUrlCopied(false), 2000);
+    const doCopy = () => {
+      setUrlCopied(true);
+      setTimeout(() => setUrlCopied(false), 2000);
+    };
+    if (navigator.clipboard?.writeText) {
+      navigator.clipboard.writeText(shareUrl).then(doCopy).catch(() => {
+        const el = document.createElement('textarea');
+        el.value = shareUrl;
+        el.style.position = 'fixed';
+        el.style.opacity = '0';
+        document.body.appendChild(el);
+        el.select();
+        document.execCommand('copy');
+        document.body.removeChild(el);
+        doCopy();
+      });
+    } else {
+      const el = document.createElement('textarea');
+      el.value = shareUrl;
+      el.style.position = 'fixed';
+      el.style.opacity = '0';
+      document.body.appendChild(el);
+      el.select();
+      document.execCommand('copy');
+      document.body.removeChild(el);
+      doCopy();
+    }
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -350,20 +374,25 @@ export default function EventForm() {
           <div>
             <label className={labelCls}>예약 공유 URL</label>
             <div className="flex gap-2">
-              <div className="flex-1 px-3 py-2.5 border border-gray-200 rounded-xl bg-gray-50 text-sm font-mono text-gray-600 truncate">
+              <a
+                href={shareUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex-1 px-3 py-2.5 border border-gray-200 rounded-xl bg-gray-50 text-sm font-mono text-gray-600 break-all hover:bg-gray-100 transition-colors"
+              >
                 {shareUrl}
-              </div>
+              </a>
               <button
                 type="button"
                 onClick={copyUrl}
-                className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-sm font-semibold text-white hover:opacity-90 shrink-0"
+                className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-sm font-semibold text-white hover:opacity-90 shrink-0 self-start"
                 style={{ backgroundColor: urlCopied ? '#22c55e' : '#667EEA' }}
               >
                 <Copy size={14} />
                 {urlCopied ? '복사됨!' : 'URL 복사'}
               </button>
             </div>
-            <p className="text-xs text-gray-400 mt-1.5">이 링크를 방문 예약자에게 공유하세요</p>
+            <p className="text-xs text-gray-400 mt-1.5">링크를 클릭하면 예약 페이지로 이동합니다</p>
           </div>
         </div>
 
