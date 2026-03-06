@@ -134,6 +134,17 @@ export const apiAnalyzeContractTemplate = async (
   };
 };
 
+export const apiExtractContractFields = async (
+  rawText: string,
+): Promise<{ fields: Omit<TemplateField, 'id' | 'value'>[] }> => {
+  const res = await fetch('/api/contract/extract-fields', {
+    method: 'POST',
+    headers: jsonHeaders,
+    body: JSON.stringify({ rawText }),
+  });
+  return parseJson<{ fields: Omit<TemplateField, 'id' | 'value'>[] }>(res);
+};
+
 export const apiSendSms = async (
   reservationIds: string[],
   template: 'confirm' | 'reminder',

@@ -3,7 +3,9 @@ import { useState, useRef } from 'react';
 import { Plus, FileText, Trash2, ChevronRight, Pen, X, Upload, Sparkles, Pencil } from 'lucide-react';
 import { getEvents, getVendorContracts, saveVendorContracts, getVendorPreSignature, saveVendorPreSignature, clearVendorPreSignature, getVendorContractTemplate, saveVendorContractTemplate, clearVendorContractTemplate, getVendorTemplateFields, saveVendorTemplateFields, clearVendorTemplateFields, getVendorTemplateRawText, saveVendorTemplateRawText } from '../../utils/storage';
 import SignaturePad, { type SignaturePadHandle } from '../../components/SignaturePad';
-import { apiAnalyzeContractTemplate } from '../../utils/cloudApi';
+import { apiExtractContractFields } from '../../utils/cloudApi';
+import { preprocessImage } from '../../utils/imagePreprocess';
+import { runOcr } from '../../utils/ocrService';
 import type { ManagedVendor, TemplateField } from '../../types';
 
 const STATUS_LABEL: Record<string, string> = { draft: '임시저장', completed: '완료' };
@@ -24,9 +26,11 @@ export default function VendorContracts() {
   const [template, setTemplate] = useState<string[]>(() => getVendorContractTemplate(vendor.id));
   const [templateFields, setTemplateFields] = useState<TemplateField[]>(() => getVendorTemplateFields(vendor.id));
   const [analyzing, setAnalyzing] = useState(false);
+  const [analyzeProgress, setAnalyzeProgress] = useState(0);
+  const [analyzeStatus, setAnalyzeStatus] = useState('');
   const [analyzeError, setAnalyzeError] = useState<string | null>(null);
   const [editingFields, setEditingFields] = useState(false);
-  const [rawText] = useState(() => getVendorTemplateRawText(vendor.id));
+  const [rawText, setRawText] = useState(() => getVendorTemplateRawText(vendor.id));
   const [showRawText, setShowRawText] = useState(false);
   const templateFileRef = useRef<HTMLInputElement>(null);
 
@@ -62,11 +66,46 @@ export default function VendorContracts() {
     if (template.length === 0) return;
     setAnalyzing(true);
     setAnalyzeError(null);
+    setAnalyzeProgress(0);
+    setAnalyzeStatus('');
     try {
-      const { fields, rawText: raw } = await apiAnalyzeContractTemplate(template[0]);
+      // 1. 이미지 전처리
+      setAnalyzeStatus('이미지 전처리 중...');
+      setAnalyzeProgress(1);
+      const preprocessed: string[] = [];
+      for (let i = 0; i < template.length; i++) {
+        setAnalyzeStatus(`이미지 전처리 중... (${i + 1}/${template.length})`);
+        const processed = await preprocessImage(template[i]);
+        preprocessed.push(processed);
+        setAnalyzeProgress(1 + (i + 1) / template.length * 10);
+      }
+
+      // 2. Tesseract OCR
+      setAnalyzeStatus('OCR 텍스트 인식 중...');
+      const ocredText = await runOcr(preprocessed, (pct, status) => {
+        setAnalyzeProgress(11 + pct * 0.77);
+        setAnalyzeStatus(status);
+      });
+
+      setRawText(ocredText);
+      saveVendorTemplateRawText(vendor.id, ocredText);
+
+      // 3. Claude AI 필드 추출
+      setAnalyzeStatus('AI 필드 분석 중...');
+      setAnalyzeProgress(90);
+      const { fields: rawFields } = await apiExtractContractFields(ocredText);
+      const fields: TemplateField[] = rawFields.map((f, i) => ({
+        id: `field_${Date.now()}_${i}`,
+        label: f.label,
+        type: f.type,
+        value: '',
+      }));
+
+      // 4. 저장
       setTemplateFields(fields);
       saveVendorTemplateFields(vendor.id, fields);
-      if (raw) saveVendorTemplateRawText(vendor.id, raw);
+      setAnalyzeProgress(100);
+      setAnalyzeStatus('완료');
       setEditingFields(true);
     } catch (e) {
       setAnalyzeError(e instanceof Error ? e.message : '분석에 실패했습니다.');
@@ -257,9 +296,43 @@ export default function VendorContracts() {
               className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold border-2 border-dashed border-indigo-300 text-indigo-600 hover:bg-indigo-50 disabled:opacity-50 transition-all"
             >
               <Sparkles size={15} />
-              {analyzing ? 'AI 분석 중...' : 'AI로 입력 필드 자동 감지'}
+              {analyzing ? analyzeStatus || 'AI 분석 중...' : 'AI로 입력 필드 자동 감지'}
             </button>
-            {analyzeError && <p className="text-xs text-red-500 text-center">{analyzeError}</p>}
+
+            {/* 진행 바 */}
+            {analyzing && (
+              <div className="space-y-1">
+                <div className="w-full bg-gray-100 rounded-full h-2 overflow-hidden">
+                  <div
+                    className="h-2 rounded-full transition-all duration-300"
+                    style={{ width: `${analyzeProgress}%`, backgroundColor: '#667EEA' }}
+                  />
+                </div>
+                <div className="flex justify-between text-xs text-gray-400">
+                  <span>{analyzeStatus}</span>
+                  <span>{Math.round(analyzeProgress)}%</span>
+                </div>
+              </div>
+            )}
+
+            {analyzeError && (
+              <p className="text-xs text-red-500 text-center">{analyzeError}</p>
+            )}
+
+            {/* OCR 원문 토글 */}
+            {rawText && !analyzing && (
+              <button
+                onClick={() => setShowRawText(v => !v)}
+                className="text-xs text-gray-400 hover:text-gray-600 underline"
+              >
+                {showRawText ? 'OCR 원문 숨기기' : 'OCR 원문 보기'}
+              </button>
+            )}
+            {showRawText && rawText && (
+              <pre className="text-xs text-gray-500 bg-gray-50 rounded-xl p-3 max-h-40 overflow-y-auto whitespace-pre-wrap break-words">
+                {rawText}
+              </pre>
+            )}
 
             {/* 감지된 필드 목록 */}
             {templateFields.length > 0 && (
