@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Ticket, Eye, EyeOff } from 'lucide-react';
-import { adminLogin, isAdminLoggedIn } from '../../utils/storage';
+import { adminLogin, isAdminLoggedIn, vendorLogin, getVendorSession } from '../../utils/storage';
 
 export default function AdminLogin() {
   const navigate = useNavigate();
@@ -10,15 +10,17 @@ export default function AdminLogin() {
   const [showPw, setShowPw] = useState(false);
   const [error, setError] = useState('');
 
-  // 이미 로그인된 경우 대시보드로 이동
   useEffect(() => {
     if (isAdminLoggedIn()) navigate('/admin/dashboard');
+    else if (getVendorSession()) navigate('/vendor/dashboard');
   }, [navigate]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (adminLogin(username, password)) {
       navigate('/admin/dashboard');
+    } else if (vendorLogin(username, password)) {
+      navigate('/vendor/dashboard');
     } else {
       setError('아이디 또는 비밀번호가 올바르지 않습니다.');
     }
@@ -81,7 +83,7 @@ export default function AdminLogin() {
         </form>
 
         <p className="text-xs text-center text-gray-400 mt-6">
-          테스트 계정: admin / admin123
+          관리자: admin / admin123<br />업체는 관리자에게 발급받은 계정을 사용하세요
         </p>
 
         <button

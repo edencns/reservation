@@ -22,6 +22,12 @@ import Statistics from './pages/admin/Statistics';
 import Settlement from './pages/admin/Settlement';
 import CompanyInfo from './pages/admin/CompanyInfo';
 import VendorsManage from './pages/admin/VendorsManage';
+import ContractsManage from './pages/admin/ContractsManage';
+import VendorLayout from './pages/vendor/VendorLayout';
+import VendorEventsView from './pages/vendor/VendorEventsView';
+import VendorContracts from './pages/vendor/VendorContracts';
+import ContractView from './pages/vendor/ContractView';
+import ContractForm from './pages/vendor/ContractForm';
 
 export default function App() {
   return (
@@ -54,7 +60,20 @@ export default function App() {
             <Route path="statistics" element={<Statistics />} />
             <Route path="settlement" element={<Settlement />} />
             <Route path="vendors" element={<VendorsManage />} />
+            <Route path="contracts" element={<ContractsManage />} />
             <Route path="company" element={<CompanyInfo />} />
+          </Route>
+
+          {/* Vendor Portal */}
+          <Route path="/vendor/login" element={<Navigate to="/admin" />} />
+          <Route path="/vendor" element={<VendorLayout />}>
+            <Route index element={<Navigate to="/vendor/events" />} />
+            <Route path="dashboard" element={<Navigate to="/vendor/events" />} />
+            <Route path="events" element={<VendorEventsView />} />
+            <Route path="contracts" element={<VendorContracts />} />
+            <Route path="contracts/new" element={<ContractForm />} />
+            <Route path="contracts/:id" element={<ContractView />} />
+            <Route path="contracts/:id/edit" element={<ContractForm />} />
           </Route>
 
           <Route path="*" element={<Navigate to="/" />} />

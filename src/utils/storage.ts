@@ -1,4 +1,4 @@
-import type { Event, Reservation, CustomField, CompanyInfo, ManagedVendor } from '../types';
+import type { Event, Reservation, CustomField, CompanyInfo, ManagedVendor, VendorContract } from '../types';
 import { generateSlug } from './helpers';
 
 const EVENTS_KEY = 'rv_events';
@@ -103,6 +103,54 @@ export const getManagedVendors = (): ManagedVendor[] => {
 };
 export const saveManagedVendors = (vendors: ManagedVendor[]) =>
   localStorage.setItem(MANAGED_VENDORS_KEY, JSON.stringify(vendors));
+
+const VENDOR_CATEGORY_OPTIONS_KEY = 'rv_vendor_category_options';
+const DEFAULT_CATEGORY_OPTIONS = [
+  '가구', '방충망', '에어컨/냉난방', '입주청소', '이사', '인테리어',
+  '전동커튼/블라인드', '조명', '보안/방범', '주방기기', '욕실/위생',
+  '홈네트워크', '기타',
+];
+export const getVendorCategoryOptions = (): string[] => {
+  try {
+    const raw = localStorage.getItem(VENDOR_CATEGORY_OPTIONS_KEY);
+    if (!raw) return [...DEFAULT_CATEGORY_OPTIONS];
+    const parsed = JSON.parse(raw) as string[];
+    return Array.isArray(parsed) && parsed.length > 0 ? parsed : [...DEFAULT_CATEGORY_OPTIONS];
+  } catch { return [...DEFAULT_CATEGORY_OPTIONS]; }
+};
+export const saveVendorCategoryOptions = (options: string[]) =>
+  localStorage.setItem(VENDOR_CATEGORY_OPTIONS_KEY, JSON.stringify(options));
+
+const VENDOR_CONTRACTS_KEY = 'rv_vendor_contracts';
+export const getVendorContracts = (): VendorContract[] => {
+  try {
+    return JSON.parse(localStorage.getItem(VENDOR_CONTRACTS_KEY) || '[]') as VendorContract[];
+  } catch { return []; }
+};
+export const saveVendorContracts = (contracts: VendorContract[]) =>
+  localStorage.setItem(VENDOR_CONTRACTS_KEY, JSON.stringify(contracts));
+
+export const getVendorPreSignature = (vendorId: string): string | null =>
+  localStorage.getItem(`rv_vendor_sig_${vendorId}`);
+export const saveVendorPreSignature = (vendorId: string, dataUrl: string) =>
+  localStorage.setItem(`rv_vendor_sig_${vendorId}`, dataUrl);
+export const clearVendorPreSignature = (vendorId: string) =>
+  localStorage.removeItem(`rv_vendor_sig_${vendorId}`);
+
+const VENDOR_SESSION_KEY = 'rv_vendor_session';
+export const getVendorSession = (): string | null =>
+  sessionStorage.getItem(VENDOR_SESSION_KEY);
+export const setVendorSession = (vendorId: string) =>
+  sessionStorage.setItem(VENDOR_SESSION_KEY, vendorId);
+export const clearVendorSession = () =>
+  sessionStorage.removeItem(VENDOR_SESSION_KEY);
+
+export const vendorLogin = (loginId: string, password: string): ManagedVendor | null => {
+  const vendors = getManagedVendors();
+  const found = vendors.find(v => v.loginId === loginId && v.loginPassword === password);
+  if (found) { setVendorSession(found.id); return found; }
+  return null;
+};
 
 export const getSlotUsedCount = (
   reservations: Reservation[],

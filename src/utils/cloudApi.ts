@@ -73,6 +73,26 @@ export interface SmsSendResult {
   total: number;
 }
 
+export interface ContractSmsPayload {
+  to: string;
+  customerName: string;
+  vendorName: string;
+  vendorCategory: string;
+  eventTitle: string;
+  unitNumber: string;
+  totalAmount: number;
+  depositAmount: number;
+}
+
+export const apiSendContractSms = async (data: ContractSmsPayload): Promise<{ ok: boolean }> => {
+  const res = await fetch('/api/sms/contract', {
+    method: 'POST',
+    headers: jsonHeaders,
+    body: JSON.stringify(data),
+  });
+  return parseJson<{ ok: boolean }>(res);
+};
+
 export const apiSendSms = async (
   reservationIds: string[],
   template: 'confirm' | 'reminder',

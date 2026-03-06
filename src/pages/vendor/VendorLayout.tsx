@@ -1,33 +1,36 @@
 import { useEffect, useState } from 'react';
 import { Outlet, useNavigate, useLocation, Link } from 'react-router-dom';
-import { LayoutDashboard, CalendarDays, ClipboardList, BarChart2, Wallet, LogOut, Ticket, Menu, X, QrCode, Building2, Store, FileText } from 'lucide-react';
-import { isAdminLoggedIn, adminLogout } from '../../utils/storage';
+import { CalendarDays, FileText, LogOut, Store, Menu, X } from 'lucide-react';
+import { getVendorSession, clearVendorSession, getManagedVendors } from '../../utils/storage';
+import type { ManagedVendor } from '../../types';
 
 const navItems = [
-  { to: '/admin/dashboard', icon: <LayoutDashboard size={18} />, label: '대시보드' },
-  { to: '/admin/events', icon: <CalendarDays size={18} />, label: '이벤트 관리' },
-  { to: '/admin/reservations', icon: <ClipboardList size={18} />, label: '예약 관리' },
-  { to: '/admin/checkin', icon: <QrCode size={18} />, label: 'QR 체크인' },
-  { to: '/admin/statistics', icon: <BarChart2 size={18} />, label: '통계' },
-  { to: '/admin/settlement', icon: <Wallet size={18} />, label: '방문 현황' },
-  { to: '/admin/vendors', icon: <Store size={18} />, label: '입점 업체 관리' },
-  { to: '/admin/contracts', icon: <FileText size={18} />, label: '계약 관리' },
-  { to: '/admin/company', icon: <Building2 size={18} />, label: '회사 정보' },
+  { to: '/vendor/events', icon: <CalendarDays size={18} />, label: '이벤트 현황' },
+  { to: '/vendor/contracts', icon: <FileText size={18} />, label: '계약 관리' },
 ];
 
-export default function AdminLayout() {
+export default function VendorLayout() {
   const navigate = useNavigate();
   const location = useLocation();
+  const [vendor, setVendor] = useState<ManagedVendor | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   useEffect(() => {
-    if (!isAdminLoggedIn()) navigate('/admin');
+    const sid = getVendorSession();
+    if (!sid) { navigate('/admin'); return; }
+    const found = getManagedVendors().find(v => v.id === sid);
+    if (!found) { clearVendorSession(); navigate('/admin'); return; }
+    setVendor(found);
   }, [navigate]);
 
   const handleLogout = () => {
-    adminLogout();
+    clearVendorSession();
     navigate('/admin');
   };
+
+  if (!vendor) return null;
+
+  const currentLabel = navItems.find(n => location.pathname.startsWith(n.to))?.label ?? '업체 포털';
 
   return (
     <div className="min-h-screen flex bg-gray-100">
@@ -45,24 +48,22 @@ export default function AdminLayout() {
       >
         <div className="p-5 border-b border-white/20">
           <div className="flex items-center gap-2">
-            <Ticket size={22} className="text-white" />
-            <span className="font-extrabold text-white text-lg">관리자 패널</span>
+            <Store size={22} className="text-white" />
+            <span className="font-extrabold text-white text-base truncate">{vendor.name}</span>
           </div>
-          <p className="text-blue-100 text-xs mt-1">ReserveTicket Admin</p>
+          <p className="text-blue-100 text-xs mt-1">{vendor.category} · 업체 포털</p>
         </div>
 
         <nav className="flex-1 p-3 space-y-1">
           {navItems.map(item => {
-            const isActive = location.pathname === item.to;
+            const isActive = location.pathname.startsWith(item.to);
             return (
               <Link
                 key={item.to}
                 to={item.to}
                 onClick={() => setSidebarOpen(false)}
                 className={`flex items-center gap-3 px-4 py-3 rounded-xl font-medium text-sm transition-all ${
-                  isActive
-                    ? 'bg-white text-[#667EEA] shadow-sm'
-                    : 'text-white hover:bg-white/20'
+                  isActive ? 'bg-white text-[#667EEA] shadow-sm' : 'text-white hover:bg-white/20'
                 }`}
               >
                 {item.icon}
@@ -93,15 +94,12 @@ export default function AdminLayout() {
           >
             {sidebarOpen ? <X size={22} /> : <Menu size={22} />}
           </button>
-          <h1 className="font-bold text-gray-800">
-            {navItems.find(n => n.to === location.pathname)?.label ?? '관리자'}
-          </h1>
-          <Link to="/" className="ml-auto text-xs text-gray-400 hover:text-gray-600">사이트 보기 →</Link>
+          <h1 className="font-bold text-gray-800">{currentLabel}</h1>
+          <span className="ml-auto text-xs text-gray-400">{vendor.name}</span>
         </div>
 
-        {/* Content */}
         <main className="flex-1 p-4 md:p-6 overflow-auto">
-          <Outlet />
+          <Outlet context={{ vendor }} />
         </main>
       </div>
     </div>

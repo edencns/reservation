@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { Menu, X, Ticket } from 'lucide-react';
 import { useApp } from '../context/AppContext';
-import { adminLogout, isAdminLoggedIn } from '../utils/storage';
+import { adminLogout, isAdminLoggedIn, getVendorSession, clearVendorSession, getManagedVendors } from '../utils/storage';
 
 export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -11,9 +11,19 @@ export default function Header() {
   const { slug } = useParams<{ slug?: string }>();
   const { getEventBySlug } = useApp();
   const [adminLoggedIn, setAdminLoggedIn] = useState(isAdminLoggedIn());
+  const [vendorLoggedIn, setVendorLoggedIn] = useState(!!getVendorSession());
+  const [vendorName, setVendorName] = useState(() => {
+    const sid = getVendorSession();
+    return sid ? (getManagedVendors().find(v => v.id === sid)?.name ?? '') : '';
+  });
 
   useEffect(() => {
-    const refresh = () => setAdminLoggedIn(isAdminLoggedIn());
+    const refresh = () => {
+      setAdminLoggedIn(isAdminLoggedIn());
+      const sid = getVendorSession();
+      setVendorLoggedIn(!!sid);
+      setVendorName(sid ? (getManagedVendors().find(v => v.id === sid)?.name ?? '') : '');
+    };
     refresh();
     window.addEventListener('storage', refresh);
     window.addEventListener('rv_auth_change', refresh);
@@ -25,8 +35,8 @@ export default function Header() {
     };
   }, [location]);
 
-  // 관리자 페이지에서는 헤더 숨김
-  if (location.pathname.startsWith('/admin')) return null;
+  // 관리자/업체 페이지에서는 헤더 숨김
+  if (location.pathname.startsWith('/admin') || location.pathname.startsWith('/vendor')) return null;
 
   // 슬러그 기반 이벤트 페이지: 최소화된 헤더 (vendors 페이지는 일반 헤더 사용)
   const isEventPage = location.pathname.startsWith('/e/') && !location.pathname.includes('/vendors');
@@ -60,6 +70,12 @@ export default function Header() {
   const lockBrandLink = isEventDetailPage || isReservePage;
 
   const handleAdminAction = () => {
+    if (vendorLoggedIn) {
+      clearVendorSession();
+      setVendorLoggedIn(false);
+      setVendorName('');
+      return;
+    }
     if (adminLoggedIn) {
       adminLogout();
       setAdminLoggedIn(false);
@@ -84,7 +100,16 @@ export default function Header() {
           </Link>
         )}
         <div className="hidden md:flex items-center gap-4">
-          {adminLoggedIn && (
+          {vendorLoggedIn && (
+            <button
+              onClick={() => navigate('/vendor/events')}
+              className="px-4 py-2 rounded-lg text-white font-medium text-sm transition-opacity hover:opacity-90"
+              style={{ backgroundColor: '#667EEA' }}
+            >
+              {vendorName} 포털
+            </button>
+          )}
+          {adminLoggedIn && !vendorLoggedIn && (
             <button
               onClick={() => navigate('/admin/dashboard')}
               className="px-4 py-2 rounded-lg text-white font-medium text-sm transition-opacity hover:opacity-90"
@@ -98,7 +123,7 @@ export default function Header() {
             className="px-4 py-2 rounded-lg text-white font-medium text-sm transition-opacity hover:opacity-90"
             style={{ backgroundColor: '#667EEA' }}
           >
-            {adminLoggedIn ? '관리자 로그아웃' : '관리자 로그인'}
+            {vendorLoggedIn ? '로그아웃' : adminLoggedIn ? '관리자 로그아웃' : '관리자 로그인'}
           </button>
         </div>
         <button className="md:hidden p-2 text-gray-600" onClick={() => setMenuOpen(!menuOpen)}>
@@ -106,11 +131,20 @@ export default function Header() {
         </button>
       </div>
       {menuOpen && (
-        <div className="md:hidden bg-white border-t px-4 py-3">
-          {adminLoggedIn && (
+        <div className="md:hidden bg-white border-t px-4 py-3 space-y-2">
+          {vendorLoggedIn && (
             <button
-              onClick={() => { navigate('/admin'); setMenuOpen(false); }}
-              className="w-full py-2.5 rounded-lg text-white font-medium text-center mb-2"
+              onClick={() => { navigate('/vendor/events'); setMenuOpen(false); }}
+              className="w-full py-2.5 rounded-lg text-white font-medium text-center"
+              style={{ backgroundColor: '#667EEA' }}
+            >
+              {vendorName} 포털
+            </button>
+          )}
+          {adminLoggedIn && !vendorLoggedIn && (
+            <button
+              onClick={() => { navigate('/admin/dashboard'); setMenuOpen(false); }}
+              className="w-full py-2.5 rounded-lg text-white font-medium text-center"
               style={{ backgroundColor: '#667EEA' }}
             >
               관리자 페이지
@@ -121,7 +155,7 @@ export default function Header() {
             className="w-full py-2.5 rounded-lg text-white font-medium text-center"
             style={{ backgroundColor: '#667EEA' }}
           >
-            {adminLoggedIn ? '관리자 로그아웃' : '관리자 로그인'}
+            {vendorLoggedIn ? '로그아웃' : adminLoggedIn ? '관리자 로그아웃' : '관리자 로그인'}
           </button>
         </div>
       )}

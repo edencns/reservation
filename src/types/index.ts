@@ -81,7 +81,49 @@ export interface ManagedVendor {
   notes: string;             // 비고
   imageUrl?: string;         // 업체 대표 이미지
   documents: VendorDocument[];
+  loginId?: string;          // 업체 포털 로그인 ID
+  loginPassword?: string;    // 업체 포털 비밀번호
   createdAt: string;
+}
+
+export interface ContractItem {
+  id: string;
+  description: string;   // 품목/서비스명
+  quantity: number;
+  unitPrice: number;
+  amount: number;        // quantity × unitPrice
+}
+
+export type ContractType = 'electronic' | 'upload';
+export type ContractStatus = 'draft' | 'completed';
+
+export interface VendorContract {
+  id: string;
+  vendorId: string;        // ManagedVendor.id
+  vendorName: string;
+  vendorCategory: string;
+  eventId: string;
+  eventTitle: string;
+  // 계약 상대방
+  unitNumber: string;      // 동호수
+  customerName: string;
+  customerPhone: string;
+  // 계약 내용
+  items: ContractItem[];
+  totalAmount: number;
+  depositAmount: number;
+  paymentMethod: string;
+  notes: string;
+  contractDate: string;
+  // 전자서명
+  customerSignature?: string;  // base64 canvas
+  vendorSignature?: string;
+  // 파일 업로드
+  uploadedImages?: string[];   // base64 image array
+  type: ContractType;
+  status: ContractStatus;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface VendorCategory {

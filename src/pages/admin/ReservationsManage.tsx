@@ -13,6 +13,7 @@ export default function ReservationsManage() {
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [eventFilter, setEventFilter] = useState(searchParams.get('eventId') ?? 'all');
+  const [detailR, setDetailR] = useState<Reservation | null>(null);
   const [selected, setSelected] = useState<Reservation | null>(null);
   const [cancelTarget, setCancelTarget] = useState<string | null>(null);
   const [showSmsModal, setShowSmsModal] = useState(false);
@@ -159,7 +160,9 @@ export default function ReservationsManage() {
               {filtered.length === 0 ? (
                 <tr><td colSpan={7} className="text-center py-12 text-gray-400">예약 내역이 없습니다</td></tr>
               ) : filtered.map(r => (
-                <tr key={r.id} className={`hover:bg-gray-50 transition-colors ${r.checkedIn ? 'bg-green-50' : ''}`}>
+                <tr key={r.id}
+                  onClick={() => setDetailR(r)}
+                  className={`cursor-pointer hover:bg-blue-50 transition-colors ${r.checkedIn ? 'bg-green-50 hover:bg-green-100' : ''}`}>
                   <td className="px-3 py-3 font-mono text-xs text-gray-400">{r.id.slice(0, 8).toUpperCase()}</td>
                   <td className="px-3 py-3 max-w-[160px]">
                     <p className="font-medium text-gray-800 truncate">{r.eventTitle}</p>
@@ -183,17 +186,7 @@ export default function ReservationsManage() {
                       <span className="px-2 py-0.5 rounded-full text-xs font-semibold bg-gray-100 text-gray-400">미입장</span>
                     ) : null}
                   </td>
-                  <td className="px-3 py-3">
-                    <div className="flex gap-1">
-                      <button onClick={() => setSelected(r)}
-                        className="px-2 py-1 text-xs rounded-lg text-white font-medium"
-                        style={{ backgroundColor: '#667EEA' }}>QR</button>
-                      {r.status === 'confirmed' && (
-                        <button onClick={() => handleCancel(r.id)}
-                          className="px-2 py-1 text-xs rounded-lg bg-red-50 text-red-500 font-medium">취소</button>
-                      )}
-                    </div>
-                  </td>
+                  <td className="px-3 py-3 text-xs text-gray-300">상세 →</td>
                 </tr>
               ))}
             </tbody>
@@ -205,7 +198,8 @@ export default function ReservationsManage() {
           {filtered.length === 0 ? (
             <p className="text-center py-10 text-gray-400 text-sm">예약 내역이 없습니다</p>
           ) : filtered.map(r => (
-            <div key={r.id} className="p-4">
+            <div key={r.id} className={`p-4 cursor-pointer hover:bg-blue-50 transition-colors ${r.checkedIn ? 'bg-green-50' : ''}`}
+              onClick={() => setDetailR(r)}>
               <div className="flex items-start justify-between mb-2">
                 <div>
                   <p className="font-bold text-gray-800">{r.eventTitle}</p>
@@ -221,19 +215,113 @@ export default function ReservationsManage() {
               {r.checkedIn && (
                 <span className="inline-block mt-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-green-100 text-green-700">입장완료</span>
               )}
-              <div className="flex gap-2 mt-3">
-                <button onClick={() => setSelected(r)}
-                  className="flex-1 py-2 text-xs rounded-lg text-white font-medium"
-                  style={{ backgroundColor: '#667EEA' }}>QR 보기</button>
-                {r.status === 'confirmed' && (
-                  <button onClick={() => handleCancel(r.id)}
-                    className="flex-1 py-2 text-xs rounded-lg bg-red-50 text-red-500 font-medium">예약 취소</button>
-                )}
-              </div>
             </div>
           ))}
         </div>
       </div>
+
+      {/* 예약 상세 모달 */}
+      {detailR && (() => {
+        const event = events.find(e => e.id === detailR.eventId);
+        const fieldLabelMap: Record<string, string> = {
+          name: '이름', phone: '연락처', email: '이메일', unitNumber: '동호수', interestedServices: '관심 서비스',
+          ...(event?.customFields ?? []).reduce((acc, f) => ({ ...acc, [f.key]: f.label }), {} as Record<string, string>),
+        };
+        const baseKeys = new Set(['name', 'phone', 'email']);
+        const extraEntries = Object.entries(detailR.extraFields ?? {}).filter(([k]) => !baseKeys.has(k));
+        return (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4"
+            style={{ backgroundColor: 'rgba(0,0,0,0.5)' }} onClick={() => setDetailR(null)}>
+            <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm flex flex-col max-h-[90vh]" onClick={e => e.stopPropagation()}>
+              {/* Header */}
+              <div className="flex items-center justify-between px-5 pt-5 pb-3 border-b border-gray-100 shrink-0">
+                <h3 className="font-bold text-gray-800">예약 상세</h3>
+                <button onClick={() => setDetailR(null)} className="p-1 rounded-lg hover:bg-gray-100">
+                  <X size={18} className="text-gray-400" />
+                </button>
+              </div>
+              {/* Body */}
+              <div className="overflow-y-auto px-5 py-4 space-y-4">
+                {/* 예약 메타 */}
+                <div className="bg-gray-50 rounded-xl p-3 space-y-1.5 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-gray-400">예약번호</span>
+                    <span className="font-mono text-xs text-gray-600">{detailR.id.slice(0, 8).toUpperCase()}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-400">행사명</span>
+                    <span className="font-medium text-gray-800 text-right max-w-[180px] truncate">{detailR.eventTitle}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-400">방문날짜</span>
+                    <span className="text-gray-700">{formatDate(detailR.date)}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-400">상태</span>
+                    <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${
+                      detailR.status === 'confirmed' ? 'bg-green-100 text-green-600' : 'bg-gray-100 text-gray-500'
+                    }`}>
+                      {detailR.status === 'confirmed' ? '확정' : '취소'}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-400">입장</span>
+                    <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${
+                      detailR.checkedIn ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-400'
+                    }`}>
+                      {detailR.checkedIn ? '입장완료' : '미입장'}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-400">예약일시</span>
+                    <span className="text-xs text-gray-500">{new Date(detailR.createdAt).toLocaleString('ko-KR')}</span>
+                  </div>
+                </div>
+                {/* 예약자 정보 */}
+                <div>
+                  <p className="text-xs font-semibold text-gray-500 mb-2">예약자 정보</p>
+                  <div className="space-y-2 text-sm">
+                    {[
+                      { label: '이름', value: detailR.customer.name },
+                      { label: '연락처', value: detailR.customer.phone },
+                      { label: '이메일', value: detailR.customer.email || '-' },
+                    ].map(row => (
+                      <div key={row.label} className="flex justify-between border-b border-gray-50 pb-2">
+                        <span className="text-gray-400">{row.label}</span>
+                        <span className="text-gray-800 font-medium">{row.value}</span>
+                      </div>
+                    ))}
+                    {extraEntries.map(([key, val]) => (
+                      <div key={key} className="flex justify-between border-b border-gray-50 pb-2">
+                        <span className="text-gray-400 shrink-0">{fieldLabelMap[key] ?? key}</span>
+                        <span className="text-gray-800 font-medium text-right max-w-[200px]">{val || '-'}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+              {/* Footer buttons */}
+              <div className="px-5 pb-5 pt-3 flex gap-2 shrink-0 border-t border-gray-100">
+                <button
+                  onClick={() => { setDetailR(null); setSelected(detailR); }}
+                  className="flex-1 py-2.5 rounded-xl text-white text-sm font-semibold hover:opacity-90"
+                  style={{ backgroundColor: '#667EEA' }}
+                >
+                  QR 보기
+                </button>
+                {detailR.status === 'confirmed' && (
+                  <button
+                    onClick={() => { setDetailR(null); handleCancel(detailR.id); }}
+                    className="flex-1 py-2.5 rounded-xl bg-red-50 text-red-500 text-sm font-semibold hover:bg-red-100"
+                  >
+                    예약 취소
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+        );
+      })()}
 
       {/* 취소 확인 모달 */}
       {cancelTarget && (
