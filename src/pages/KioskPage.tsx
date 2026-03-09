@@ -21,6 +21,8 @@ function matchUnitNumber(stored: string, query: string): boolean {
 }
 
 function buildTicketHtml(reservations: Reservation[], event: Event): string {
+  const SEP = '----------------------------------------';
+
   const rows = reservations.map((r) => {
     const customRows = event.customFields
       .filter(f => r.extraFields[f.key])
@@ -32,12 +34,13 @@ function buildTicketHtml(reservations: Reservation[], event: Event): string {
 
     return `
       <div class="ticket">
-        <div class="header">
-          <div class="header-sub">입 장 권</div>
-          <div class="header-title">${r.eventTitle}</div>
-          ${r.checkedIn ? '<div class="checked-badge">✓ 이미 입장완료</div>' : ''}
+        <div class="center">
+          <div class="title-sub">[ 입  장  권 ]</div>
+          <div class="title-main">${r.eventTitle}</div>
+          ${r.checkedIn ? '<div class="checked">✓ 이미 입장완료</div>' : ''}
         </div>
-        <div class="body">
+        <div class="sep">${SEP}</div>
+        <div class="rows">
           <div class="row"><span class="lbl">장소</span><span class="val">${r.venue}</span></div>
           <div class="row"><span class="lbl">날짜</span><span class="val">${formatDate(r.date)}</span></div>
           ${r.time && r.time !== '시간 미지정' ? `<div class="row"><span class="lbl">시간</span><span class="val">${r.time}</span></div>` : ''}
@@ -45,7 +48,8 @@ function buildTicketHtml(reservations: Reservation[], event: Event): string {
           ${phone ? `<div class="row"><span class="lbl">연락처</span><span class="val">${phone}</span></div>` : ''}
           ${customRows}
         </div>
-        <div class="footer">예약번호 ${r.id.toUpperCase()}</div>
+        <div class="sep">${SEP}</div>
+        <div class="center small">NO. ${r.id.toUpperCase()}</div>
       </div>`;
   });
 
@@ -57,59 +61,26 @@ function buildTicketHtml(reservations: Reservation[], event: Event): string {
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     html, body {
-      width: 100%;
-      background: white;
+      width: 72mm;
       font-family: 'Malgun Gothic', 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif;
-      -webkit-print-color-adjust: exact;
-      print-color-adjust: exact;
-      color-adjust: exact;
+      font-size: 12pt;
+      color: #000;
+      background: #fff;
     }
-    .ticket {
-      border: 2px solid #667EEA;
-      border-radius: 10px;
-      overflow: hidden;
-      page-break-inside: avoid;
-    }
-    .header {
-      background: #667EEA !important;
-      color: white;
-      text-align: center;
-      padding: 20px 24px 18px;
-    }
-    .header-sub { font-size: 14pt; letter-spacing: 4px; opacity: 0.85; margin-bottom: 8px; }
-    .header-title { font-size: 22pt; font-weight: 900; line-height: 1.3; }
-    .checked-badge {
-      display: inline-block;
-      background: #22c55e !important;
-      color: white;
-      font-size: 13pt;
-      padding: 3px 14px;
-      border-radius: 20px;
-      margin-top: 8px;
-    }
-    .body { padding: 20px 28px; }
-    .row {
-      display: flex;
-      align-items: baseline;
-      padding: 8px 0;
-      border-bottom: 1px solid #f0f0f0;
-    }
-    .row:last-child { border-bottom: none; }
-    .lbl { color: #888; font-size: 14pt; min-width: 64px; flex-shrink: 0; margin-right: 16px; }
-    .val { font-size: 16pt; font-weight: 700; color: #111; flex: 1; word-break: keep-all; }
-    .footer {
-      background: #f0edfc !important;
-      text-align: center;
-      padding: 12px;
-      font-size: 11pt;
-      color: #666;
-      border-top: 1px dashed #ccc;
-      word-break: break-all;
-      font-family: monospace;
-    }
+    .ticket { width: 72mm; padding: 3mm 0; }
+    .center { text-align: center; padding: 2mm 0; }
+    .title-sub { font-size: 11pt; letter-spacing: 3px; margin-bottom: 3mm; }
+    .title-main { font-size: 15pt; font-weight: 900; line-height: 1.4; word-break: keep-all; }
+    .checked { font-size: 11pt; font-weight: 700; margin-top: 2mm; }
+    .sep { font-size: 8pt; color: #000; letter-spacing: -1px; overflow: hidden; line-height: 1; padding: 2mm 0; }
+    .rows { padding: 1mm 0; }
+    .row { display: flex; align-items: flex-start; padding: 2mm 0; }
+    .lbl { font-size: 11pt; min-width: 18mm; flex-shrink: 0; color: #333; }
+    .val { font-size: 12pt; font-weight: 700; flex: 1; word-break: keep-all; line-height: 1.4; }
+    .small { font-size: 8pt; color: #555; padding: 2mm 0; word-break: break-all; }
     @media print {
-      @page { margin: 0; size: A4; }
-      html, body { padding: 8mm; }
+      @page { size: 80mm auto; margin: 4mm 4mm; }
+      html, body { width: 72mm; }
     }
   </style>
 </head>
@@ -226,7 +197,7 @@ export default function KioskPage() {
     setPrinting(true);
     try {
       const html = buildTicketHtml(found, event);
-      const popup = window.open('', '_blank', 'width=794,height=1000,menubar=no,toolbar=no,location=no,status=no');
+      const popup = window.open('', '_blank', 'width=340,height=600,menubar=no,toolbar=no,location=no,status=no');
       if (!popup) {
         // 팝업 차단된 경우 fallback
         window.print();
