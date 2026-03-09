@@ -174,7 +174,8 @@ export default function KioskPage() {
     try {
       // API + localStorage 둘 다 가져와서 합침 (어느 쪽에만 있어도 찾을 수 있게)
       let fromApi: Reservation[] = [];
-      try { fromApi = await apiGetReservations(); } catch { /* 무시 */ }
+      let apiError = '';
+      try { fromApi = await apiGetReservations(); } catch (e) { apiError = String(e); }
       const fromLocal = getReservations();
       const apiIds = new Set(fromApi.map(r => r.id));
       const fresh = [...fromApi, ...fromLocal.filter(r => !apiIds.has(r.id))];
@@ -198,7 +199,8 @@ export default function KioskPage() {
 
       const eventReservations = fresh.filter(isThisEvent);
       setDebugInfo(
-        `전체: ${fresh.length}건 | 이 행사: ${eventReservations.length}건 | 입력: "${input.trim()}"` +
+        `전체: ${fresh.length}건 (API:${fromApi.length} 로컬:${fromLocal.length}) | 이 행사: ${eventReservations.length}건 | 입력: "${input.trim()}"` +
+        (apiError ? ` | API오류: ${apiError}` : '') +
         (eventReservations.length > 0 ? ` | 샘플: ${JSON.stringify(eventReservations[0].extraFields)}` : '')
       );
 
