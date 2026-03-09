@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import QRCode from 'qrcode';
 import { useApp } from '../context/AppContext';
 import { apiGetReservations } from '../utils/cloudApi';
 import { getReservations } from '../utils/storage';
@@ -21,92 +20,50 @@ function matchUnitNumber(stored: string, query: string): boolean {
   return s === q || s.includes(q) || q.includes(s);
 }
 
-async function buildTicketHtml(reservations: Reservation[], event: Event): Promise<string> {
-  const rows = await Promise.all(
-    reservations.map(async (r) => {
-      const qrDataUrl = await QRCode.toDataURL(r.id, {
-        width: 200,
-        margin: 2,
-        color: { dark: '#2c3e50', light: '#ffffff' },
-      });
+function buildTicketHtml(reservations: Reservation[], event: Event): string {
+  const rows = reservations.map((r) => {
+    const customRows = event.customFields
+      .filter(f => r.extraFields[f.key])
+      .map(f => `
+        <tr>
+          <td class="label">${f.label}</td>
+          <td class="value">${r.extraFields[f.key]}</td>
+        </tr>`)
+      .join('');
 
-      const customRows = event.customFields
-        .filter(f => r.extraFields[f.key])
-        .map(f => `
-          <tr>
-            <td style="color:#888;font-size:12px;padding:4px 8px 4px 0;white-space:nowrap">${f.label}</td>
-            <td style="font-size:13px;font-weight:600;color:#2c3e50;padding:4px 0">${r.extraFields[f.key]}</td>
-          </tr>`)
-        .join('');
+    const name = r.customer.name || r.extraFields['name'] || '';
+    const phone = r.customer.phone || r.extraFields['phone'] || '';
 
-      const name = r.customer.name || r.extraFields['name'] || '';
-      const phone = r.customer.phone || r.extraFields['phone'] || '';
-      const checkedInBadge = r.checkedIn
-        ? `<div style="display:inline-block;background:#22c55e;color:white;font-size:11px;padding:2px 10px;border-radius:20px;margin-top:4px">✓ 이미 입장완료</div>`
-        : '';
-
-      return `
-        <div style="width:320px;margin:0 auto 24px;font-family:'Malgun Gothic','Apple SD Gothic Neo',sans-serif;border:1px solid #e5e7eb;border-radius:16px;overflow:hidden;page-break-after:always">
-          <!-- 헤더 -->
-          <div style="background:#667EEA;color:white;text-align:center;padding:18px 20px 14px">
-            <div style="font-size:10px;letter-spacing:3px;opacity:0.75;text-transform:uppercase;margin-bottom:4px">입장권</div>
-            <div style="font-size:17px;font-weight:700;line-height:1.3">${r.eventTitle}</div>
-            ${checkedInBadge}
-          </div>
-
-          <!-- QR 코드 -->
-          <div style="text-align:center;padding:20px 20px 10px">
-            <div style="display:inline-block;border:2px dashed #e5e7eb;border-radius:12px;padding:10px">
-              <img src="${qrDataUrl}" width="160" height="160" style="display:block;border-radius:6px" />
-            </div>
-          </div>
-
-          <!-- 예약번호 -->
-          <div style="text-align:center;padding:0 20px 14px">
-            <div style="font-size:10px;color:#aaa;margin-bottom:2px">예약 번호</div>
-            <div style="font-family:monospace;font-size:10px;font-weight:700;color:#555;word-break:break-all">${r.id.toUpperCase()}</div>
-          </div>
-
-          <!-- 구분선 -->
-          <div style="border-top:2px dashed #e5e7eb;margin:0 16px"></div>
-
-          <!-- 예약 정보 -->
-          <div style="padding:14px 20px">
-            <table style="width:100%;border-collapse:collapse">
-              <tr>
-                <td style="color:#888;font-size:12px;padding:4px 8px 4px 0;white-space:nowrap">장소</td>
-                <td style="font-size:13px;font-weight:600;color:#2c3e50;padding:4px 0">${r.venue}</td>
-              </tr>
-              <tr>
-                <td style="color:#888;font-size:12px;padding:4px 8px 4px 0;white-space:nowrap">날짜</td>
-                <td style="font-size:13px;font-weight:600;color:#2c3e50;padding:4px 0">${formatDate(r.date)}</td>
-              </tr>
-              ${r.time && r.time !== '시간 미지정' ? `
-              <tr>
-                <td style="color:#888;font-size:12px;padding:4px 8px 4px 0;white-space:nowrap">시간</td>
-                <td style="font-size:13px;font-weight:600;color:#2c3e50;padding:4px 0">${r.time}</td>
-              </tr>` : ''}
-              ${customRows}
-              ${name ? `
-              <tr>
-                <td style="color:#888;font-size:12px;padding:4px 8px 4px 0;white-space:nowrap">예약자</td>
-                <td style="font-size:13px;font-weight:600;color:#2c3e50;padding:4px 0">${name}</td>
-              </tr>` : ''}
-              ${phone ? `
-              <tr>
-                <td style="color:#888;font-size:12px;padding:4px 8px 4px 0;white-space:nowrap">연락처</td>
-                <td style="font-size:13px;font-weight:600;color:#2c3e50;padding:4px 0">${phone}</td>
-              </tr>` : ''}
-            </table>
-          </div>
-
-          <!-- 푸터 -->
-          <div style="background:#E0D6F9;text-align:center;padding:10px 20px">
-            <div style="font-size:11px;color:#555;font-weight:500">방문 시 이 QR코드를 제시해 주세요</div>
-          </div>
-        </div>`;
-    })
-  );
+    return `
+      <div class="ticket">
+        <div class="header">
+          <div class="header-sub">입 장 권</div>
+          <div class="header-title">${r.eventTitle}</div>
+          ${r.checkedIn ? '<div class="checked-badge">✓ 이미 입장완료</div>' : ''}
+        </div>
+        <div class="body">
+          <table>
+            <tr>
+              <td class="label">장소</td>
+              <td class="value">${r.venue}</td>
+            </tr>
+            <tr>
+              <td class="label">날짜</td>
+              <td class="value">${formatDate(r.date)}</td>
+            </tr>
+            ${r.time && r.time !== '시간 미지정' ? `
+            <tr>
+              <td class="label">시간</td>
+              <td class="value">${r.time}</td>
+            </tr>` : ''}
+            ${name ? `<tr><td class="label">예약자</td><td class="value">${name}</td></tr>` : ''}
+            ${phone ? `<tr><td class="label">연락처</td><td class="value">${phone}</td></tr>` : ''}
+            ${customRows}
+          </table>
+        </div>
+        <div class="footer">예약번호: ${r.id.toUpperCase()}</div>
+      </div>`;
+  });
 
   return `<!DOCTYPE html>
 <html lang="ko">
@@ -115,10 +72,47 @@ async function buildTicketHtml(reservations: Reservation[], event: Event): Promi
   <title>입장권</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { background: white; display: flex; flex-direction: column; align-items: center; padding: 20px; }
+    body { background: white; font-family: 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif; }
+    .ticket {
+      width: 100%;
+      border: 1.5px solid #ccc;
+      border-radius: 8px;
+      overflow: hidden;
+      margin-bottom: 12px;
+      page-break-inside: avoid;
+    }
+    .header {
+      background: #667EEA;
+      color: white;
+      text-align: center;
+      padding: 10px 16px 8px;
+    }
+    .header-sub { font-size: 9px; letter-spacing: 4px; opacity: 0.8; margin-bottom: 3px; }
+    .header-title { font-size: 15px; font-weight: 700; line-height: 1.3; }
+    .checked-badge {
+      display: inline-block;
+      background: #22c55e;
+      color: white;
+      font-size: 10px;
+      padding: 1px 8px;
+      border-radius: 20px;
+      margin-top: 4px;
+    }
+    .body { padding: 10px 14px; }
+    table { width: 100%; border-collapse: collapse; }
+    .label { color: #888; font-size: 11px; padding: 3px 10px 3px 0; white-space: nowrap; width: 52px; }
+    .value { font-size: 12px; font-weight: 600; color: #2c3e50; padding: 3px 0; }
+    .footer {
+      background: #f3f0fc;
+      text-align: center;
+      padding: 5px;
+      font-size: 9px;
+      color: #888;
+      font-family: monospace;
+      border-top: 1px dashed #ddd;
+    }
     @media print {
-      body { padding: 0; }
-      @page { margin: 8mm; size: A4; }
+      @page { margin: 10mm; size: A4; }
     }
   </style>
 </head>
@@ -129,7 +123,7 @@ async function buildTicketHtml(reservations: Reservation[], event: Event): Promi
       setTimeout(function() {
         window.print();
         setTimeout(function() { window.close(); }, 500);
-      }, 300);
+      }, 200);
     };
   </script>
 </body>
@@ -234,7 +228,7 @@ export default function KioskPage() {
     if (!event || printing) return;
     setPrinting(true);
     try {
-      const html = await buildTicketHtml(found, event);
+      const html = buildTicketHtml(found, event);
       const popup = window.open('', '_blank', 'width=500,height=700,menubar=no,toolbar=no,location=no,status=no');
       if (!popup) {
         // 팝업 차단된 경우 fallback
