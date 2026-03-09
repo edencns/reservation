@@ -72,7 +72,11 @@ function buildTicketHtml(reservations: Reservation[], event: Event): string {
   <title>입장권</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    html, body { background: white; font-family: 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif; }
+    html, body {
+      background: white;
+      font-family: 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif;
+      padding: 6mm;
+    }
     .ticket {
       width: 100%;
       border: 2px solid #667EEA;
@@ -84,36 +88,35 @@ function buildTicketHtml(reservations: Reservation[], event: Event): string {
       background: #667EEA;
       color: white;
       text-align: center;
-      padding: 16px 20px 14px;
+      padding: 18px 20px 16px;
     }
-    .header-sub { font-size: 12px; letter-spacing: 4px; opacity: 0.85; margin-bottom: 6px; }
-    .header-title { font-size: 22px; font-weight: 700; line-height: 1.35; }
+    .header-sub { font-size: 13px; letter-spacing: 4px; opacity: 0.85; margin-bottom: 6px; }
+    .header-title { font-size: 24px; font-weight: 700; line-height: 1.35; }
     .checked-badge {
       display: inline-block;
       background: #22c55e;
       color: white;
-      font-size: 13px;
-      padding: 2px 12px;
+      font-size: 14px;
+      padding: 3px 14px;
       border-radius: 20px;
       margin-top: 6px;
     }
-    .body { padding: 18px 22px; }
+    .body { padding: 20px 24px; }
     table { width: 100%; border-collapse: collapse; }
-    .label { color: #777; font-size: 15px; padding: 7px 14px 7px 0; white-space: nowrap; width: 70px; vertical-align: top; }
-    .value { font-size: 16px; font-weight: 700; color: #1a1a2e; padding: 7px 0; }
-    .divider { border: none; border-top: 2px dashed #ddd; margin: 4px 0; }
+    .label { color: #777; font-size: 17px; padding: 9px 16px 9px 0; white-space: nowrap; width: 76px; vertical-align: top; }
+    .value { font-size: 19px; font-weight: 700; color: #1a1a2e; padding: 9px 0; }
     .footer {
       background: #f0edfc;
       text-align: center;
-      padding: 10px;
-      font-size: 12px;
+      padding: 11px;
+      font-size: 13px;
       color: #777;
       border-top: 1px dashed #ccc;
       word-break: break-all;
     }
     @media print {
-      @page { margin: 8mm; size: A4; }
-      html, body { margin: 0; padding: 0; }
+      @page { margin: 0; size: A4; }
+      html, body { padding: 6mm; }
     }
   </style>
 </head>
