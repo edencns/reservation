@@ -147,13 +147,12 @@ export default function KioskPage() {
     if (!input.trim() || !event || searching) return;
     setSearching(true);
     try {
-      let fresh: Reservation[];
-      try {
-        const fromApi = await apiGetReservations();
-        fresh = fromApi.length > 0 ? fromApi : getReservations();
-      } catch {
-        fresh = getReservations();
-      }
+      // API + localStorage 둘 다 가져와서 합침 (어느 쪽에만 있어도 찾을 수 있게)
+      let fromApi: Reservation[] = [];
+      try { fromApi = await apiGetReservations(); } catch { /* 무시 */ }
+      const fromLocal = getReservations();
+      const apiIds = new Set(fromApi.map(r => r.id));
+      const fresh = [...fromApi, ...fromLocal.filter(r => !apiIds.has(r.id))];
 
       const unitFieldKeys = event.customFields
         .filter(f => f.key === 'unitNumber' || f.label.includes('동호') || f.label.includes('호수'))
