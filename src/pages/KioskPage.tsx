@@ -6,7 +6,7 @@ import { apiGetReservations } from '../utils/cloudApi';
 import { formatDate, normalizeUnitNumber } from '../utils/helpers';
 import type { Reservation, CustomField } from '../types';
 
-type Phase = 'input' | 'result' | 'notfound';
+type Phase = 'input' | 'result' | 'notfound' | 'error';
 
 const NUMPAD_KEYS = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '동', '0', '호'];
 
@@ -127,6 +127,7 @@ export default function KioskPage() {
   const [found, setFound] = useState<Reservation[]>([]);
   const [autoResetSecs, setAutoResetSecs] = useState(0);
   const [searching, setSearching] = useState(false);
+  const [debugInfo, setDebugInfo] = useState<string | null>(null);
 
   // Auto-reset countdown after result
   useEffect(() => {
@@ -150,6 +151,7 @@ export default function KioskPage() {
     setFound([]);
     setPhase('input');
     setAutoResetSecs(0);
+    setDebugInfo(null);
   };
 
   const handleKey = (key: string) => {
@@ -169,23 +171,35 @@ export default function KioskPage() {
 
     setSearching(true);
     try {
-      // 매번 서버에서 최신 예약 데이터를 직접 가져옴
       const fresh = await apiGetReservations();
 
       const unitFieldKeys = event.customFields
         .filter(f => f.key === 'unitNumber' || f.label.includes('동호') || f.label.includes('호수'))
         .map(f => f.key);
-
       const keysToSearch = unitFieldKeys.length > 0 ? unitFieldKeys : null;
 
-      const results = fresh.filter(r => {
-        if (r.eventId !== event.id) return false;
-        if (r.status === 'cancelled') return false;
+      const isThisEvent = (r: Reservation) =>
+        r.eventId === event.id || r.eventTitle === event.title;
+
+      const matchesUnit = (r: Reservation) => {
         if (keysToSearch) {
           return keysToSearch.some(k => r.extraFields[k] && matchUnitNumber(r.extraFields[k], input.trim()));
         }
         return Object.values(r.extraFields).some(v => matchUnitNumber(v, input.trim()));
-      });
+      };
+
+      const results = fresh.filter(r =>
+        isThisEvent(r) && r.status !== 'cancelled' && matchesUnit(r)
+      );
+
+      // 디버그: 조회 결과 기록 (notfound일 때만 표시)
+      const eventReservations = fresh.filter(isThisEvent);
+      setDebugInfo(
+        `API 전체: ${fresh.length}건 | 이 행사: ${eventReservations.length}건 | 입력값: "${input.trim()}" | 행사ID: ${event.id.slice(0, 8)}... | 행사명: ${event.title}` +
+        (eventReservations.length > 0
+          ? ` | 샘플 extraFields: ${JSON.stringify(eventReservations[0].extraFields)}`
+          : '')
+      );
 
       if (results.length === 0) {
         setPhase('notfound');
@@ -193,8 +207,9 @@ export default function KioskPage() {
         setFound(results);
         setPhase('result');
       }
-    } catch {
-      setPhase('notfound');
+    } catch (err) {
+      setDebugInfo(`API 오류: ${String(err)}`);
+      setPhase('error');
     } finally {
       setSearching(false);
     }
@@ -366,13 +381,20 @@ export default function KioskPage() {
 
         {/* NOT FOUND PHASE */}
         {phase === 'notfound' && (
-          <div className="w-full max-w-md text-center">
+          <div className="w-full max-w-lg text-center">
             <p className="text-5xl mb-4">😔</p>
             <p className="text-white text-2xl font-bold mb-2">예약을 찾을 수 없습니다</p>
             <p className="text-gray-400 mb-2">
               <strong className="text-white">"{input}"</strong> 으로 예약된 내역이 없습니다
             </p>
-            <p className="text-gray-500 text-sm mb-8">동호수를 다시 확인하거나 안내데스크에 문의하세요</p>
+            <p className="text-gray-500 text-sm mb-6">동호수를 다시 확인하거나 안내데스크에 문의하세요</p>
+
+            {debugInfo && (
+              <div className="text-left bg-gray-900 rounded-xl p-3 mb-6 text-xs text-gray-400 break-all">
+                <p className="text-yellow-400 font-bold mb-1">🔍 진단 정보</p>
+                <p>{debugInfo}</p>
+              </div>
+            )}
 
             <button
               onClick={reset}
@@ -382,6 +404,30 @@ export default function KioskPage() {
               다시 입력
             </button>
             <p className="text-gray-500 text-sm mt-4">{autoResetSecs}초 후 자동으로 처음 화면으로 돌아갑니다</p>
+          </div>
+        )}
+
+        {/* ERROR PHASE */}
+        {phase === 'error' && (
+          <div className="w-full max-w-lg text-center">
+            <p className="text-5xl mb-4">⚠️</p>
+            <p className="text-white text-2xl font-bold mb-2">서버 연결 오류</p>
+            <p className="text-gray-400 text-sm mb-6">인터넷 연결을 확인하거나 잠시 후 다시 시도하세요</p>
+
+            {debugInfo && (
+              <div className="text-left bg-gray-900 rounded-xl p-3 mb-6 text-xs text-red-400 break-all">
+                <p className="text-red-400 font-bold mb-1">❌ 오류 정보</p>
+                <p>{debugInfo}</p>
+              </div>
+            )}
+
+            <button
+              onClick={reset}
+              className="rounded-xl font-bold text-xl w-full transition-all active:scale-95"
+              style={{ backgroundColor: '#667EEA', color: 'white', height: 72, border: 'none', cursor: 'pointer' }}
+            >
+              다시 시도
+            </button>
           </div>
         )}
       </div>
