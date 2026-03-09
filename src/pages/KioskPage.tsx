@@ -11,7 +11,7 @@ type Phase = 'input' | 'result' | 'notfound' | 'error';
 const NUMPAD_KEYS = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '동', '0', '호'];
 
 // 로고 URL 또는 base64 데이터 URL — 비워두면 로고 없이 출력
-const TICKET_LOGO_URL = '';
+const TICKET_LOGO_URL = 'https://lh3.googleusercontent.com/uYnrdp9wqFNOVPf3VdulmYRfqMQNk6uZBEk9owLAPXVnfhOulVrYYg3OA6hoxRI3UNY2PkqlYbLfKqvVF1xYda8oxHalh47tzD35tGN4OYwEiuz-UuRXSQ';
 
 // 예약 ID → 고정 6자리 응모번호 (재출력해도 동일)
 function raffleNumber(id: string): string {
