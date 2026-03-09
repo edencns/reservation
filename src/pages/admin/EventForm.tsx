@@ -236,6 +236,12 @@ export default function EventForm() {
       return { ...f, required: !f.required };
     }));
 
+  const toggleSelectType = (fid: string) =>
+    setCustomFields(prev => prev.map(f => {
+      if (f.id !== fid) return f;
+      return { ...f, type: f.type === 'select' ? 'multiselect' : 'select' };
+    }));
+
   const copyUrl = () => {
     const doCopy = () => {
       setUrlCopied(true);
@@ -445,9 +451,23 @@ export default function EventForm() {
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 flex-wrap">
                     <span className="font-semibold text-sm text-gray-800">{f.label}</span>
-                    <span className="text-xs text-gray-400 bg-white px-1.5 py-0.5 rounded border border-gray-200">
-                      {FIELD_TYPE_LABELS[f.type]}
-                    </span>
+                    {(f.type === 'select' || f.type === 'multiselect') ? (
+                      <button
+                        type="button"
+                        onClick={() => toggleSelectType(f.id)}
+                        title="클릭하여 단일/복수 선택 전환"
+                        className="text-xs px-1.5 py-0.5 rounded border font-medium transition-colors"
+                        style={f.type === 'multiselect'
+                          ? { backgroundColor: '#E0D6F9', color: '#667EEA', borderColor: '#667EEA' }
+                          : { backgroundColor: 'white', color: '#888', borderColor: '#e5e7eb' }}
+                      >
+                        {FIELD_TYPE_LABELS[f.type]}
+                      </button>
+                    ) : (
+                      <span className="text-xs text-gray-400 bg-white px-1.5 py-0.5 rounded border border-gray-200">
+                        {FIELD_TYPE_LABELS[f.type]}
+                      </span>
+                    )}
                   </div>
                   {f.options && f.options.length > 0 && (
                     <p className="text-xs text-gray-400 mt-0.5 truncate">
