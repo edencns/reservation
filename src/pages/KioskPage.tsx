@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import QRCode from 'qrcode';
 import { useApp } from '../context/AppContext';
+import { apiGetReservations } from '../utils/cloudApi';
 import { formatDate, normalizeUnitNumber } from '../utils/helpers';
 import type { Reservation, CustomField } from '../types';
 
@@ -118,13 +119,14 @@ function PrintTicket({
 
 export default function KioskPage() {
   const { slug } = useParams<{ slug: string }>();
-  const { getEventBySlug, reservations } = useApp();
+  const { getEventBySlug } = useApp();
   const event = getEventBySlug(slug ?? '');
 
   const [input, setInput] = useState('');
   const [phase, setPhase] = useState<Phase>('input');
   const [found, setFound] = useState<Reservation[]>([]);
   const [autoResetSecs, setAutoResetSecs] = useState(0);
+  const [searching, setSearching] = useState(false);
 
   // Auto-reset countdown after result
   useEffect(() => {
@@ -162,31 +164,39 @@ export default function KioskPage() {
     setInput(prev => prev.trimEnd().slice(0, -1));
   };
 
-  const handleSearch = () => {
-    if (!input.trim() || !event) return;
+  const handleSearch = async () => {
+    if (!input.trim() || !event || searching) return;
 
-    const unitFieldKeys = event.customFields
-      .filter(f => f.key === 'unitNumber' || f.label.includes('동호') || f.label.includes('호수'))
-      .map(f => f.key);
+    setSearching(true);
+    try {
+      // 매번 서버에서 최신 예약 데이터를 직접 가져옴
+      const fresh = await apiGetReservations();
 
-    // If no unitNumber field configured, search all extraFields
-    const keysToSearch = unitFieldKeys.length > 0 ? unitFieldKeys : null;
+      const unitFieldKeys = event.customFields
+        .filter(f => f.key === 'unitNumber' || f.label.includes('동호') || f.label.includes('호수'))
+        .map(f => f.key);
 
-    const results = reservations.filter(r => {
-      if (r.eventId !== event.id) return false;
-      if (r.status === 'cancelled') return false;
+      const keysToSearch = unitFieldKeys.length > 0 ? unitFieldKeys : null;
 
-      if (keysToSearch) {
-        return keysToSearch.some(k => r.extraFields[k] && matchUnitNumber(r.extraFields[k], input.trim()));
+      const results = fresh.filter(r => {
+        if (r.eventId !== event.id) return false;
+        if (r.status === 'cancelled') return false;
+        if (keysToSearch) {
+          return keysToSearch.some(k => r.extraFields[k] && matchUnitNumber(r.extraFields[k], input.trim()));
+        }
+        return Object.values(r.extraFields).some(v => matchUnitNumber(v, input.trim()));
+      });
+
+      if (results.length === 0) {
+        setPhase('notfound');
+      } else {
+        setFound(results);
+        setPhase('result');
       }
-      return Object.values(r.extraFields).some(v => matchUnitNumber(v, input.trim()));
-    });
-
-    if (results.length === 0) {
+    } catch {
       setPhase('notfound');
-    } else {
-      setFound(results);
-      setPhase('result');
+    } finally {
+      setSearching(false);
     }
   };
 
@@ -286,18 +296,18 @@ export default function KioskPage() {
               </button>
               <button
                 onClick={handleSearch}
-                disabled={!input.trim()}
+                disabled={!input.trim() || searching}
                 className="rounded-xl font-bold text-lg transition-all active:scale-95"
                 style={{
-                  backgroundColor: input.trim() ? '#48bb78' : '#2a3a2a',
+                  backgroundColor: input.trim() && !searching ? '#48bb78' : '#2a3a2a',
                   color: 'white',
                   height: 72,
                   border: 'none',
-                  cursor: input.trim() ? 'pointer' : 'not-allowed',
-                  opacity: input.trim() ? 1 : 0.5,
+                  cursor: input.trim() && !searching ? 'pointer' : 'not-allowed',
+                  opacity: input.trim() && !searching ? 1 : 0.5,
                 }}
               >
-                입장권 출력
+                {searching ? '조회 중...' : '입장권 출력'}
               </button>
             </div>
           </div>
