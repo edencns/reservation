@@ -119,8 +119,9 @@ function PrintTicket({
 
 export default function KioskPage() {
   const { slug } = useParams<{ slug: string }>();
-  const { getEventBySlug } = useApp();
-  const event = getEventBySlug(slug ?? '');
+  const { getEventBySlug, getEventById } = useApp();
+  // slug 파라미터가 슬러그일 수도, 이벤트 ID일 수도 있음
+  const event = getEventBySlug(slug ?? '') ?? getEventById(slug ?? '');
 
   const [input, setInput] = useState('');
   const [phase, setPhase] = useState<Phase>('input');
