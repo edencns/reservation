@@ -10,6 +10,18 @@ type Phase = 'input' | 'result' | 'notfound' | 'error';
 
 const NUMPAD_KEYS = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '동', '0', '호'];
 
+// 로고 URL 또는 base64 데이터 URL — 비워두면 로고 없이 출력
+const TICKET_LOGO_URL = '';
+
+// 예약 ID → 고정 6자리 응모번호 (재출력해도 동일)
+function raffleNumber(id: string): string {
+  let h = 0;
+  for (let i = 0; i < id.length; i++) {
+    h = (h * 31 + id.charCodeAt(i)) >>> 0;
+  }
+  return String(h % 1000000).padStart(6, '0');
+}
+
 function matchUnitNumber(stored: string, query: string): boolean {
   const s = stored.replace(/\s/g, '').toLowerCase();
   const q = query.replace(/\s/g, '').toLowerCase();
@@ -32,8 +44,11 @@ function buildTicketHtml(reservations: Reservation[], event: Event): string {
     const name = r.customer.name || r.extraFields['name'] || '';
     const phone = r.customer.phone || r.extraFields['phone'] || '';
 
+    const raffle = raffleNumber(r.id);
+
     return `
       <div class="ticket">
+        ${TICKET_LOGO_URL ? `<div class="center logo-wrap"><img src="${TICKET_LOGO_URL}" class="logo" alt="logo"/></div>` : ''}
         <div class="center">
           <div class="title-sub">[ 입  장  권 ]</div>
           <div class="title-main">${r.eventTitle}</div>
@@ -47,6 +62,11 @@ function buildTicketHtml(reservations: Reservation[], event: Event): string {
           ${name ? `<div class="row"><span class="lbl">예약자</span><span class="val">${name}</span></div>` : ''}
           ${phone ? `<div class="row"><span class="lbl">연락처</span><span class="val">${phone}</span></div>` : ''}
           ${customRows}
+        </div>
+        <div class="sep">${SEP}</div>
+        <div class="raffle-box">
+          <div class="raffle-label">[ 응  모  권 ]</div>
+          <div class="raffle-num">${raffle}</div>
         </div>
         <div class="sep">${SEP}</div>
         <div class="center small">NO. ${r.id.toUpperCase()}</div>
@@ -78,6 +98,11 @@ function buildTicketHtml(reservations: Reservation[], event: Event): string {
     .lbl { font-size: 11pt; min-width: 18mm; flex-shrink: 0; color: #333; }
     .val { font-size: 12pt; font-weight: 700; flex: 1; word-break: keep-all; line-height: 1.4; }
     .small { font-size: 8pt; color: #555; padding: 2mm 0; word-break: break-all; }
+    .logo-wrap { padding: 3mm 0 2mm; }
+    .logo { max-width: 40mm; max-height: 20mm; object-fit: contain; }
+    .raffle-box { text-align: center; padding: 3mm 0; }
+    .raffle-label { font-size: 10pt; letter-spacing: 3px; margin-bottom: 2mm; }
+    .raffle-num { font-size: 28pt; font-weight: 900; letter-spacing: 6px; line-height: 1.2; }
     @media print {
       @page { size: 80mm auto; margin: 4mm 4mm; }
       html, body { width: 72mm; }
