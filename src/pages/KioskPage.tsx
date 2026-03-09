@@ -32,7 +32,7 @@ function matchUnitNumber(stored: string, query: string): boolean {
   return s === q || s.includes(q) || q.includes(s);
 }
 
-function buildTicketHtml(reservations: Reservation[], event: Event): string {
+function buildTicketHtml(reservations: Reservation[], event: Event, logoUrl?: string): string {
   const SEP = '----------------------------------------';
 
   const rows = reservations.map((r) => {
@@ -48,7 +48,7 @@ function buildTicketHtml(reservations: Reservation[], event: Event): string {
 
     return `
       <div class="ticket">
-        ${TICKET_LOGO_URL ? `<div class="center logo-wrap"><img src="${TICKET_LOGO_URL}" class="logo" alt="logo"/></div>` : ''}
+        ${logoUrl ? `<div class="center logo-wrap"><img src="${logoUrl}" class="logo" alt="logo"/></div>` : ''}
         <div class="center">
           <div class="title-sub">[ 입  장  권 ]</div>
           <div class="title-main">${r.eventTitle}</div>
@@ -220,7 +220,8 @@ export default function KioskPage() {
     if (!event || printing) return;
     setPrinting(true);
     try {
-      const html = buildTicketHtml(found, event);
+      const logoUrl = TICKET_LOGO_URL ? window.location.origin + TICKET_LOGO_URL : '';
+      const html = buildTicketHtml(found, event, logoUrl);
       const popup = window.open('', '_blank', 'width=340,height=600,menubar=no,toolbar=no,location=no,status=no');
       if (!popup) {
         // 팝업 차단된 경우 fallback
