@@ -98,8 +98,8 @@ function buildTicketHtml(reservations: Reservation[], event: Event, logoUrl?: st
     .lbl { font-size: 11pt; min-width: 18mm; flex-shrink: 0; color: #333; }
     .val { font-size: 12pt; font-weight: 700; flex: 1; word-break: keep-all; line-height: 1.4; }
     .small { font-size: 8pt; color: #555; padding: 2mm 0; word-break: break-all; }
-    .logo-wrap { padding: 3mm 0 2mm; }
-    .logo { max-width: 40mm; max-height: 20mm; object-fit: contain; }
+    .logo-wrap { padding: 4mm 0 3mm; }
+    .logo { max-width: 64mm; max-height: 30mm; object-fit: contain; }
     .raffle-box { text-align: center; padding: 3mm 0; }
     .raffle-label { font-size: 10pt; letter-spacing: 3px; margin-bottom: 2mm; }
     .raffle-num { font-size: 28pt; font-weight: 900; letter-spacing: 6px; line-height: 1.2; }
