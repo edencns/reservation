@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import QRCode from 'qrcode';
 import { useApp } from '../context/AppContext';
+import { apiGetReservations } from '../utils/cloudApi';
 import { getReservations } from '../utils/storage';
 import { formatDate, normalizeUnitNumber } from '../utils/helpers';
 import type { Reservation, CustomField } from '../types';
@@ -167,13 +168,19 @@ export default function KioskPage() {
     setInput(prev => prev.trimEnd().slice(0, -1));
   };
 
-  const handleSearch = () => {
+  const handleSearch = async () => {
     if (!input.trim() || !event || searching) return;
 
     setSearching(true);
     try {
-      // localStorage에서 직접 읽어서 항상 최신 데이터 사용
-      const fresh = getReservations();
+      // API 우선, 실패 시 localStorage 폴백
+      let fresh: import('../types').Reservation[];
+      try {
+        const fromApi = await apiGetReservations();
+        fresh = fromApi.length > 0 ? fromApi : getReservations();
+      } catch {
+        fresh = getReservations();
+      }
 
       const unitFieldKeys = event.customFields
         .filter(f => f.key === 'unitNumber' || f.label.includes('동호') || f.label.includes('호수'))

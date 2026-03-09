@@ -10,12 +10,16 @@ interface ReservationRow {
 }
 
 export const onRequestGet: PagesFunction<Env> = async ({ env }) => {
-  const { results } = await env.DB.prepare(
-    'SELECT id, data FROM reservations ORDER BY created_at DESC'
-  ).all<ReservationRow>();
-
-  const reservations = (results ?? []).map(row => JSON.parse(row.data) as Reservation);
-  return json(reservations);
+  if (!env.DB) return json([]);
+  try {
+    const { results } = await env.DB.prepare(
+      'SELECT id, data FROM reservations ORDER BY created_at DESC'
+    ).all<ReservationRow>();
+    const reservations = (results ?? []).map(row => JSON.parse(row.data) as Reservation);
+    return json(reservations);
+  } catch {
+    return json([]);
+  }
 };
 
 export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
@@ -24,23 +28,27 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
     return badRequest('Invalid reservation payload');
   }
 
-  await env.DB.prepare(
-    `INSERT OR REPLACE INTO reservations
-      (id, event_id, status, customer_phone, visit_date, checked_in, checked_in_at, created_at, updated_at, data)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, ?)`
-  )
-    .bind(
-      reservation.id,
-      reservation.eventId,
-      reservation.status,
-      reservation.customer?.phone ?? '',
-      reservation.date,
-      reservation.checkedIn ? 1 : 0,
-      reservation.checkedInAt ?? null,
-      reservation.createdAt ?? new Date().toISOString(),
-      JSON.stringify(reservation),
-    )
-    .run();
+  if (env.DB) {
+    try {
+      await env.DB.prepare(
+        `INSERT OR REPLACE INTO reservations
+          (id, event_id, status, customer_phone, visit_date, checked_in, checked_in_at, created_at, updated_at, data)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, ?)`
+      )
+        .bind(
+          reservation.id,
+          reservation.eventId,
+          reservation.status,
+          reservation.customer?.phone ?? '',
+          reservation.date,
+          reservation.checkedIn ? 1 : 0,
+          reservation.checkedInAt ?? null,
+          reservation.createdAt ?? new Date().toISOString(),
+          JSON.stringify(reservation),
+        )
+        .run();
+    } catch { /* DB 저장 실패 시 무시 */ }
+  }
 
   // 예약 확인 SMS 자동 발송 (API 키 설정 시)
   try {
