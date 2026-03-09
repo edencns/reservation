@@ -24,11 +24,7 @@ function buildTicketHtml(reservations: Reservation[], event: Event): string {
   const rows = reservations.map((r) => {
     const customRows = event.customFields
       .filter(f => r.extraFields[f.key])
-      .map(f => `
-        <tr>
-          <td class="label">${f.label}</td>
-          <td class="value">${r.extraFields[f.key]}</td>
-        </tr>`)
+      .map(f => `<div class="row"><span class="lbl">${f.label}</span><span class="val">${r.extraFields[f.key]}</span></div>`)
       .join('');
 
     const name = r.customer.name || r.extraFields['name'] || '';
@@ -42,26 +38,14 @@ function buildTicketHtml(reservations: Reservation[], event: Event): string {
           ${r.checkedIn ? '<div class="checked-badge">✓ 이미 입장완료</div>' : ''}
         </div>
         <div class="body">
-          <table>
-            <tr>
-              <td class="label">장소</td>
-              <td class="value">${r.venue}</td>
-            </tr>
-            <tr>
-              <td class="label">날짜</td>
-              <td class="value">${formatDate(r.date)}</td>
-            </tr>
-            ${r.time && r.time !== '시간 미지정' ? `
-            <tr>
-              <td class="label">시간</td>
-              <td class="value">${r.time}</td>
-            </tr>` : ''}
-            ${name ? `<tr><td class="label">예약자</td><td class="value">${name}</td></tr>` : ''}
-            ${phone ? `<tr><td class="label">연락처</td><td class="value">${phone}</td></tr>` : ''}
-            ${customRows}
-          </table>
+          <div class="row"><span class="lbl">장소</span><span class="val">${r.venue}</span></div>
+          <div class="row"><span class="lbl">날짜</span><span class="val">${formatDate(r.date)}</span></div>
+          ${r.time && r.time !== '시간 미지정' ? `<div class="row"><span class="lbl">시간</span><span class="val">${r.time}</span></div>` : ''}
+          ${name ? `<div class="row"><span class="lbl">예약자</span><span class="val">${name}</span></div>` : ''}
+          ${phone ? `<div class="row"><span class="lbl">연락처</span><span class="val">${phone}</span></div>` : ''}
+          ${customRows}
         </div>
-        <div class="footer">예약번호: ${r.id.toUpperCase()}</div>
+        <div class="footer">예약번호 ${r.id.toUpperCase()}</div>
       </div>`;
   });
 
@@ -73,50 +57,59 @@ function buildTicketHtml(reservations: Reservation[], event: Event): string {
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     html, body {
+      width: 100%;
       background: white;
-      font-family: 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif;
-      padding: 6mm;
+      font-family: 'Malgun Gothic', 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+      color-adjust: exact;
     }
     .ticket {
-      width: 100%;
       border: 2px solid #667EEA;
       border-radius: 10px;
       overflow: hidden;
       page-break-inside: avoid;
     }
     .header {
-      background: #667EEA;
+      background: #667EEA !important;
       color: white;
       text-align: center;
-      padding: 18px 20px 16px;
+      padding: 20px 24px 18px;
     }
-    .header-sub { font-size: 13px; letter-spacing: 4px; opacity: 0.85; margin-bottom: 6px; }
-    .header-title { font-size: 24px; font-weight: 700; line-height: 1.35; }
+    .header-sub { font-size: 14pt; letter-spacing: 4px; opacity: 0.85; margin-bottom: 8px; }
+    .header-title { font-size: 22pt; font-weight: 900; line-height: 1.3; }
     .checked-badge {
       display: inline-block;
-      background: #22c55e;
+      background: #22c55e !important;
       color: white;
-      font-size: 14px;
+      font-size: 13pt;
       padding: 3px 14px;
       border-radius: 20px;
-      margin-top: 6px;
+      margin-top: 8px;
     }
-    .body { padding: 20px 24px; }
-    table { width: 100%; border-collapse: collapse; }
-    .label { color: #777; font-size: 17px; padding: 9px 16px 9px 0; white-space: nowrap; width: 76px; vertical-align: top; }
-    .value { font-size: 19px; font-weight: 700; color: #1a1a2e; padding: 9px 0; }
+    .body { padding: 20px 28px; }
+    .row {
+      display: flex;
+      align-items: baseline;
+      padding: 8px 0;
+      border-bottom: 1px solid #f0f0f0;
+    }
+    .row:last-child { border-bottom: none; }
+    .lbl { color: #888; font-size: 14pt; min-width: 64px; flex-shrink: 0; margin-right: 16px; }
+    .val { font-size: 16pt; font-weight: 700; color: #111; flex: 1; word-break: keep-all; }
     .footer {
-      background: #f0edfc;
+      background: #f0edfc !important;
       text-align: center;
-      padding: 11px;
-      font-size: 13px;
-      color: #777;
+      padding: 12px;
+      font-size: 11pt;
+      color: #666;
       border-top: 1px dashed #ccc;
       word-break: break-all;
+      font-family: monospace;
     }
     @media print {
       @page { margin: 0; size: A4; }
-      html, body { padding: 6mm; }
+      html, body { padding: 8mm; }
     }
   </style>
 </head>
@@ -127,7 +120,7 @@ function buildTicketHtml(reservations: Reservation[], event: Event): string {
       setTimeout(function() {
         window.print();
         setTimeout(function() { window.close(); }, 500);
-      }, 200);
+      }, 300);
     };
   </script>
 </body>
@@ -233,7 +226,7 @@ export default function KioskPage() {
     setPrinting(true);
     try {
       const html = buildTicketHtml(found, event);
-      const popup = window.open('', '_blank', 'width=500,height=700,menubar=no,toolbar=no,location=no,status=no');
+      const popup = window.open('', '_blank', 'width=794,height=1000,menubar=no,toolbar=no,location=no,status=no');
       if (!popup) {
         // 팝업 차단된 경우 fallback
         window.print();
