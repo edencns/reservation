@@ -375,7 +375,7 @@ export default function KioskPage() {
         {phase === 'input' && (
           <div className="flex-1 flex flex-col items-center px-8">
             {/* 행사명 — 상단 5% 지점 */}
-            <div className="text-center px-4 pt-[5%]">
+            <div className="text-center px-4 pt-[15%]">
               <p className="text-5xl font-extrabold text-white leading-tight" style={{ wordBreak: 'keep-all' }}>{event.title}</p>
               {event.venue && <p className="text-gray-400 text-lg mt-5">{event.venue}</p>}
             </div>
