@@ -15,6 +15,7 @@ export default function Statistics() {
 
   const [eventFilter, setEventFilter] = useState('all');
   const [detail, setDetail] = useState<DetailModal | null>(null);
+  const [households, setHouseholds] = useState<Record<string, number>>({});
 
   const baseReservations = useMemo(() => {
     const confirmed = reservations.filter(r => r.status === 'confirmed');
@@ -159,52 +160,76 @@ export default function Statistics() {
           {eventStats.length === 0 ? (
             <p className="text-sm text-gray-400 text-center py-8">데이터 없음</p>
           ) : (
-            <div className="space-y-4">
-              {eventStats.map((e, i) => (
-                <div key={i}>
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className="text-xs font-bold text-gray-400 w-4 shrink-0">{i + 1}</span>
-                    <button
-                      className="text-sm font-semibold text-gray-700 truncate text-left hover:text-[#667EEA] transition-colors"
-                      onClick={() => e.count > 0 && openDetail(`${e.title} — 전체 목록`, e.rows)}
-                    >
-                      {e.title}
-                    </button>
-                  </div>
-                  {/* 3단 막대 */}
-                  <div className="ml-6 rounded-full h-3 overflow-hidden flex bg-gray-200">
-                    {/* 방문 - 파란색 */}
-                    {e.visitedCount > 0 && (
+            <div className="space-y-5">
+              {eventStats.map((e, i) => {
+                const h = households[e.id] || 0;
+                const denom = h > 0 ? h : e.count || 1;
+                const reservePct = h > 0 ? Math.round((e.count / h) * 100) : 100;
+                const visitPct = h > 0 ? Math.round((e.visitedCount / h) * 100) : e.rate;
+                const reserveBarW = Math.min((e.count / denom) * 100, 100);
+                const visitBarW = Math.min((e.visitedCount / denom) * 100, 100);
+                return (
+                  <div key={i}>
+                    <div className="flex items-center gap-2 mb-1.5">
+                      <span className="text-xs font-bold text-gray-400 w-4 shrink-0">{i + 1}</span>
                       <button
-                        className="h-full hover:opacity-80 transition-opacity"
-                        style={{ width: `${e.total > 0 ? (e.visitedCount / e.total) * 100 : 0}%`, backgroundColor: '#667EEA' }}
-                        onClick={() => openDetail(`${e.title} — 방문자 목록`, e.checkedInRows)}
-                        title="방문"
+                        className="text-sm font-semibold text-gray-700 truncate text-left hover:text-[#667EEA] transition-colors flex-1"
+                        onClick={() => e.count > 0 && openDetail(`${e.title} — 전체 목록`, e.rows)}
+                      >
+                        {e.title}
+                      </button>
+                      {/* 총 가구수 입력 */}
+                      <input
+                        type="number"
+                        min={0}
+                        placeholder="총 가구수"
+                        value={h || ''}
+                        onChange={ev => setHouseholds(prev => ({ ...prev, [e.id]: Number(ev.target.value) }))}
+                        className="w-24 px-2 py-1 text-xs border border-gray-200 rounded-lg text-right focus:outline-none focus:ring-1 focus:ring-[#667EEA]"
+                        onClick={ev => ev.stopPropagation()}
                       />
-                    )}
-                    {/* 미방문 확정 - 회색(배경) */}
-                    <div style={{ width: `${e.total > 0 ? ((e.count - e.visitedCount) / e.total) * 100 : 0}%` }} />
-                    {/* 취소 - 빨간색 */}
-                    {e.cancelledCount > 0 && (
-                      <div
-                        className="h-full ml-auto"
-                        style={{ width: `${e.total > 0 ? (e.cancelledCount / e.total) * 100 : 0}%`, backgroundColor: '#fca5a5' }}
+                    </div>
+                    {/* 막대: 회색 배경 위에 초록(예약) → 파란(방문) 겹침 */}
+                    <div className="ml-6 relative h-3 rounded-full overflow-hidden bg-gray-200">
+                      {/* 초록: 예약 비율 */}
+                      <div className="absolute left-0 top-0 h-full rounded-full transition-all"
+                        style={{ width: `${reserveBarW}%`, backgroundColor: '#4ade80' }} />
+                      {/* 파란: 방문 비율 */}
+                      <button className="absolute left-0 top-0 h-full rounded-full transition-all hover:opacity-80"
+                        style={{ width: `${visitBarW}%`, backgroundColor: '#667EEA' }}
+                        onClick={() => e.visitedCount > 0 && openDetail(`${e.title} — 방문자 목록`, e.checkedInRows)}
+                        title="방문자 목록 보기"
                       />
-                    )}
+                    </div>
+                    {/* 수치 */}
+                    <div className="ml-6 mt-1.5 grid grid-cols-5 gap-1 text-xs text-center">
+                      <div>
+                        <p className="font-bold text-gray-700">{h > 0 ? h.toLocaleString() : '-'}</p>
+                        <p className="text-gray-400">총 가구수</p>
+                      </div>
+                      <div>
+                        <p className="font-bold text-green-600">{e.count}</p>
+                        <p className="text-gray-400">예약건수</p>
+                      </div>
+                      <div>
+                        <p className="font-bold text-green-600">{h > 0 ? `${reservePct}%` : '-'}</p>
+                        <p className="text-gray-400">예약%</p>
+                      </div>
+                      <div>
+                        <button className="font-bold hover:opacity-70 transition-opacity" style={{ color: '#667EEA' }}
+                          onClick={() => e.visitedCount > 0 && openDetail(`${e.title} — 방문자 목록`, e.checkedInRows)}>
+                          {e.visitedCount}
+                        </button>
+                        <p className="text-gray-400">방문건수</p>
+                      </div>
+                      <div>
+                        <p className="font-bold" style={{ color: '#667EEA' }}>{h > 0 ? `${visitPct}%` : `${e.rate}%`}</p>
+                        <p className="text-gray-400">방문%</p>
+                      </div>
+                    </div>
                   </div>
-                  {/* 수치 */}
-                  <div className="ml-6 mt-1.5 flex gap-3 text-xs">
-                    <span className="text-gray-400">예약 <strong className="text-gray-600">{e.count}</strong>건</span>
-                    <button className="hover:opacity-70" onClick={() => e.visitedCount > 0 && openDetail(`${e.title} — 방문자 목록`, e.checkedInRows)}>
-                      <span style={{ color: '#667EEA' }}>방문 <strong>{e.visitedCount}</strong>건</span>
-                    </button>
-                    {e.cancelledCount > 0 && (
-                      <span className="text-red-400">취소 <strong>{e.cancelledCount}</strong>건</span>
-                    )}
-                    <span className="text-green-600 font-bold ml-auto">{e.rate}%</span>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>
@@ -272,7 +297,7 @@ export default function Statistics() {
                         <td className="px-3 py-2.5 font-medium text-gray-800 text-xs">{r.customer.name || r.extraFields['name'] || '-'}</td>
                         <td className="px-3 py-2.5 text-gray-500 text-xs">{r.customer.phone || r.extraFields['phone'] || '-'}</td>
                         <td className="px-3 py-2.5 text-gray-600 text-xs whitespace-nowrap">{formatDate(r.date)}</td>
-                        <td className="px-3 py-2.5 text-gray-500 text-xs whitespace-nowrap">{r.time}</td>
+                        <td className="px-3 py-2.5 text-gray-500 text-xs whitespace-nowrap">{r.time !== '시간 미지정' ? r.time : '-'}</td>
                         <td className="px-3 py-2.5 text-center font-semibold text-xs" style={{ color: '#667EEA' }}>{r.attendeeCount}명</td>
                         <td className="px-3 py-2.5 text-xs">
                           {r.checkedIn

@@ -199,7 +199,7 @@ export default function CheckIn() {
                           )}
                         </div>
                         <p className="font-bold text-gray-800">{lookupResult.eventTitle}</p>
-                        <p className="text-sm text-gray-600">{formatDate(lookupResult.date)} · {lookupResult.time}</p>
+                        <p className="text-sm text-gray-600">{formatDate(lookupResult.date)}{lookupResult.time && lookupResult.time !== '시간 미지정' ? ` · ${lookupResult.time}` : ''}</p>
                         <p className="text-sm font-semibold mt-1" style={{ color: '#667EEA' }}>
                           {getName(lookupResult)} · {getPhone(lookupResult)}
                         </p>
