@@ -21,6 +21,8 @@ export default function Statistics() {
     return eventFilter === 'all' ? confirmed : confirmed.filter(r => r.eventId === eventFilter);
   }, [reservations, eventFilter]);
 
+  const checkedInReservations = useMemo(() => baseReservations.filter(r => r.checkedIn), [baseReservations]);
+
   // Monthly stats (last 6 months)
   const monthlyData = useMemo(() => {
     const now = new Date();
@@ -30,7 +32,14 @@ export default function Statistics() {
       const label = `${d.getFullYear()}년 ${d.getMonth() + 1}월`;
       const shortLabel = `${d.getMonth() + 1}월`;
       const monthRes = baseReservations.filter(r => r.createdAt.startsWith(key));
-      return { label, shortLabel, key, count: monthRes.length, visitors: monthRes.reduce((s, r) => s + r.attendeeCount, 0), rows: monthRes };
+      const monthCheckedIn = monthRes.filter(r => r.checkedIn);
+      return {
+        label, shortLabel, key,
+        count: monthRes.length,
+        visitors: monthCheckedIn.reduce((s, r) => s + r.attendeeCount, 0),
+        rows: monthRes,
+        checkedInRows: monthCheckedIn,
+      };
     });
   }, [baseReservations]);
 
@@ -42,30 +51,35 @@ export default function Statistics() {
     const targetEvents = eventFilter === 'all' ? events : events.filter(e => e.id === eventFilter);
     return targetEvents.map(e => {
       const eRes = baseReservations.filter(r => r.eventId === e.id);
-      return { id: e.id, title: e.title, count: eRes.length, visitors: eRes.reduce((s, r) => s + r.attendeeCount, 0), rows: eRes };
-    }).sort((a, b) => b.visitors - a.visitors);
+      const eCheckedIn = eRes.filter(r => r.checkedIn);
+      const visitedVisitors = eCheckedIn.reduce((s, r) => s + r.attendeeCount, 0);
+      const totalVisitors = eRes.reduce((s, r) => s + r.attendeeCount, 0);
+      const rate = eRes.length > 0 ? Math.round((eCheckedIn.length / eRes.length) * 100) : 0;
+      return { id: e.id, title: e.title, count: eRes.length, visitedCount: eCheckedIn.length, visitedVisitors, totalVisitors, rate, rows: eRes, checkedInRows: eCheckedIn };
+    }).sort((a, b) => b.totalVisitors - a.totalVisitors);
   }, [events, baseReservations, eventFilter]);
 
-  // Time slot stats
+  // Time slot stats (방문 인원 = checkedIn 기준)
   const timeEntries = useMemo(() => {
     const timeStats: Record<string, { count: number; visitors: number; rows: Reservation[] }> = {};
-    baseReservations.forEach(r => {
-      if (!timeStats[r.time]) timeStats[r.time] = { count: 0, visitors: 0, rows: [] };
-      timeStats[r.time].count += 1;
-      timeStats[r.time].visitors += r.attendeeCount;
-      timeStats[r.time].rows.push(r);
+    checkedInReservations.forEach(r => {
+      const slot = r.time;
+      if (!timeStats[slot]) timeStats[slot] = { count: 0, visitors: 0, rows: [] };
+      timeStats[slot].count += 1;
+      timeStats[slot].visitors += r.attendeeCount;
+      timeStats[slot].rows.push(r);
     });
     return Object.entries(timeStats)
       .map(([time, s]) => ({ time, ...s }))
       .sort((a, b) => a.time.localeCompare(b.time));
-  }, [baseReservations]);
+  }, [checkedInReservations]);
 
   const maxTimeVisitors = Math.max(...timeEntries.map(t => t.visitors), 1);
 
   const handleExport = () => {
     exportToExcel('통계', [
       { name: '월별 통계', data: monthlyData.map(m => ({ '월': m.label, '예약 건수': m.count, '방문 인원': m.visitors })) },
-      { name: '행사별 통계', data: eventStats.map(e => ({ '행사명': e.title, '예약 건수': e.count, '방문 인원': e.visitors })) },
+      { name: '행사별 통계', data: eventStats.map(e => ({ '행사명': e.title, '총 예약건': e.count, '방문건': e.visitedCount, '방문 인원': e.visitedVisitors, '방문율(%)': e.rate })) },
       { name: '시간대별 통계', data: timeEntries.map(t => ({ '시간대': t.time, '예약 건수': t.count, '방문 인원': t.visitors })) },
     ]);
   };
@@ -125,7 +139,7 @@ export default function Statistics() {
                   height: `${Math.max((m.visitors / maxVisitors) * 120, m.visitors > 0 ? 4 : 0)}px`,
                   backgroundColor: '#E0D6F9', borderColor: '#d6c4f4',
                 }}
-                onClick={() => m.visitors > 0 && openDetail(`${m.label} 방문 목록`, m.rows)}
+                onClick={() => m.visitors > 0 && openDetail(`${m.label} 방문 목록`, m.checkedInRows)}
                 title={m.visitors > 0 ? '클릭하여 상세 보기' : ''}
               />
               <p className="text-xs text-gray-500">{m.shortLabel}</p>
@@ -154,15 +168,16 @@ export default function Statistics() {
                       {e.title}
                     </button>
                     <div className="mt-1 bg-gray-100 rounded-full h-1.5">
-                      <div className="h-1.5 rounded-full" style={{ width: `${(e.visitors / Math.max(...eventStats.map(x => x.visitors), 1)) * 100}%`, backgroundColor: '#667EEA' }} />
+                      <div className="h-1.5 rounded-full" style={{ width: `${(e.totalVisitors / Math.max(...eventStats.map(x => x.totalVisitors), 1)) * 100}%`, backgroundColor: '#667EEA' }} />
                     </div>
                   </div>
                   <button
                     className="text-right shrink-0 hover:opacity-70 transition-opacity"
-                    onClick={() => e.count > 0 && openDetail(`${e.title} — 방문자 목록`, e.rows)}
+                    onClick={() => e.visitedCount > 0 && openDetail(`${e.title} — 방문자 목록`, e.checkedInRows)}
                   >
-                    <p className="text-sm font-bold" style={{ color: '#667EEA' }}>{e.visitors}명</p>
-                    <p className="text-xs text-gray-400">{e.count}건</p>
+                    <p className="text-xs text-gray-400">예약 {e.count}건</p>
+                    <p className="text-sm font-bold" style={{ color: '#667EEA' }}>방문 {e.visitedCount}건</p>
+                    <p className="text-xs font-semibold text-green-600">{e.rate}%</p>
                   </button>
                 </div>
               ))}
