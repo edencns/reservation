@@ -104,7 +104,7 @@ export default function EventsManage() {
       {/* Desktop table */}
       <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
         <div className="hidden md:block overflow-x-auto">
-          <table className="text-sm">
+          <table className="w-full text-sm">
             <thead>
               <tr style={{ backgroundColor: '#E0D6F9' }}>
                 {['행사명', '기간', '예약 수', '상태', '관리'].map(h => (
