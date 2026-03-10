@@ -369,14 +369,14 @@ export default function KioskPage() {
       </div>
 
       {/* 메인 */}
-      <div className="flex-1 flex items-center justify-center p-8">
+      <div className="flex-1 flex flex-col p-8">
 
         {/* 입력 화면 */}
         {phase === 'input' && (
-          <div className="w-full max-w-md">
-            <div className="text-center mb-8">
-              <p className="text-3xl font-extrabold text-white leading-tight mb-2" style={{ wordBreak: 'keep-all' }}>{event.title}</p>
-              {event.venue && <p className="text-gray-400 text-sm mb-4">{event.venue}</p>}
+          <div className="w-full max-w-md mx-auto">
+            <div className="text-center mb-6">
+              <p className="text-4xl font-extrabold text-white leading-tight mb-2" style={{ wordBreak: 'keep-all' }}>{event.title}</p>
+              {event.venue && <p className="text-gray-400 text-sm mb-3">{event.venue}</p>}
               <div className="w-12 h-0.5 mx-auto mb-4" style={{ backgroundColor: '#667EEA' }} />
               <p className="text-white text-xl font-bold mb-1">{unitLabel} 입력</p>
               <p className="text-gray-400 text-sm">예약 시 입력한 {unitLabel}을 입력하세요</p>
@@ -433,7 +433,7 @@ export default function KioskPage() {
 
         {/* 결과 화면 — 미출력 예약 있음 */}
         {phase === 'result' && (
-          <div className="w-full max-w-lg text-center">
+          <div className="w-full max-w-lg text-center my-auto">
             <p className="text-green-400 text-4xl mb-2">✓</p>
             <p className="text-white text-2xl font-bold mb-1">예약을 찾았습니다</p>
             <p className="text-gray-400 text-sm mb-6">{found.length}건의 예약이 확인되었습니다</p>
@@ -474,7 +474,7 @@ export default function KioskPage() {
 
         {/* 이미 출력 완료 화면 */}
         {phase === 'alreadyprinted' && (
-          <div className="w-full max-w-lg text-center">
+          <div className="w-full max-w-lg text-center my-auto">
             <p className="text-yellow-400 text-5xl mb-4">🎫</p>
             <p className="text-white text-2xl font-bold mb-2">이미 발급된 입장권입니다</p>
             <p className="text-gray-400 mb-2"><strong className="text-white">"{input}"</strong> 으로 입장권이 이미 발급되었습니다</p>
@@ -490,7 +490,7 @@ export default function KioskPage() {
 
         {/* 없음 화면 */}
         {phase === 'notfound' && (
-          <div className="w-full max-w-lg text-center">
+          <div className="w-full max-w-lg text-center my-auto">
             <p className="text-5xl mb-4">😔</p>
             <p className="text-white text-2xl font-bold mb-2">예약을 찾을 수 없습니다</p>
             <p className="text-gray-400 mb-2"><strong className="text-white">"{input}"</strong> 으로 예약된 내역이 없습니다</p>
@@ -512,7 +512,7 @@ export default function KioskPage() {
 
         {/* 오류 화면 */}
         {phase === 'error' && (
-          <div className="w-full max-w-lg text-center">
+          <div className="w-full max-w-lg text-center my-auto">
             <p className="text-5xl mb-4">⚠️</p>
             <p className="text-white text-2xl font-bold mb-2">오류가 발생했습니다</p>
             <p className="text-gray-400 text-sm mb-6">잠시 후 다시 시도하세요</p>
