@@ -1,10 +1,11 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Search, X, MessageSquare, Send, Trash2 } from 'lucide-react';
+import { Search, X, MessageSquare, Send, Trash2, Download } from 'lucide-react';
 import { useSearchParams } from 'react-router-dom';
 import { useApp } from '../../context/AppContext';
 import { formatDate } from '../../utils/helpers';
 import QRTicket from '../../components/QRTicket';
 import { apiSendSms, type SmsSendResult } from '../../utils/cloudApi';
+import { exportToExcel } from '../../utils/exportExcel';
 import type { Reservation } from '../../types';
 
 export default function ReservationsManage() {
@@ -92,6 +93,32 @@ export default function ReservationsManage() {
     setDeleteError('');
   };
 
+  const handleExport = () => {
+    const event = eventFilter !== 'all' ? events.find(e => e.id === eventFilter) : null;
+    const customFields = event?.customFields ?? [];
+    const data = filtered.map(r => {
+      const row: Record<string, string | number> = {
+        '예약번호': r.id.slice(0, 8).toUpperCase(),
+        '행사명': r.eventTitle,
+        '예약자명': r.customer.name,
+        '연락처': r.customer.phone,
+        '이메일': r.customer.email || '',
+        '방문날짜': formatDate(r.date),
+        '시간': r.time,
+        '방문인원': r.attendeeCount,
+        '상태': r.status === 'confirmed' ? '확정' : '취소',
+        '입장여부': r.checkedIn ? '입장완료' : '미입장',
+        '입장시각': r.checkedInAt ? new Date(r.checkedInAt).toLocaleString('ko-KR') : '',
+        '예약일시': new Date(r.createdAt).toLocaleString('ko-KR'),
+      };
+      for (const f of customFields) {
+        if (r.extraFields[f.key]) row[f.label] = r.extraFields[f.key];
+      }
+      return row;
+    });
+    exportToExcel('예약관리', [{ name: '예약 목록', data }]);
+  };
+
   // SMS 발송 대상: 현재 필터 기준 확정 예약
   const smsTargets = filtered.filter(r => r.status === 'confirmed');
 
@@ -118,13 +145,21 @@ export default function ReservationsManage() {
     <div className="space-y-5">
       <div className="flex items-center justify-between">
         <h2 className="font-bold text-gray-800">예약 관리</h2>
-        <button
-          onClick={() => { setShowSmsModal(true); setSmsResult(null); setSmsError(''); }}
-          className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-white font-semibold text-sm hover:opacity-90"
-          style={{ backgroundColor: '#667EEA' }}
-        >
-          <MessageSquare size={15} /> 문자 발송
-        </button>
+        <div className="flex gap-2">
+          <button
+            onClick={handleExport}
+            className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl font-semibold text-sm hover:bg-gray-50 border border-gray-200 text-gray-600"
+          >
+            <Download size={15} /> 엑셀
+          </button>
+          <button
+            onClick={() => { setShowSmsModal(true); setSmsResult(null); setSmsError(''); }}
+            className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-white font-semibold text-sm hover:opacity-90"
+            style={{ backgroundColor: '#667EEA' }}
+          >
+            <MessageSquare size={15} /> 문자 발송
+          </button>
+        </div>
       </div>
 
       {/* Filters */}

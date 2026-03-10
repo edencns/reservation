@@ -1,8 +1,9 @@
-import { useState, useRef } from 'react';
-import { Plus, Trash2, ChevronLeft, X, FileImage, Pencil, Settings2 } from 'lucide-react';
+import { useState, useRef, useMemo } from 'react';
+import { Plus, Trash2, ChevronLeft, X, FileImage, Pencil, Settings2, Search, Download } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { generateId } from '../../utils/helpers';
 import { getVendorCategoryOptions, saveVendorCategoryOptions } from '../../utils/storage';
+import { exportToExcel } from '../../utils/exportExcel';
 import type { ManagedVendor, VendorDocument } from '../../types';
 
 const EMPTY_VENDOR: Omit<ManagedVendor, 'id' | 'createdAt'> = {
@@ -55,6 +56,8 @@ export default function VendorsManage() {
   const [editingId, setEditingId] = useState<string | 'new' | null>(null);
   const [form, setForm] = useState<FormState>(EMPTY_VENDOR);
   const [newDocName, setNewDocName] = useState('');
+  const [search, setSearch] = useState('');
+  const [catFilter, setCatFilter] = useState('all');
 
   // 카테고리 옵션 관리
   const [categoryOptions, setCategoryOptions] = useState<string[]>(() => getVendorCategoryOptions());
@@ -112,6 +115,28 @@ export default function VendorsManage() {
       updateManagedVendor({ ...form, id: editingId, createdAt: managedVendors.find(v => v.id === editingId)?.createdAt ?? new Date().toISOString() });
     }
     close();
+  };
+
+  const filteredVendors = useMemo(() => managedVendors.filter(v => {
+    const matchSearch = !search || v.name.includes(search) || v.contactName.includes(search) || v.phone.includes(search);
+    const matchCat = catFilter === 'all' || v.category === catFilter;
+    return matchSearch && matchCat;
+  }), [managedVendors, search, catFilter]);
+
+  const handleExport = () => {
+    const data = filteredVendors.map(v => ({
+      '상호': v.name,
+      '카테고리': v.category,
+      '전화번호': v.phone,
+      '이메일': v.email,
+      '대표자': v.representativeName,
+      '주소': v.address,
+      '담당자': v.contactName,
+      '담당자 번호': v.contactPhone,
+      '취급상품': v.products,
+      '비고': v.notes,
+    }));
+    exportToExcel('입점업체', [{ name: '업체 목록', data }]);
   };
 
   const inputCls = 'w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#667EEA]';
@@ -336,14 +361,44 @@ export default function VendorsManage() {
   // 목록 화면
   return (
     <div className="max-w-2xl">
-      <div className="flex items-center justify-between mb-5">
+      <div className="flex items-center justify-between mb-4">
         <p className="text-sm text-gray-500">행사 등록 시 이 목록에서 업체를 선택할 수 있습니다.</p>
-        <button onClick={openNew}
-          className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-white font-semibold text-sm hover:opacity-90"
-          style={{ backgroundColor: '#667EEA' }}>
-          <Plus size={15} /> 새 업체 등록
-        </button>
+        <div className="flex gap-2">
+          <button onClick={handleExport}
+            className="flex items-center gap-1.5 px-3 py-2 rounded-xl font-semibold text-sm border border-gray-200 text-gray-600 hover:bg-gray-50">
+            <Download size={14} /> 엑셀
+          </button>
+          <button onClick={openNew}
+            className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-white font-semibold text-sm hover:opacity-90"
+            style={{ backgroundColor: '#667EEA' }}>
+            <Plus size={15} /> 새 업체 등록
+          </button>
+        </div>
       </div>
+
+      {/* 필터 */}
+      <div className="bg-white rounded-2xl shadow-sm p-4 flex gap-3 mb-4">
+        <div className="relative flex-1">
+          <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+          <input
+            type="text"
+            placeholder="상호, 담당자, 연락처 검색"
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            className="w-full pl-9 pr-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#667EEA]"
+          />
+        </div>
+        <select
+          value={catFilter}
+          onChange={e => setCatFilter(e.target.value)}
+          className="px-3 py-2 border border-gray-200 rounded-xl text-sm text-gray-700 bg-white"
+        >
+          <option value="all">전체 카테고리</option>
+          {categoryOptions.map(c => <option key={c} value={c}>{c}</option>)}
+        </select>
+      </div>
+
+      <p className="text-sm text-gray-500 mb-3">총 {filteredVendors.length}건</p>
 
       {managedVendors.length === 0 ? (
         <div className="text-center py-16 bg-white rounded-2xl shadow-sm text-gray-400">
@@ -355,7 +410,7 @@ export default function VendorsManage() {
         </div>
       ) : (
         <div className="space-y-3">
-          {managedVendors.map(v => (
+          {filteredVendors.map(v => (
             <div key={v.id} className="bg-white rounded-2xl shadow-sm p-4 flex items-center gap-4">
               {v.imageUrl ? (
                 <img src={v.imageUrl} alt={v.name} className="w-14 h-14 object-contain rounded-xl border border-gray-100 bg-gray-50 shrink-0" />

@@ -1,7 +1,8 @@
 import { useState, useRef } from 'react';
-import { CheckCircle, XCircle, QrCode, Users } from 'lucide-react';
+import { CheckCircle, XCircle, QrCode, Users, Download } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { formatDate, formatDateTime } from '../../utils/helpers';
+import { exportToExcel } from '../../utils/exportExcel';
 
 export default function CheckIn() {
   const { events, reservations, checkIn } = useApp();
@@ -64,9 +65,40 @@ export default function CheckIn() {
   const getName = (r: typeof reservations[0]) => r.customer.name || r.extraFields['name'] || '(이름 없음)';
   const getPhone = (r: typeof reservations[0]) => r.customer.phone || r.extraFields['phone'] || '';
 
+  const handleExport = () => {
+    const customFields = selectedEvent?.customFields ?? [];
+    const data = dayReservations.map(r => {
+      const row: Record<string, string | number> = {
+        '시간': r.time,
+        '예약자명': getName(r),
+        '연락처': getPhone(r),
+        '방문인원': r.attendeeCount,
+        '상태': r.checkedIn ? '입장완료' : '미입장',
+        '입장시각': r.checkedInAt ? formatDateTime(r.checkedInAt) : '',
+        '예약번호': r.id.slice(0, 8).toUpperCase(),
+      };
+      for (const f of customFields) {
+        if (r.extraFields[f.key]) row[f.label] = r.extraFields[f.key];
+      }
+      return row;
+    });
+    const eventTitle = selectedEvent?.title ?? '방문현황';
+    exportToExcel(`방문현황_${eventTitle}_${selectedDate}`, [{ name: '방문 현황', data }]);
+  };
+
   return (
     <div className="space-y-5 max-w-4xl">
-      <h2 className="font-bold text-gray-800">QR 체크인</h2>
+      <div className="flex items-center justify-between">
+        <h2 className="font-bold text-gray-800">QR 체크인</h2>
+        {selectedEventId && (
+          <button
+            onClick={handleExport}
+            className="flex items-center gap-1.5 px-4 py-2 rounded-xl font-semibold text-sm border border-gray-200 text-gray-600 hover:bg-gray-50"
+          >
+            <Download size={15} /> 엑셀
+          </button>
+        )}
+      </div>
 
       {/* 행사·날짜 선택 */}
       <div className="bg-white rounded-2xl shadow-sm p-4 grid sm:grid-cols-2 gap-3">

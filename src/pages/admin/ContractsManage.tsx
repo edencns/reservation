@@ -1,7 +1,8 @@
 import { useState, useMemo } from 'react';
-import { Search, X, ChevronDown, ChevronUp } from 'lucide-react';
+import { Search, X, ChevronDown, ChevronUp, Download } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { getVendorContracts, getManagedVendors } from '../../utils/storage';
+import { exportToExcel } from '../../utils/exportExcel';
 import type { VendorContract } from '../../types';
 
 const STATUS_LABEL: Record<string, string> = { draft: '임시저장', completed: '완료' };
@@ -49,20 +50,57 @@ export default function ContractsManage() {
     return allVendors.filter(v => ids.has(v.id));
   }, [allContracts, allVendors]);
 
+  const handleExport = () => {
+    const contractData = filtered.map(c => ({
+      '동호수': c.unitNumber,
+      '고객명': c.customerName,
+      '연락처': c.customerPhone || '',
+      '업체명': c.vendorName,
+      '업체 카테고리': c.vendorCategory,
+      '행사명': c.eventTitle,
+      '계약금액': c.totalAmount,
+      '계약금': c.depositAmount,
+      '잔금': c.totalAmount - c.depositAmount,
+      '결제방법': c.paymentMethod || '',
+      '계약 유형': TYPE_LABEL[c.type],
+      '상태': STATUS_LABEL[c.status],
+      '계약일': c.contractDate,
+    }));
+    const unitData = byUnit.map(([unit, contracts]) => ({
+      '동호수': unit,
+      '계약 수': contracts.length,
+      '총 계약금액': contracts.reduce((s, c) => s + c.totalAmount, 0),
+      '완료': contracts.filter(c => c.status === 'completed').length,
+      '임시저장': contracts.filter(c => c.status === 'draft').length,
+    }));
+    exportToExcel('계약관리', [
+      { name: '계약 목록', data: contractData },
+      { name: '동호수별 현황', data: unitData },
+    ]);
+  };
+
   return (
     <div className="space-y-5">
       <div className="flex items-center justify-between">
         <h2 className="font-bold text-gray-800">계약 관리</h2>
-        <button
-          onClick={() => setUnitView(v => !v)}
-          className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-semibold border transition-all ${
-            unitView ? 'text-white border-transparent' : 'border-gray-200 text-gray-600 hover:bg-gray-50'
-          }`}
-          style={unitView ? { backgroundColor: '#667EEA' } : {}}
-        >
-          {unitView ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
-          {unitView ? '목록 보기' : '동호수별 현황'}
-        </button>
+        <div className="flex gap-2">
+          <button
+            onClick={handleExport}
+            className="flex items-center gap-1.5 px-4 py-2 rounded-xl font-semibold text-sm border border-gray-200 text-gray-600 hover:bg-gray-50"
+          >
+            <Download size={15} /> 엑셀
+          </button>
+          <button
+            onClick={() => setUnitView(v => !v)}
+            className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-semibold border transition-all ${
+              unitView ? 'text-white border-transparent' : 'border-gray-200 text-gray-600 hover:bg-gray-50'
+            }`}
+            style={unitView ? { backgroundColor: '#667EEA' } : {}}
+          >
+            {unitView ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+            {unitView ? '목록 보기' : '동호수별 현황'}
+          </button>
+        </div>
       </div>
 
       {/* 필터 */}

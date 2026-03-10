@@ -146,6 +146,14 @@ export default function EventTicket() {
           </div>
         </div>
       )}
+       <footer className="w-full max-w-xl mx-auto px-4 py-8">
+        <img
+          src="https://storage.googleapis.com/maker-suite-attachments/v1/files/31a7b617-b038-4a6c-b9b5-a34657cdc234"
+          alt="이든씨앤에스 로고"
+          className="mx-auto"
+          style={{ maxWidth: '200px' }}
+        />
+      </footer>
     </div>
   );
 }
