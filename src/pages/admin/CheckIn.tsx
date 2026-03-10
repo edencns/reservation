@@ -42,7 +42,6 @@ export default function CheckIn() {
 
   // 체크인 통계
   const checkedInCount = dayReservations.filter(r => r.checkedIn).length;
-  const totalVisitors = dayReservations.reduce((s, r) => s + r.attendeeCount, 0);
   const checkedInVisitors = dayReservations.filter(r => r.checkedIn).reduce((s, r) => s + r.attendeeCount, 0);
 
   // ID 직접 조회
@@ -139,7 +138,7 @@ export default function CheckIn() {
             {[
               { label: '총 예약', value: dayReservations.length + '건', color: '#667EEA' },
               { label: '입장 완료', value: checkedInCount + '건', color: '#22c55e' },
-              { label: '방문 인원', value: `${checkedInVisitors}/${totalVisitors}명`, color: '#f97316' },
+              { label: '방문 인원', value: `${checkedInVisitors}명`, color: '#f97316' },
             ].map(s => (
               <div key={s.label} className="bg-white rounded-2xl shadow-sm p-4 text-center">
                 <p className="font-extrabold text-xl" style={{ color: s.color }}>{s.value}</p>
@@ -262,13 +261,13 @@ export default function CheckIn() {
               <div className="space-y-5">
                 {Object.entries(grouped).map(([time, list]) => {
                   const slotChecked = list.filter(r => r.checkedIn).length;
-                  const slotVisitors = list.reduce((s, r) => s + r.attendeeCount, 0);
+                  const slotCheckedVisitors = list.filter(r => r.checkedIn).reduce((s, r) => s + r.attendeeCount, 0);
                   return (
                     <div key={time}>
                       <div className="flex items-center gap-3 mb-2">
                         <span className="font-bold text-sm" style={{ color: '#667EEA' }}>{time}</span>
                         <span className="text-xs text-gray-400">
-                          {list.length}건 · {slotVisitors}명 · 입장 {slotChecked}건
+                          예약 {list.length}건 · 방문 {slotChecked}건 ({slotCheckedVisitors}명)
                         </span>
                         <div className="flex-1 h-px bg-gray-100" />
                       </div>
