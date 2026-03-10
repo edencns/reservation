@@ -373,9 +373,9 @@ export default function KioskPage() {
 
         {/* 입력 화면 */}
         {phase === 'input' && (
-          <div className="flex-1 flex flex-col items-center justify-center pb-24">
+          <div className="flex-1 flex flex-col items-center justify-center pb-40">
             {/* 행사명 */}
-            <div className="text-center mb-10 px-4">
+            <div className="text-center mb-16 px-4">
               <p className="text-5xl font-extrabold text-white leading-tight" style={{ wordBreak: 'keep-all' }}>{event.title}</p>
               {event.venue && <p className="text-gray-400 text-lg mt-5">{event.venue}</p>}
             </div>
