@@ -362,10 +362,7 @@ export default function KioskPage() {
 
       {/* 헤더 */}
       <div className="flex items-center justify-between px-8 py-4" style={{ backgroundColor: '#667EEA' }}>
-        <div>
-          <p className="text-white text-xs opacity-75 uppercase tracking-widest">입장권 발급 키오스크</p>
-          <p className="text-white font-bold text-lg leading-tight">{event.title}</p>
-        </div>
+        <p className="text-white text-sm font-semibold tracking-widest uppercase opacity-90">입장권 발급 키오스크</p>
         {(phase === 'result' || phase === 'notfound' || phase === 'alreadyprinted') && (
           <p className="text-white text-sm opacity-75">{autoResetSecs}초 후 자동 초기화</p>
         )}
@@ -378,7 +375,10 @@ export default function KioskPage() {
         {phase === 'input' && (
           <div className="w-full max-w-md">
             <div className="text-center mb-8">
-              <p className="text-white text-2xl font-bold mb-2">{unitLabel} 입력</p>
+              <p className="text-3xl font-extrabold text-white leading-tight mb-2" style={{ wordBreak: 'keep-all' }}>{event.title}</p>
+              {event.venue && <p className="text-gray-400 text-sm mb-4">{event.venue}</p>}
+              <div className="w-12 h-0.5 mx-auto mb-4" style={{ backgroundColor: '#667EEA' }} />
+              <p className="text-white text-xl font-bold mb-1">{unitLabel} 입력</p>
               <p className="text-gray-400 text-sm">예약 시 입력한 {unitLabel}을 입력하세요</p>
             </div>
 
