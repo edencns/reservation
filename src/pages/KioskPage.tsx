@@ -32,7 +32,7 @@ function matchUnitNumber(stored: string, query: string): boolean {
 }
 
 function buildTicketHtml(reservations: Reservation[], event: Event, logoUrl?: string): string {
-  const SEP = '----------------------------------------';
+  const SEP = '';
 
   const rows = reservations.map((r) => {
     const customRows = event.customFields
@@ -88,7 +88,7 @@ function buildTicketHtml(reservations: Reservation[], event: Event, logoUrl?: st
     .center { text-align: center; padding: 2mm 0; }
     .title-sub { font-size: 11pt; letter-spacing: 3px; margin-bottom: 3mm; }
     .title-main { font-size: 15pt; font-weight: 900; line-height: 1.4; word-break: keep-all; }
-    .sep { font-size: 8pt; color: #000; letter-spacing: -1px; overflow: hidden; line-height: 1; padding: 2mm 0; }
+    .sep { border: none; border-top: 1.5px dashed #000; margin: 2mm 0; padding: 0; }
     .rows { padding: 1mm 0; }
     .row { display: flex; align-items: flex-start; padding: 2mm 0; }
     .lbl { font-size: 11pt; min-width: 18mm; flex-shrink: 0; color: #333; }
