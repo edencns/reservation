@@ -373,16 +373,15 @@ export default function KioskPage() {
 
         {/* 입력 화면 */}
         {phase === 'input' && (
-          <div className="flex-1 flex flex-col">
-            {/* 행사명 — 상단 공백 중앙 */}
-            <div className="flex-1 flex flex-col items-center justify-center text-center px-4">
-              <p className="text-4xl font-extrabold text-white leading-tight mb-2" style={{ wordBreak: 'keep-all' }}>{event.title}</p>
-              {event.venue && <p className="text-gray-400 text-sm mt-1">{event.venue}</p>}
+          <div className="flex-1 flex flex-col items-center justify-center">
+            {/* 행사명 */}
+            <div className="text-center mb-10 px-4">
+              <p className="text-5xl font-extrabold text-white leading-tight" style={{ wordBreak: 'keep-all' }}>{event.title}</p>
+              {event.venue && <p className="text-gray-400 text-base mt-5">{event.venue}</p>}
             </div>
 
-            {/* 넘패드 — 화면 아래 절반 중앙 */}
-            <div className="flex-1 flex flex-col items-center justify-center">
-              <div className="w-full max-w-md">
+            {/* 넘패드 */}
+            <div className="w-full max-w-md">
                 <p className="text-white text-lg font-bold text-center mb-4">예약 시 입력한 {unitLabel}을 입력하세요</p>
 
                 <div
@@ -431,7 +430,6 @@ export default function KioskPage() {
                     {searching ? '조회 중...' : '입장권 출력'}
                   </button>
                 </div>
-              </div>
             </div>
           </div>
         )}
