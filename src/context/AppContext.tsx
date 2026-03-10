@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
+import React, { createContext, useContext, useState, useCallback, useEffect, useRef } from 'react';
 import type { Event, Reservation, CompanyInfo, ManagedVendor } from '../types';
 import { getEvents, saveEvents, getReservations, saveReservations, getCompanyInfo, saveCompanyInfo, getManagedVendors, saveManagedVendors } from '../utils/storage';
 import { SEED_EVENTS } from '../utils/seedData';
@@ -42,6 +42,7 @@ const AppContext = createContext<AppContextType | null>(null);
 
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [isLoading, setIsLoading] = useState(true);
+  const loadedRef = useRef(false); // 초기 로드 완료 여부
   const [events, setEvents] = useState<Event[]>(() => {
     let stored = getEvents();
     if (stored.length === 0) {
@@ -103,7 +104,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       } catch {
         // Keep localStorage fallback for local dev / API unavailable environments.
       } finally {
-        if (!disposed) setIsLoading(false);
+        if (!disposed) {
+          setIsLoading(false);
+          loadedRef.current = true;
+        }
       }
     };
 
@@ -111,6 +115,35 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     return () => {
       disposed = true;
     };
+  }, []);
+
+  // 실시간 폴링 — 15초마다 API에서 최신 데이터로 갱신
+  useEffect(() => {
+    const poll = async () => {
+      if (!loadedRef.current) return;
+      try {
+        const [remoteEvents, remoteReservations] = await Promise.all([
+          apiGetEvents(),
+          apiGetReservations(),
+        ]);
+        setEvents(prev => {
+          const changed = JSON.stringify(prev) !== JSON.stringify(remoteEvents);
+          if (!changed) return prev;
+          saveEvents(remoteEvents);
+          return remoteEvents;
+        });
+        setReservations(prev => {
+          const changed = JSON.stringify(prev) !== JSON.stringify(remoteReservations);
+          if (!changed) return prev;
+          saveReservations(remoteReservations);
+          return remoteReservations;
+        });
+      } catch {
+        // API 불가 시 기존 상태 유지
+      }
+    };
+    const interval = setInterval(poll, 15000);
+    return () => clearInterval(interval);
   }, []);
 
   const addEvent = useCallback((event: Event) => {
