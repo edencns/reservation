@@ -380,8 +380,7 @@ export default function KioskPage() {
               {event.venue && <p className="text-gray-400 text-lg mt-5">{event.venue}</p>}
             </div>
 
-            {/* 넘패드 — 위에서 30% 위치 */}
-            <div className="w-full max-w-md mt-4">
+            <div className="w-full max-w-md mt-[60%]">
                 <p className="text-white text-lg font-bold text-center mb-4">예약 시 입력한 {unitLabel}을 입력하세요</p>
 
                 <div
