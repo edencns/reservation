@@ -167,8 +167,8 @@ export default function Statistics() {
                     >
                       {e.title}
                     </button>
-                    <div className="mt-1 bg-gray-100 rounded-full h-1.5">
-                      <div className="h-1.5 rounded-full" style={{ width: `${(e.totalVisitors / Math.max(...eventStats.map(x => x.totalVisitors), 1)) * 100}%`, backgroundColor: '#667EEA' }} />
+                    <div className="mt-1 bg-gray-200 rounded-full h-2.5">
+                      <div className="h-2.5 rounded-full transition-all" style={{ width: `${e.rate}%`, backgroundColor: '#667EEA' }} />
                     </div>
                   </div>
                   <button
