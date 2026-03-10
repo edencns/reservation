@@ -4,7 +4,7 @@ import {
   Container, Title, Text, Button, Group, Modal, TextInput, Paper, Grid, RingProgress, ThemeIcon
 } from '@mantine/core';
 import {
-  IconChevronRight, IconTicket, IconFileText,
+  IconChevronRight, IconTicket,
   IconQrcode, IconCheck, IconX, IconLock,
 } from '@tabler/icons-react';
 import { useApp } from '../context/AppContext';
@@ -170,9 +170,9 @@ export default function Home() {
             </Grid.Col>
             <Grid.Col span={{ base: 12, md: 8 }}>
               <Text fw={700} mb="sm">회사정보</Text>
-              <Text><IconFileText size={14} /> {companyInfo.name || '회사명 미입력'}</Text>
-              <Text><IconFileText size={14} /> {companyInfo.address || '회사 주소 미입력'}</Text>
-              <Text><IconFileText size={14} /> {companyInfo.email || '회사 이메일 미입력'}</Text>
+              <Text>{companyInfo.name || '회사명 미입력'}</Text>
+              <Text>{companyInfo.address || '회사 주소 미입력'}</Text>
+              <Text>{companyInfo.email || '회사 이메일 미입력'}</Text>
             </Grid.Col>
           </Grid>
           <Text ta="center" c="dimmed" mt="xl" pt="md" style={{ borderTop: '1px solid #e9ecef' }}>© 2026 ReserveTicket. All rights reserved.</Text>
