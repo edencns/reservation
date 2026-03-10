@@ -4,7 +4,7 @@ import {
   Container, Title, Text, Button, Group, Modal, TextInput, Paper, Grid, RingProgress, ThemeIcon
 } from '@mantine/core';
 import {
-  IconChevronRight, IconTicket, IconPhone, IconFileText,
+  IconChevronRight,
   IconQrcode, IconCheck, IconX, IconLock,
 } from '@tabler/icons-react';
 import { useApp } from '../context/AppContext';
