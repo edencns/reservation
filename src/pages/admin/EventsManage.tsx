@@ -104,18 +104,11 @@ export default function EventsManage() {
       {/* Desktop table */}
       <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
         <div className="hidden md:block overflow-x-auto">
-          <table className="w-full text-sm table-fixed">
-            <colgroup>
-              <col />{/* 행사명: 나머지 공간 */}
-              <col style={{ width: '110px' }} />{/* 기간 */}
-              <col style={{ width: '72px' }} />{/* 예약 수 */}
-              <col style={{ width: '72px' }} />{/* 상태 */}
-              <col style={{ width: '160px' }} />{/* 관리 */}
-            </colgroup>
+          <table className="text-sm">
             <thead>
               <tr style={{ backgroundColor: '#E0D6F9' }}>
                 {['행사명', '기간', '예약 수', '상태', '관리'].map(h => (
-                  <th key={h} className="px-3 py-3 text-left font-semibold text-gray-700 whitespace-nowrap">{h}</th>
+                  <th key={h} className="px-4 py-3 text-left font-semibold text-gray-700 whitespace-nowrap">{h}</th>
                 ))}
               </tr>
             </thead>
@@ -126,19 +119,19 @@ export default function EventsManage() {
                 const confirmed = reservations.filter(r => r.eventId === event.id && r.status === 'confirmed').length;
                 return (
                   <tr key={event.id} className="hover:bg-gray-50 transition-colors">
-                    <td className="px-3 py-3 font-medium text-gray-800">
-                      <p className="truncate">{event.title}</p>
+                    <td className="px-4 py-3 font-medium text-gray-800 whitespace-nowrap">
+                      {event.title}
                     </td>
-                    <td className="px-3 py-3 text-gray-600 whitespace-nowrap">
+                    <td className="px-4 py-3 text-gray-600 whitespace-nowrap">
                       <p className="text-xs">{formatDate(event.dates[0])}</p>
                       {event.dates.length > 1 && (
                         <p className="text-xs text-gray-400">~ {formatDate(event.dates[event.dates.length - 1])}</p>
                       )}
                     </td>
-                    <td className="px-3 py-3 font-semibold whitespace-nowrap" style={{ color: '#667EEA' }}>
+                    <td className="px-4 py-3 font-semibold whitespace-nowrap" style={{ color: '#667EEA' }}>
                       {confirmed}건
                     </td>
-                    <td className="px-3 py-3 whitespace-nowrap">
+                    <td className="px-4 py-3 whitespace-nowrap">
                       <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${
                         event.status === 'active' ? 'bg-green-100 text-green-600'
                         : event.status === 'closed' ? 'bg-red-100 text-red-500'
@@ -147,7 +140,7 @@ export default function EventsManage() {
                         {event.status === 'active' ? '오픈' : event.status === 'closed' ? '마감' : '임시저장'}
                       </span>
                     </td>
-                    <td className="px-3 py-3">
+                    <td className="px-4 py-3">
                       <div className="flex gap-1 items-center">
                         <button onClick={() => navigate(`/e/${event.slug}`)}
                           className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-500" title="행사 페이지">
