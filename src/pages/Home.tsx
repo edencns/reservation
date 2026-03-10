@@ -4,7 +4,7 @@ import {
   Container, Title, Text, Button, Group, Modal, TextInput, Paper, Grid, RingProgress, ThemeIcon
 } from '@mantine/core';
 import {
-  IconChevronRight,
+  IconChevronRight, IconTicket, IconFileText,
   IconQrcode, IconCheck, IconX, IconLock,
 } from '@tabler/icons-react';
 import { useApp } from '../context/AppContext';
@@ -160,10 +160,22 @@ export default function Home() {
 
         {/* ── Company Info ── */}
         <Paper mt="xl" p="xl" radius="lg" withBorder>
-          <Text fw={700} mb="xs">{companyInfo.name || '회사명 미입력'}</Text>
-          {companyInfo.address && <Text c="dimmed" size="sm">{companyInfo.address}</Text>}
-          {companyInfo.email && <Text c="dimmed" size="sm">{companyInfo.email}</Text>}
-          <Text ta="center" c="dimmed" size="xs" mt="xl" pt="md" style={{ borderTop: '1px solid #e9ecef' }}>© 2026 {companyInfo.name || 'ReserveTicket'}. All rights reserved.</Text>
+          <Grid gutter="lg">
+            <Grid.Col span={{ base: 12, md: 4 }}>
+              <Group>
+                <IconTicket size={32} color="#667eea" />
+                <Title order={3} style={{ color: '#667eea' }}>ReserveTicket</Title>
+              </Group>
+              <Text mt="sm" c="dimmed">성공적인 입주 박람회를 위한 최고의 선택, ReserveTicket과 함께하세요.</Text>
+            </Grid.Col>
+            <Grid.Col span={{ base: 12, md: 8 }}>
+              <Text fw={700} mb="sm">회사정보</Text>
+              <Text><IconFileText size={14} /> {companyInfo.name || '회사명 미입력'}</Text>
+              <Text><IconFileText size={14} /> {companyInfo.address || '회사 주소 미입력'}</Text>
+              <Text><IconFileText size={14} /> {companyInfo.email || '회사 이메일 미입력'}</Text>
+            </Grid.Col>
+          </Grid>
+          <Text ta="center" c="dimmed" mt="xl" pt="md" style={{ borderTop: '1px solid #e9ecef' }}>© 2026 ReserveTicket. All rights reserved.</Text>
         </Paper>
       </Container>
 
