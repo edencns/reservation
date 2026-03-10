@@ -2,6 +2,12 @@ name = "reservation"
 compatibility_date = "2026-02-23"
 pages_build_output_dir = "dist"
 
+# 7일 전 리마인더 자동 발송 (매일 오전 10시 KST = 01:00 UTC)
+# scheduled-worker.ts 를 별도 Worker로 배포할 때 아래 주석 해제
+# main = "scheduled-worker.ts"
+# [triggers]
+# crons = ["0 1 * * *"]
+
 [[d1_databases]]
 binding = "DB"
 database_name = "reservation"

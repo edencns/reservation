@@ -46,6 +46,22 @@ export function buildConfirmMessage(
   return lines.join('\n');
 }
 
+export function buildCancelMessage(
+  reservation: Reservation,
+  event: Event,
+): string {
+  const dateStr = formatKoreanDate(reservation.date);
+  return [
+    `[${event.title}] 예약이 취소되었습니다.`,
+    ``,
+    `예약자: ${reservation.customer.name}`,
+    `방문일: ${dateStr}`,
+    `장소: ${event.venue}`,
+    ``,
+    `문의사항이 있으시면 연락해 주세요.`,
+  ].join('\n');
+}
+
 export function buildReminderMessage(
   reservation: Reservation,
   event: Event,

@@ -62,6 +62,19 @@ export const apiDeleteReservation = async (id: string): Promise<void> => {
   await parseJson<{ ok: true }>(res);
 };
 
+export const apiSendSmsAuto = async (
+  reservationId: string,
+  template: 'confirm' | 'cancel',
+): Promise<void> => {
+  const res = await fetch('/api/sms/auto', {
+    method: 'POST',
+    headers: jsonHeaders,
+    body: JSON.stringify({ reservationId, template }),
+  });
+  // 실패해도 예약 흐름에 영향 없도록 무시
+  await parseJson<{ ok: true }>(res).catch(() => undefined);
+};
+
 export const apiCheckInReservation = async (id: string, checkedInAt: string): Promise<void> => {
   const res = await fetch(`/api/reservations/${id}/checkin`, {
     method: 'PATCH',

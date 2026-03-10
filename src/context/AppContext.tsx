@@ -12,6 +12,7 @@ import {
   apiCancelReservation,
   apiDeleteReservation,
   apiCheckInReservation,
+  apiSendSmsAuto,
 } from '../utils/cloudApi';
 
 interface AppContextType {
@@ -151,6 +152,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       return next;
     });
     void apiCreateReservation(r).catch(() => undefined);
+    void apiSendSmsAuto(r.id, 'confirm').catch(() => undefined);
   }, []);
 
   const cancelReservation = useCallback((id: string) => {
@@ -160,6 +162,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       return next;
     });
     void apiCancelReservation(id).catch(() => undefined);
+    void apiSendSmsAuto(id, 'cancel').catch(() => undefined);
   }, []);
 
   const deleteReservation = useCallback((id: string) => {
