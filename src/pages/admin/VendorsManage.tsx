@@ -6,6 +6,26 @@ import { getVendorCategoryOptions, saveVendorCategoryOptions } from '../../utils
 import { exportToExcel } from '../../utils/exportExcel';
 import type { ManagedVendor, VendorDocument } from '../../types';
 
+const CHOSEONG = ['g','gg','n','d','dd','r','m','b','bb','s','ss','','j','jj','ch','k','t','p','h'];
+
+function generateVendorId(name: string): string {
+  let prefix = '';
+  for (const char of name) {
+    if (prefix.length >= 3) break;
+    const code = char.charCodeAt(0) - 0xAC00;
+    if (code >= 0 && code <= 11171) {
+      const initial = CHOSEONG[Math.floor(code / 588)] ?? '';
+      if (initial) prefix += initial[0];
+    } else if (/[a-zA-Z0-9]/.test(char)) {
+      prefix += char.toLowerCase();
+    }
+  }
+  if (!prefix) prefix = 'vd';
+  prefix = prefix.slice(0, 3);
+  const rand = Math.random().toString(36).slice(2, 2 + (7 - prefix.length)).replace(/[^a-z0-9]/g, '0').padEnd(7 - prefix.length, '0');
+  return prefix + rand;
+}
+
 const EMPTY_VENDOR: Omit<ManagedVendor, 'id' | 'createdAt'> = {
   name: '', phone: '', email: '', category: '', products: '',
   representativeName: '', address: '', contactName: '', contactPhone: '',
@@ -90,7 +110,7 @@ export default function VendorsManage() {
   const renameCatOption = (i: number, val: string) =>
     setCatEditing(prev => prev.map((c, idx) => idx === i ? val : c));
 
-  const openNew = () => { setForm(EMPTY_VENDOR); setEditingId('new'); };
+  const openNew = () => { setForm({ ...EMPTY_VENDOR, loginPassword: '0000' }); setEditingId('new'); };
   const openEdit = (v: ManagedVendor) => { setForm({ ...v }); setEditingId(v.id); };
   const close = () => { setEditingId(null); setNewDocName(''); };
 
@@ -159,7 +179,14 @@ export default function VendorsManage() {
             <div className="grid grid-cols-2 gap-4">
               <div className="col-span-2">
                 <label className={labelCls}>상호 <span className="text-red-400">*</span></label>
-                <input className={inputCls} value={form.name} onChange={e => set('name', e.target.value)} placeholder="예) 한샘" />
+                <input className={inputCls} value={form.name} onChange={e => {
+                  const name = e.target.value;
+                  setForm(prev => ({
+                    ...prev,
+                    name,
+                    ...(editingId === 'new' ? { loginId: generateVendorId(name) } : {}),
+                  }));
+                }} placeholder="예) 한샘" />
               </div>
               <div>
                 <label className={labelCls}>전화번호</label>

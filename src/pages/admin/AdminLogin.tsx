@@ -3,11 +3,14 @@ import { useNavigate } from 'react-router-dom';
 import { Ticket, Eye, EyeOff } from 'lucide-react';
 import { adminLogin, isAdminLoggedIn, vendorLogin, getVendorSession } from '../../utils/storage';
 
+const SAVE_ID_KEY = 'savedLoginId';
+
 export default function AdminLogin() {
   const navigate = useNavigate();
-  const [username, setUsername] = useState('');
+  const [username, setUsername] = useState(() => localStorage.getItem(SAVE_ID_KEY) ?? '');
   const [password, setPassword] = useState('');
   const [showPw, setShowPw] = useState(false);
+  const [saveId, setSaveId] = useState(() => !!localStorage.getItem(SAVE_ID_KEY));
   const [error, setError] = useState('');
 
   useEffect(() => {
@@ -17,6 +20,8 @@ export default function AdminLogin() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (saveId) localStorage.setItem(SAVE_ID_KEY, username);
+    else localStorage.removeItem(SAVE_ID_KEY);
     if (adminLogin(username, password)) {
       navigate('/admin/dashboard');
     } else if (vendorLogin(username, password)) {
@@ -67,6 +72,17 @@ export default function AdminLogin() {
                 {showPw ? <EyeOff size={18} /> : <Eye size={18} />}
               </button>
             </div>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              id="saveId"
+              checked={saveId}
+              onChange={e => setSaveId(e.target.checked)}
+              className="w-4 h-4 rounded accent-[#667EEA] cursor-pointer"
+            />
+            <label htmlFor="saveId" className="text-sm text-gray-500 cursor-pointer select-none">아이디 저장</label>
           </div>
 
           {error && (
