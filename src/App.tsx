@@ -29,6 +29,7 @@ import VendorContracts from './pages/vendor/VendorContracts';
 import ContractView from './pages/vendor/ContractView';
 import ContractForm from './pages/vendor/ContractForm';
 import KioskPage from './pages/KioskPage';
+import VirtualKeyboardFAB from './components/VirtualKeyboardFAB';
 
 function AppRoutes() {
   const location = useLocation();
@@ -85,6 +86,7 @@ function AppRoutes() {
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
       {!isKiosk && <Footer />}
+      <VirtualKeyboardFAB />
     </>
   );
 }

@@ -10,6 +10,7 @@ import {
   apiGetReservations,
   apiCreateReservation,
   apiCancelReservation,
+  apiDeleteReservation,
   apiCheckInReservation,
 } from '../utils/cloudApi';
 
@@ -24,6 +25,7 @@ interface AppContextType {
   deleteEvent: (id: string) => void;
   addReservation: (r: Reservation) => void;
   cancelReservation: (id: string) => void;
+  deleteReservation: (id: string) => void;
   checkIn: (id: string) => void;
   updateCompanyInfo: (info: CompanyInfo) => void;
   addManagedVendor: (v: ManagedVendor) => void;
@@ -160,6 +162,15 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     void apiCancelReservation(id).catch(() => undefined);
   }, []);
 
+  const deleteReservation = useCallback((id: string) => {
+    setReservations(prev => {
+      const next = prev.filter(r => r.id !== id);
+      saveReservations(next);
+      return next;
+    });
+    void apiDeleteReservation(id).catch(() => undefined);
+  }, []);
+
   const checkIn = useCallback((id: string) => {
     const checkedInAt = new Date().toISOString();
     setReservations(prev => {
@@ -198,7 +209,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     <AppContext.Provider value={{
       events, reservations, companyInfo, managedVendors, isLoading,
       addEvent, updateEvent, deleteEvent,
-      addReservation, cancelReservation, checkIn,
+      addReservation, cancelReservation, deleteReservation, checkIn,
       updateCompanyInfo,
       addManagedVendor, updateManagedVendor, deleteManagedVendor,
       getEventById, getEventBySlug,

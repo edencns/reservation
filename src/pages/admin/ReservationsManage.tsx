@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useState } from 'react';
-import { Search, X, MessageSquare, Send } from 'lucide-react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { Search, X, MessageSquare, Send, Trash2 } from 'lucide-react';
 import { useSearchParams } from 'react-router-dom';
 import { useApp } from '../../context/AppContext';
 import { formatDate } from '../../utils/helpers';
@@ -8,7 +8,7 @@ import { apiSendSms, type SmsSendResult } from '../../utils/cloudApi';
 import type { Reservation } from '../../types';
 
 export default function ReservationsManage() {
-  const { events, reservations, cancelReservation } = useApp();
+  const { events, reservations, cancelReservation, deleteReservation } = useApp();
   const [searchParams, setSearchParams] = useSearchParams();
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
@@ -16,6 +16,10 @@ export default function ReservationsManage() {
   const [detailR, setDetailR] = useState<Reservation | null>(null);
   const [selected, setSelected] = useState<Reservation | null>(null);
   const [cancelTarget, setCancelTarget] = useState<string | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
+  const [deletePassword, setDeletePassword] = useState('');
+  const [deleteError, setDeleteError] = useState('');
+  const deleteInputRef = useRef<HTMLInputElement>(null);
   const [showSmsModal, setShowSmsModal] = useState(false);
   const [smsTemplate, setSmsTemplate] = useState<'confirm' | 'reminder'>('confirm');
   const [smsDays, setSmsDays] = useState(7);
@@ -64,6 +68,28 @@ export default function ReservationsManage() {
       setSelected(null);
     }
     setCancelTarget(null);
+  };
+
+  const handleDelete = (id: string) => {
+    setDeleteTarget(id);
+    setDeletePassword('');
+    setDeleteError('');
+    setTimeout(() => deleteInputRef.current?.focus(), 100);
+  };
+
+  const confirmDelete = () => {
+    if (deletePassword !== '123') {
+      setDeleteError('비밀번호가 올바르지 않습니다.');
+      return;
+    }
+    if (deleteTarget) {
+      deleteReservation(deleteTarget);
+      setDetailR(null);
+      setSelected(null);
+    }
+    setDeleteTarget(null);
+    setDeletePassword('');
+    setDeleteError('');
   };
 
   // SMS 발송 대상: 현재 필터 기준 확정 예약
@@ -317,6 +343,13 @@ export default function ReservationsManage() {
                     예약 취소
                   </button>
                 )}
+                <button
+                  onClick={() => { setDetailR(null); handleDelete(detailR.id); }}
+                  className="py-2.5 px-3 rounded-xl bg-gray-100 text-gray-500 text-sm font-semibold hover:bg-gray-200"
+                  title="예약 삭제"
+                >
+                  <Trash2 size={15} />
+                </button>
               </div>
             </div>
           </div>
@@ -338,6 +371,37 @@ export default function ReservationsManage() {
               <button onClick={confirmCancel}
                 className="flex-1 py-2.5 rounded-xl bg-red-500 text-white text-sm font-semibold hover:bg-red-600">
                 취소하기
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 삭제 비밀번호 모달 */}
+      {deleteTarget && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4"
+          style={{ backgroundColor: 'rgba(0,0,0,0.5)' }} onClick={() => setDeleteTarget(null)}>
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-xs p-6" onClick={e => e.stopPropagation()}>
+            <h3 className="font-bold text-gray-800 text-lg mb-1">예약 삭제</h3>
+            <p className="text-sm text-gray-500 mb-4">삭제하면 복구할 수 없습니다.<br />비밀번호를 입력하세요.</p>
+            <input
+              ref={deleteInputRef}
+              type="password"
+              value={deletePassword}
+              onChange={e => { setDeletePassword(e.target.value); setDeleteError(''); }}
+              onKeyDown={e => e.key === 'Enter' && confirmDelete()}
+              placeholder="비밀번호"
+              className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-red-400 mb-2"
+            />
+            {deleteError && <p className="text-xs text-red-500 mb-3">{deleteError}</p>}
+            <div className="flex gap-3 mt-2">
+              <button onClick={() => setDeleteTarget(null)}
+                className="flex-1 py-2.5 rounded-xl border border-gray-200 text-sm font-semibold text-gray-600 hover:bg-gray-50">
+                취소
+              </button>
+              <button onClick={confirmDelete}
+                className="flex-1 py-2.5 rounded-xl bg-red-500 text-white text-sm font-semibold hover:bg-red-600 flex items-center justify-center gap-1.5">
+                <Trash2 size={14} /> 삭제
               </button>
             </div>
           </div>

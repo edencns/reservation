@@ -57,6 +57,11 @@ export const apiCancelReservation = async (id: string): Promise<void> => {
   await parseJson<{ ok: true }>(res);
 };
 
+export const apiDeleteReservation = async (id: string): Promise<void> => {
+  const res = await fetch(`/api/reservations/${id}`, { method: 'DELETE' });
+  await parseJson<{ ok: true }>(res);
+};
+
 export const apiCheckInReservation = async (id: string, checkedInAt: string): Promise<void> => {
   const res = await fetch(`/api/reservations/${id}/checkin`, {
     method: 'PATCH',
