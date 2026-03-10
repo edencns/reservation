@@ -67,7 +67,14 @@ export default function Statistics() {
   const timeEntries = useMemo(() => {
     const timeStats: Record<string, { count: number; visitors: number; rows: Reservation[] }> = {};
     checkedInReservations.forEach(r => {
-      const slot = r.time;
+      // checkedInAt(실제 체크인 시각) 기준 시간대, 없으면 예약 시간 fallback
+      let slot = r.time !== '시간 미지정' ? r.time : '';
+      if (r.checkedInAt) {
+        const d = new Date(r.checkedInAt);
+        const kstHour = String((d.getUTCHours() + 9) % 24).padStart(2, '0');
+        slot = `${kstHour}:00`;
+      }
+      if (!slot) return;
       if (!timeStats[slot]) timeStats[slot] = { count: 0, visitors: 0, rows: [] };
       timeStats[slot].count += 1;
       timeStats[slot].visitors += r.attendeeCount;
