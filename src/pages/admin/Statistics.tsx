@@ -52,12 +52,15 @@ export default function Statistics() {
     return targetEvents.map(e => {
       const eRes = baseReservations.filter(r => r.eventId === e.id);
       const eCheckedIn = eRes.filter(r => r.checkedIn);
+      const eCancelled = reservations.filter(r => r.eventId === e.id && r.status === 'cancelled');
+      const cancelledCount = eCancelled.length;
+      const total = eRes.length + cancelledCount;
       const visitedVisitors = eCheckedIn.reduce((s, r) => s + r.attendeeCount, 0);
       const totalVisitors = eRes.reduce((s, r) => s + r.attendeeCount, 0);
       const rate = eRes.length > 0 ? Math.round((eCheckedIn.length / eRes.length) * 100) : 0;
-      return { id: e.id, title: e.title, count: eRes.length, visitedCount: eCheckedIn.length, visitedVisitors, totalVisitors, rate, rows: eRes, checkedInRows: eCheckedIn };
-    }).sort((a, b) => b.totalVisitors - a.totalVisitors);
-  }, [events, baseReservations, eventFilter]);
+      return { id: e.id, title: e.title, count: eRes.length, visitedCount: eCheckedIn.length, visitedVisitors, totalVisitors, cancelledCount, total, rate, rows: eRes, checkedInRows: eCheckedIn };
+    }).sort((a, b) => b.total - a.total);
+  }, [events, baseReservations, reservations, eventFilter]);
 
   // Time slot stats (방문 인원 = checkedIn 기준)
   const timeEntries = useMemo(() => {
@@ -79,7 +82,7 @@ export default function Statistics() {
   const handleExport = () => {
     exportToExcel('통계', [
       { name: '월별 통계', data: monthlyData.map(m => ({ '월': m.label, '예약 건수': m.count, '방문 인원': m.visitors })) },
-      { name: '행사별 통계', data: eventStats.map(e => ({ '행사명': e.title, '총 예약건': e.count, '방문건': e.visitedCount, '방문 인원': e.visitedVisitors, '방문율(%)': e.rate })) },
+      { name: '행사별 통계', data: eventStats.map(e => ({ '행사명': e.title, '총 예약건': e.count, '방문건': e.visitedCount, '취소건': e.cancelledCount, '방문 인원': e.visitedVisitors, '방문율(%)': e.rate })) },
       { name: '시간대별 통계', data: timeEntries.map(t => ({ '시간대': t.time, '예약 건수': t.count, '방문 인원': t.visitors })) },
     ]);
   };
@@ -152,33 +155,54 @@ export default function Statistics() {
         {/* 행사별 방문 현황 */}
         <div className="bg-white rounded-2xl shadow-sm p-5">
           <h3 className="font-bold text-gray-700 mb-1">행사별 방문 현황</h3>
-          <p className="text-xs text-gray-400 mb-4">행사명 또는 인원을 클릭하면 방문자 목록을 볼 수 있습니다</p>
+          <p className="text-xs text-gray-400 mb-4">행사명을 클릭하면 방문자 목록을 볼 수 있습니다</p>
           {eventStats.length === 0 ? (
             <p className="text-sm text-gray-400 text-center py-8">데이터 없음</p>
           ) : (
-            <div className="space-y-3">
+            <div className="space-y-4">
               {eventStats.map((e, i) => (
-                <div key={i} className="flex items-center gap-3">
-                  <span className="text-xs font-bold text-gray-400 w-5 shrink-0">{i + 1}</span>
-                  <div className="flex-1 min-w-0">
+                <div key={i}>
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="text-xs font-bold text-gray-400 w-4 shrink-0">{i + 1}</span>
                     <button
-                      className="text-sm font-semibold text-gray-700 truncate w-full text-left hover:text-[#667EEA] transition-colors"
+                      className="text-sm font-semibold text-gray-700 truncate text-left hover:text-[#667EEA] transition-colors"
                       onClick={() => e.count > 0 && openDetail(`${e.title} — 전체 목록`, e.rows)}
                     >
                       {e.title}
                     </button>
-                    <div className="mt-1 bg-gray-200 rounded-full h-2.5">
-                      <div className="h-2.5 rounded-full transition-all" style={{ width: `${e.rate}%`, backgroundColor: '#667EEA' }} />
-                    </div>
                   </div>
-                  <button
-                    className="text-right shrink-0 hover:opacity-70 transition-opacity"
-                    onClick={() => e.visitedCount > 0 && openDetail(`${e.title} — 방문자 목록`, e.checkedInRows)}
-                  >
-                    <p className="text-xs text-gray-400">예약 {e.count}건</p>
-                    <p className="text-sm font-bold" style={{ color: '#667EEA' }}>방문 {e.visitedCount}건</p>
-                    <p className="text-xs font-semibold text-green-600">{e.rate}%</p>
-                  </button>
+                  {/* 3단 막대 */}
+                  <div className="ml-6 rounded-full h-3 overflow-hidden flex bg-gray-200">
+                    {/* 방문 - 파란색 */}
+                    {e.visitedCount > 0 && (
+                      <button
+                        className="h-full hover:opacity-80 transition-opacity"
+                        style={{ width: `${e.total > 0 ? (e.visitedCount / e.total) * 100 : 0}%`, backgroundColor: '#667EEA' }}
+                        onClick={() => openDetail(`${e.title} — 방문자 목록`, e.checkedInRows)}
+                        title="방문"
+                      />
+                    )}
+                    {/* 미방문 확정 - 회색(배경) */}
+                    <div style={{ width: `${e.total > 0 ? ((e.count - e.visitedCount) / e.total) * 100 : 0}%` }} />
+                    {/* 취소 - 빨간색 */}
+                    {e.cancelledCount > 0 && (
+                      <div
+                        className="h-full ml-auto"
+                        style={{ width: `${e.total > 0 ? (e.cancelledCount / e.total) * 100 : 0}%`, backgroundColor: '#fca5a5' }}
+                      />
+                    )}
+                  </div>
+                  {/* 수치 */}
+                  <div className="ml-6 mt-1.5 flex gap-3 text-xs">
+                    <span className="text-gray-400">예약 <strong className="text-gray-600">{e.count}</strong>건</span>
+                    <button className="hover:opacity-70" onClick={() => e.visitedCount > 0 && openDetail(`${e.title} — 방문자 목록`, e.checkedInRows)}>
+                      <span style={{ color: '#667EEA' }}>방문 <strong>{e.visitedCount}</strong>건</span>
+                    </button>
+                    {e.cancelledCount > 0 && (
+                      <span className="text-red-400">취소 <strong>{e.cancelledCount}</strong>건</span>
+                    )}
+                    <span className="text-green-600 font-bold ml-auto">{e.rate}%</span>
+                  </div>
                 </div>
               ))}
             </div>
