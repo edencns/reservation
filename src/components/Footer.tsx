@@ -1,4 +1,3 @@
-import { Ticket } from 'lucide-react';
 import { useLocation } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 
@@ -9,34 +8,14 @@ export default function Footer() {
 
   return (
     <footer style={{ backgroundColor: '#E0D6F9' }}>
-      <div className="max-w-6xl mx-auto px-4 py-10">
-        <div className="flex flex-col md:flex-row justify-between gap-6">
-          <div>
-            <div className="flex items-center gap-2 mb-3">
-              <Ticket size={22} style={{ color: '#667EEA' }} />
-              <span className="font-bold text-lg" style={{ color: '#667EEA' }}>ReserveTicket</span>
-            </div>
-            <p className="text-sm text-gray-600 max-w-xs">
-              성공적인 입주 박람회를 위한 최고의 선택, ReserveTicket과 함께하세요.
-            </p>
-          </div>
-          <div className="flex flex-col md:flex-row gap-8 text-sm text-gray-600">
-            <div>
-              <p className="font-semibold text-gray-700 mb-2">회사정보</p>
-              <p>{companyInfo.name || '회사명 미입력'}</p>
-              <p>{companyInfo.address || '회사 주소 미입력'}</p>
-              <p>{companyInfo.email || '회사 이메일 미입력'}</p>
-            </div>
-            <div>
-              <p className="font-semibold text-gray-700 mb-2">고객지원</p>
-              <p>이용약관</p>
-              <p>개인정보처리방침</p>
-              <p>고객센터: 02-0000-0000</p>
-            </div>
-          </div>
+      <div className="max-w-6xl mx-auto px-4 py-8">
+        <div className="text-sm text-gray-600 space-y-1">
+          <p className="font-semibold text-gray-700">{companyInfo.name || '회사명 미입력'}</p>
+          {companyInfo.address && <p>{companyInfo.address}</p>}
+          {companyInfo.email && <p>{companyInfo.email}</p>}
         </div>
-        <div className="border-t border-orange-200 mt-8 pt-6 text-xs text-gray-500">
-          © 2026 ReserveTicket. All rights reserved.
+        <div className="border-t border-purple-200 mt-6 pt-4 text-xs text-gray-400">
+          © 2026 {companyInfo.name || 'ReserveTicket'}. All rights reserved.
         </div>
       </div>
     </footer>
