@@ -373,59 +373,65 @@ export default function KioskPage() {
 
         {/* 입력 화면 */}
         {phase === 'input' && (
-          <div className="w-full max-w-md mx-auto">
-            <div className="text-center mb-6">
+          <div className="flex-1 flex flex-col">
+            {/* 행사명 — 상단 공백 중앙 */}
+            <div className="flex-1 flex flex-col items-center justify-center text-center px-4">
               <p className="text-4xl font-extrabold text-white leading-tight mb-2" style={{ wordBreak: 'keep-all' }}>{event.title}</p>
-              {event.venue && <p className="text-gray-400 text-sm mb-3">{event.venue}</p>}
-              <div className="w-12 h-0.5 mx-auto mb-4" style={{ backgroundColor: '#667EEA' }} />
-              <p className="text-white text-xl font-bold">예약 시 입력한 {unitLabel}을 입력하세요</p>
+              {event.venue && <p className="text-gray-400 text-sm mt-1">{event.venue}</p>}
             </div>
 
-            <div
-              className="bg-white rounded-2xl text-center mb-6 flex items-center justify-center"
-              style={{ height: 80, fontSize: input ? 36 : 22, color: input ? '#2c3e50' : '#ccc', fontWeight: 700, letterSpacing: 2 }}
-            >
-              {input || `${unitLabel} 입력`}
-            </div>
+            {/* 넘패드 — 화면 아래 절반 중앙 */}
+            <div className="flex-1 flex flex-col items-center justify-center">
+              <div className="w-full max-w-md">
+                <p className="text-white text-lg font-bold text-center mb-4">예약 시 입력한 {unitLabel}을 입력하세요</p>
 
-            <div className="grid grid-cols-3 gap-3 mb-3">
-              {NUMPAD_KEYS.map(key => (
-                <button
-                  key={key}
-                  onClick={() => handleKey(key)}
-                  className="rounded-xl font-bold transition-all active:scale-95"
-                  style={{
-                    backgroundColor: (key === '동' || key === '호') ? '#667EEA' : '#2a2a4a',
-                    color: 'white', height: 72, border: 'none', cursor: 'pointer',
-                    fontSize: (key === '동' || key === '호') ? 20 : 28,
-                  }}
+                <div
+                  className="bg-white rounded-2xl text-center mb-6 flex items-center justify-center"
+                  style={{ height: 80, fontSize: input ? 36 : 22, color: input ? '#2c3e50' : '#ccc', fontWeight: 700, letterSpacing: 2 }}
                 >
-                  {key}
-                </button>
-              ))}
-            </div>
+                  {input || `${unitLabel} 입력`}
+                </div>
 
-            <div className="grid grid-cols-2 gap-3">
-              <button
-                onClick={handleBackspace}
-                className="rounded-xl font-bold text-xl transition-all active:scale-95"
-                style={{ backgroundColor: '#3a3a5a', color: 'white', height: 72, border: 'none', cursor: 'pointer' }}
-              >
-                ⌫
-              </button>
-              <button
-                onClick={handleSearch}
-                disabled={!input.trim() || searching}
-                className="rounded-xl font-bold text-lg transition-all active:scale-95"
-                style={{
-                  backgroundColor: input.trim() && !searching ? '#48bb78' : '#2a3a2a',
-                  color: 'white', height: 72, border: 'none',
-                  cursor: input.trim() && !searching ? 'pointer' : 'not-allowed',
-                  opacity: input.trim() && !searching ? 1 : 0.5,
-                }}
-              >
-                {searching ? '조회 중...' : '입장권 출력'}
-              </button>
+                <div className="grid grid-cols-3 gap-3 mb-3">
+                  {NUMPAD_KEYS.map(key => (
+                    <button
+                      key={key}
+                      onClick={() => handleKey(key)}
+                      className="rounded-xl font-bold transition-all active:scale-95"
+                      style={{
+                        backgroundColor: (key === '동' || key === '호') ? '#667EEA' : '#2a2a4a',
+                        color: 'white', height: 72, border: 'none', cursor: 'pointer',
+                        fontSize: (key === '동' || key === '호') ? 20 : 28,
+                      }}
+                    >
+                      {key}
+                    </button>
+                  ))}
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <button
+                    onClick={handleBackspace}
+                    className="rounded-xl font-bold text-xl transition-all active:scale-95"
+                    style={{ backgroundColor: '#3a3a5a', color: 'white', height: 72, border: 'none', cursor: 'pointer' }}
+                  >
+                    ⌫
+                  </button>
+                  <button
+                    onClick={handleSearch}
+                    disabled={!input.trim() || searching}
+                    className="rounded-xl font-bold text-lg transition-all active:scale-95"
+                    style={{
+                      backgroundColor: input.trim() && !searching ? '#48bb78' : '#2a3a2a',
+                      color: 'white', height: 72, border: 'none',
+                      cursor: input.trim() && !searching ? 'pointer' : 'not-allowed',
+                      opacity: input.trim() && !searching ? 1 : 0.5,
+                    }}
+                  >
+                    {searching ? '조회 중...' : '입장권 출력'}
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         )}
