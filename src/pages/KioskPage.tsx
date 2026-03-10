@@ -6,14 +6,13 @@ import { getReservations } from '../utils/storage';
 import { formatDate, normalizeUnitNumber } from '../utils/helpers';
 import type { Event, Reservation } from '../types';
 
-type Phase = 'input' | 'result' | 'notfound' | 'error';
+type Phase = 'input' | 'result' | 'alreadyprinted' | 'notfound' | 'error';
 
 const NUMPAD_KEYS = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '동', '0', '호'];
+const REPRINT_CODE = '12345';
 
-// 로고 URL 또는 base64 데이터 URL — 비워두면 로고 없이 출력
 const TICKET_LOGO_URL = '/logo.png';
 
-// 예약 ID → 고정 6자리 응모번호 (재출력해도 동일)
 function raffleNumber(id: string): string {
   let h = 0;
   for (let i = 0; i < id.length; i++) {
@@ -43,7 +42,6 @@ function buildTicketHtml(reservations: Reservation[], event: Event, logoUrl?: st
 
     const name = r.customer.name || r.extraFields['name'] || '';
     const phone = r.customer.phone || r.extraFields['phone'] || '';
-
     const raffle = raffleNumber(r.id);
 
     return `
@@ -52,7 +50,6 @@ function buildTicketHtml(reservations: Reservation[], event: Event, logoUrl?: st
         <div class="center">
           <div class="title-sub">[ 입  장  권 ]</div>
           <div class="title-main">${r.eventTitle}</div>
-          ${r.checkedIn ? '<div class="checked">✓ 이미 입장완료</div>' : ''}
         </div>
         <div class="sep">${SEP}</div>
         <div class="rows">
@@ -91,7 +88,6 @@ function buildTicketHtml(reservations: Reservation[], event: Event, logoUrl?: st
     .center { text-align: center; padding: 2mm 0; }
     .title-sub { font-size: 11pt; letter-spacing: 3px; margin-bottom: 3mm; }
     .title-main { font-size: 15pt; font-weight: 900; line-height: 1.4; word-break: keep-all; }
-    .checked { font-size: 11pt; font-weight: 700; margin-top: 2mm; }
     .sep { font-size: 8pt; color: #000; letter-spacing: -1px; overflow: hidden; line-height: 1; padding: 2mm 0; }
     .rows { padding: 1mm 0; }
     .row { display: flex; align-items: flex-start; padding: 2mm 0; }
@@ -123,11 +119,62 @@ function buildTicketHtml(reservations: Reservation[], event: Event, logoUrl?: st
 </html>`;
 }
 
+// ── 재출력 팝업 내부 Numpad ──────────────────────────────────────────────
+function ReprintNumpad({
+  value,
+  onChange,
+}: {
+  value: string;
+  onChange: (v: string) => void;
+}) {
+  const append = (key: string) => {
+    if (key === '동' || key === '호') onChange(value + key + ' ');
+    else onChange(value + key);
+  };
+  const backspace = () => onChange(value.trimEnd().slice(0, -1));
+
+  return (
+    <div>
+      <div
+        className="bg-white rounded-xl text-center mb-4 flex items-center justify-center"
+        style={{ height: 64, fontSize: value ? 28 : 18, color: value ? '#2c3e50' : '#ccc', fontWeight: 700, letterSpacing: 2 }}
+      >
+        {value || '동호수 입력'}
+      </div>
+      <div className="grid grid-cols-3 gap-2 mb-2">
+        {NUMPAD_KEYS.map(key => (
+          <button
+            key={key}
+            onClick={() => append(key)}
+            className="rounded-xl font-bold transition-all active:scale-95"
+            style={{
+              backgroundColor: (key === '동' || key === '호') ? '#667EEA' : '#2a2a4a',
+              color: 'white', height: 58, border: 'none', cursor: 'pointer',
+              fontSize: (key === '동' || key === '호') ? 17 : 24,
+            }}
+          >
+            {key}
+          </button>
+        ))}
+      </div>
+      <button
+        onClick={backspace}
+        className="w-full rounded-xl font-bold text-xl transition-all active:scale-95"
+        style={{ backgroundColor: '#3a3a5a', color: 'white', height: 52, border: 'none', cursor: 'pointer' }}
+      >
+        ⌫
+      </button>
+    </div>
+  );
+}
+
+// ── 메인 컴포넌트 ────────────────────────────────────────────────────────
 export default function KioskPage() {
   const { slug } = useParams<{ slug: string }>();
-  const { getEventBySlug, getEventById } = useApp();
+  const { getEventBySlug, getEventById, checkIn } = useApp();
   const event = getEventBySlug(slug ?? '') ?? getEventById(slug ?? '');
 
+  // 메인 상태
   const [input, setInput] = useState('');
   const [phase, setPhase] = useState<Phase>('input');
   const [found, setFound] = useState<Reservation[]>([]);
@@ -136,8 +183,15 @@ export default function KioskPage() {
   const [printing, setPrinting] = useState(false);
   const [debugInfo, setDebugInfo] = useState<string | null>(null);
 
+  // 재출력 팝업 상태
+  const [showReprint, setShowReprint] = useState(false);
+  const [reprintInput, setReprintInput] = useState('');
+  const [reprintFound, setReprintFound] = useState<Reservation[]>([]);
+  const [reprintPhase, setReprintPhase] = useState<'input' | 'result' | 'notfound'>('input');
+  const [reprintSearching, setReprintSearching] = useState(false);
+
   useEffect(() => {
-    if (phase !== 'result' && phase !== 'notfound') return;
+    if (phase !== 'result' && phase !== 'notfound' && phase !== 'alreadyprinted') return;
     setAutoResetSecs(15);
     const interval = setInterval(() => {
       setAutoResetSecs(prev => {
@@ -156,56 +210,79 @@ export default function KioskPage() {
     setDebugInfo(null);
   };
 
-  const handleKey = (key: string) => {
-    if (key === '동' || key === '호') {
-      setInput(prev => prev + key + ' ');
-    } else {
-      setInput(prev => prev + key);
-    }
+  const closeReprint = () => {
+    setShowReprint(false);
+    setReprintInput('');
+    setReprintFound([]);
+    setReprintPhase('input');
   };
 
-  const handleBackspace = () => {
-    setInput(prev => prev.trimEnd().slice(0, -1));
+  const handleKey = (key: string) => {
+    if (key === '동' || key === '호') setInput(prev => prev + key + ' ');
+    else setInput(prev => prev + key);
+  };
+
+  const handleBackspace = () => setInput(prev => prev.trimEnd().slice(0, -1));
+
+  // 공통 검색 함수
+  const searchReservations = async (query: string, includeCheckedIn: boolean) => {
+    let fromApi: Reservation[] = [];
+    let apiError = '';
+    try { fromApi = await apiGetReservations(); } catch (e) { apiError = String(e); }
+    const fromLocal = getReservations();
+    const apiIds = new Set(fromApi.map(r => r.id));
+    const fresh = [...fromApi, ...fromLocal.filter(r => !apiIds.has(r.id))];
+
+    const unitFieldKeys = event!.customFields
+      .filter(f => f.key === 'unitNumber' || f.label.includes('동호') || f.label.includes('호수'))
+      .map(f => f.key);
+    const keysToSearch = unitFieldKeys.length > 0 ? unitFieldKeys : null;
+
+    const isThisEvent = (r: Reservation) => r.eventId === event!.id || r.eventTitle === event!.title;
+    const matchesUnit = (r: Reservation) => {
+      if (keysToSearch) return keysToSearch.some(k => r.extraFields[k] && matchUnitNumber(r.extraFields[k], query));
+      return Object.values(r.extraFields).some(v => matchUnitNumber(v, query));
+    };
+
+    const results = fresh.filter(r =>
+      isThisEvent(r) &&
+      r.status !== 'cancelled' &&
+      matchesUnit(r) &&
+      (includeCheckedIn || true) // 항상 전체 포함, 이후 단계에서 분기
+    );
+
+    const eventReservations = fresh.filter(isThisEvent);
+    return { results, fresh, eventReservations, apiError };
   };
 
   const handleSearch = async () => {
     if (!input.trim() || !event || searching) return;
+
+    // 재출력 코드 감지
+    if (input.trim() === REPRINT_CODE) {
+      setShowReprint(true);
+      setReprintInput('');
+      setReprintPhase('input');
+      setReprintFound([]);
+      setInput('');
+      return;
+    }
+
     setSearching(true);
     try {
-      // API + localStorage 둘 다 가져와서 합침 (어느 쪽에만 있어도 찾을 수 있게)
-      let fromApi: Reservation[] = [];
-      let apiError = '';
-      try { fromApi = await apiGetReservations(); } catch (e) { apiError = String(e); }
-      const fromLocal = getReservations();
-      const apiIds = new Set(fromApi.map(r => r.id));
-      const fresh = [...fromApi, ...fromLocal.filter(r => !apiIds.has(r.id))];
+      const { results, eventReservations, apiError } = await searchReservations(input.trim(), true);
 
-      const unitFieldKeys = event.customFields
-        .filter(f => f.key === 'unitNumber' || f.label.includes('동호') || f.label.includes('호수'))
-        .map(f => f.key);
-      const keysToSearch = unitFieldKeys.length > 0 ? unitFieldKeys : null;
-
-      const isThisEvent = (r: Reservation) =>
-        r.eventId === event.id || r.eventTitle === event.title;
-
-      const matchesUnit = (r: Reservation) => {
-        if (keysToSearch) {
-          return keysToSearch.some(k => r.extraFields[k] && matchUnitNumber(r.extraFields[k], input.trim()));
-        }
-        return Object.values(r.extraFields).some(v => matchUnitNumber(v, input.trim()));
-      };
-
-      const results = fresh.filter(r => isThisEvent(r) && r.status !== 'cancelled' && matchesUnit(r));
-
-      const eventReservations = fresh.filter(isThisEvent);
       setDebugInfo(
-        `전체: ${fresh.length}건 (API:${fromApi.length} 로컬:${fromLocal.length}) | 이 행사: ${eventReservations.length}건 | 입력: "${input.trim()}"` +
-        (apiError ? ` | API오류: ${apiError}` : '') +
-        (eventReservations.length > 0 ? ` | 샘플: ${JSON.stringify(eventReservations[0].extraFields)}` : '')
+        `이 행사: ${eventReservations.length}건 | 입력: "${input.trim()}"` +
+        (apiError ? ` | API오류: ${apiError}` : '')
       );
 
       if (results.length === 0) {
         setPhase('notfound');
+      } else if (results.every(r => r.checkedIn)) {
+        // 전부 이미 출력된 경우 → 재출력 불가 안내
+        setFound(results);
+        setPhase('alreadyprinted');
       } else {
         setFound(results);
         setPhase('result');
@@ -218,21 +295,46 @@ export default function KioskPage() {
     }
   };
 
-  const handlePrint = async () => {
+  // 재출력 팝업용 검색
+  const handleReprintSearch = async () => {
+    if (!reprintInput.trim() || !event || reprintSearching) return;
+    setReprintSearching(true);
+    try {
+      const { results } = await searchReservations(reprintInput.trim(), true);
+      // 이미 발급된(checkedIn) 것만 재출력 허용
+      const issued = results.filter(r => r.checkedIn);
+      if (issued.length === 0) {
+        setReprintPhase('notfound');
+      } else {
+        setReprintFound(issued);
+        setReprintPhase('result');
+      }
+    } catch {
+      setReprintPhase('notfound');
+    } finally {
+      setReprintSearching(false);
+    }
+  };
+
+  const doPrint = async (reservations: Reservation[], markCheckIn: boolean) => {
     if (!event || printing) return;
     setPrinting(true);
     try {
-      const logoUrl = TICKET_LOGO_URL ? window.location.origin + TICKET_LOGO_URL : '';
-      const html = buildTicketHtml(found, event, logoUrl);
-      const popup = window.open('', '_blank', 'width=340,height=600,menubar=no,toolbar=no,location=no,status=no');
-      if (!popup) {
-        // 팝업 차단된 경우 fallback
-        window.print();
-      } else {
-        popup.document.write(html);
-        popup.document.close();
+      // 출력 전 미체크인 예약 체크인 처리
+      if (markCheckIn) {
+        for (const r of reservations) {
+          if (!r.checkedIn) checkIn(r.id);
+        }
       }
-      setTimeout(reset, 1000);
+      const logoUrl = TICKET_LOGO_URL ? window.location.origin + TICKET_LOGO_URL : '';
+      const html = buildTicketHtml(reservations, event, logoUrl);
+      const popup = window.open('', '_blank', 'width=340,height=600,menubar=no,toolbar=no,location=no,status=no');
+      if (!popup) window.print();
+      else { popup.document.write(html); popup.document.close(); }
+      setTimeout(() => {
+        closeReprint();
+        reset();
+      }, 1000);
     } finally {
       setPrinting(false);
     }
@@ -264,7 +366,7 @@ export default function KioskPage() {
           <p className="text-white text-xs opacity-75 uppercase tracking-widest">입장권 발급 키오스크</p>
           <p className="text-white font-bold text-lg leading-tight">{event.title}</p>
         </div>
-        {(phase === 'result' || phase === 'notfound') && (
+        {(phase === 'result' || phase === 'notfound' || phase === 'alreadyprinted') && (
           <p className="text-white text-sm opacity-75">{autoResetSecs}초 후 자동 초기화</p>
         )}
       </div>
@@ -329,7 +431,7 @@ export default function KioskPage() {
           </div>
         )}
 
-        {/* 결과 화면 */}
+        {/* 결과 화면 — 미출력 예약 있음 */}
         {phase === 'result' && (
           <div className="w-full max-w-lg text-center">
             <p className="text-green-400 text-4xl mb-2">✓</p>
@@ -360,12 +462,28 @@ export default function KioskPage() {
                 style={{ backgroundColor: '#3a3a5a', color: 'white', height: 72, border: 'none', cursor: 'pointer' }}>
                 취소
               </button>
-              <button onClick={handlePrint} disabled={printing}
+              <button onClick={() => doPrint(found.filter(r => !r.checkedIn), true)} disabled={printing}
                 className="rounded-xl font-bold text-lg transition-all active:scale-95"
                 style={{ backgroundColor: printing ? '#4a5a8a' : '#667EEA', color: 'white', height: 72, border: 'none', cursor: printing ? 'not-allowed' : 'pointer' }}>
                 {printing ? '출력 준비 중...' : '🖨️ 입장권 출력'}
               </button>
             </div>
+            <p className="text-gray-500 text-sm mt-4">{autoResetSecs}초 후 자동으로 처음 화면으로 돌아갑니다</p>
+          </div>
+        )}
+
+        {/* 이미 출력 완료 화면 */}
+        {phase === 'alreadyprinted' && (
+          <div className="w-full max-w-lg text-center">
+            <p className="text-yellow-400 text-5xl mb-4">🎫</p>
+            <p className="text-white text-2xl font-bold mb-2">이미 발급된 입장권입니다</p>
+            <p className="text-gray-400 mb-2"><strong className="text-white">"{input}"</strong> 으로 입장권이 이미 발급되었습니다</p>
+            <p className="text-gray-500 text-sm mb-8">재출력이 필요하면 안내데스크에 문의하세요</p>
+            <button onClick={reset}
+              className="rounded-xl font-bold text-xl w-full transition-all active:scale-95"
+              style={{ backgroundColor: '#667EEA', color: 'white', height: 72, border: 'none', cursor: 'pointer' }}>
+              처음으로
+            </button>
             <p className="text-gray-500 text-sm mt-4">{autoResetSecs}초 후 자동으로 처음 화면으로 돌아갑니다</p>
           </div>
         )}
@@ -412,6 +530,96 @@ export default function KioskPage() {
           </div>
         )}
       </div>
+
+      {/* ── 재출력 팝업 ────────────────────────────────────────────── */}
+      {showReprint && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-6"
+          style={{ backgroundColor: 'rgba(0,0,0,0.75)' }}>
+          <div className="w-full max-w-sm rounded-3xl overflow-hidden shadow-2xl"
+            style={{ backgroundColor: '#1e1e3a' }}>
+
+            {/* 팝업 헤더 */}
+            <div className="px-6 py-4 flex items-center justify-between" style={{ backgroundColor: '#667EEA' }}>
+              <div>
+                <p className="text-white text-xs opacity-75 tracking-widest">재출력</p>
+                <p className="text-white font-bold">동호수 입력</p>
+              </div>
+              <button
+                onClick={closeReprint}
+                className="text-white opacity-75 hover:opacity-100 text-2xl font-bold leading-none"
+              >
+                ×
+              </button>
+            </div>
+
+            <div className="p-6">
+              {reprintPhase === 'input' && (
+                <>
+                  <p className="text-gray-400 text-sm text-center mb-4">재출력할 동호수를 입력하세요</p>
+                  <ReprintNumpad value={reprintInput} onChange={setReprintInput} />
+                  <button
+                    onClick={handleReprintSearch}
+                    disabled={!reprintInput.trim() || reprintSearching}
+                    className="w-full rounded-xl font-bold text-lg transition-all active:scale-95 mt-3"
+                    style={{
+                      backgroundColor: reprintInput.trim() && !reprintSearching ? '#48bb78' : '#2a3a2a',
+                      color: 'white', height: 64, border: 'none',
+                      cursor: reprintInput.trim() && !reprintSearching ? 'pointer' : 'not-allowed',
+                      opacity: reprintInput.trim() && !reprintSearching ? 1 : 0.5,
+                    }}
+                  >
+                    {reprintSearching ? '조회 중...' : '조회'}
+                  </button>
+                </>
+              )}
+
+              {reprintPhase === 'result' && (
+                <>
+                  <p className="text-green-400 text-center font-bold mb-3">✓ {reprintFound.length}건 확인됨</p>
+                  <div className="space-y-2 mb-4 max-h-48 overflow-y-auto">
+                    {reprintFound.map(r => (
+                      <div key={r.id} className="bg-white rounded-xl p-3 text-left">
+                        <p className="font-bold text-gray-800 text-sm">{formatDate(r.date)}{r.time && r.time !== '시간 미지정' ? ` ${r.time}` : ''}</p>
+                        <p className="text-xs text-gray-500">{r.customer.name || r.extraFields['name'] || ''}</p>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <button
+                      onClick={() => setReprintPhase('input')}
+                      className="rounded-xl font-bold transition-all active:scale-95"
+                      style={{ backgroundColor: '#3a3a5a', color: 'white', height: 56, border: 'none', cursor: 'pointer' }}>
+                      다시 입력
+                    </button>
+                    <button
+                      onClick={() => doPrint(reprintFound, false)}
+                      disabled={printing}
+                      className="rounded-xl font-bold transition-all active:scale-95"
+                      style={{ backgroundColor: printing ? '#4a5a8a' : '#667EEA', color: 'white', height: 56, border: 'none', cursor: printing ? 'not-allowed' : 'pointer' }}>
+                      {printing ? '출력 중...' : '🖨️ 재출력'}
+                    </button>
+                  </div>
+                </>
+              )}
+
+              {reprintPhase === 'notfound' && (
+                <>
+                  <p className="text-red-400 text-center font-bold mb-2">발급 내역 없음</p>
+                  <p className="text-gray-400 text-sm text-center mb-4">
+                    <strong className="text-white">"{reprintInput}"</strong> 의 기발급 내역이 없습니다
+                  </p>
+                  <button
+                    onClick={() => { setReprintPhase('input'); setReprintInput(''); }}
+                    className="w-full rounded-xl font-bold transition-all active:scale-95"
+                    style={{ backgroundColor: '#667EEA', color: 'white', height: 56, border: 'none', cursor: 'pointer' }}>
+                    다시 입력
+                  </button>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
