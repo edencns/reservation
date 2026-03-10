@@ -435,7 +435,7 @@ export default function KioskPage() {
 
         {/* 결과 화면 — 미출력 예약 있음 */}
         {phase === 'result' && (
-          <div className="w-full max-w-lg text-center my-auto">
+          <div className="w-full max-w-lg text-center my-auto mx-auto">
             <p className="text-green-400 text-4xl mb-2">✓</p>
             <p className="text-white text-2xl font-bold mb-1">예약을 찾았습니다</p>
             <p className="text-gray-400 text-sm mb-6">{found.length}건의 예약이 확인되었습니다</p>
@@ -476,7 +476,7 @@ export default function KioskPage() {
 
         {/* 이미 출력 완료 화면 */}
         {phase === 'alreadyprinted' && (
-          <div className="w-full max-w-lg text-center my-auto">
+          <div className="w-full max-w-lg text-center my-auto mx-auto">
             <p className="text-yellow-400 text-5xl mb-4">🎫</p>
             <p className="text-white text-2xl font-bold mb-2">이미 발급된 입장권입니다</p>
             <p className="text-gray-400 mb-2"><strong className="text-white">"{input}"</strong> 으로 입장권이 이미 발급되었습니다</p>
@@ -492,7 +492,7 @@ export default function KioskPage() {
 
         {/* 없음 화면 */}
         {phase === 'notfound' && (
-          <div className="w-full max-w-lg text-center my-auto">
+          <div className="w-full max-w-lg text-center my-auto mx-auto">
             <p className="text-5xl mb-4">😔</p>
             <p className="text-white text-2xl font-bold mb-2">예약을 찾을 수 없습니다</p>
             <p className="text-gray-400 mb-2"><strong className="text-white">"{input}"</strong> 으로 예약된 내역이 없습니다</p>
@@ -514,7 +514,7 @@ export default function KioskPage() {
 
         {/* 오류 화면 */}
         {phase === 'error' && (
-          <div className="w-full max-w-lg text-center my-auto">
+          <div className="w-full max-w-lg text-center my-auto mx-auto">
             <p className="text-5xl mb-4">⚠️</p>
             <p className="text-white text-2xl font-bold mb-2">오류가 발생했습니다</p>
             <p className="text-gray-400 text-sm mb-6">잠시 후 다시 시도하세요</p>
