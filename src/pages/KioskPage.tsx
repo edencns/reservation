@@ -378,8 +378,7 @@ export default function KioskPage() {
               <p className="text-4xl font-extrabold text-white leading-tight mb-2" style={{ wordBreak: 'keep-all' }}>{event.title}</p>
               {event.venue && <p className="text-gray-400 text-sm mb-3">{event.venue}</p>}
               <div className="w-12 h-0.5 mx-auto mb-4" style={{ backgroundColor: '#667EEA' }} />
-              <p className="text-white text-xl font-bold mb-1">{unitLabel} 입력</p>
-              <p className="text-gray-400 text-sm">예약 시 입력한 {unitLabel}을 입력하세요</p>
+              <p className="text-white text-xl font-bold">예약 시 입력한 {unitLabel}을 입력하세요</p>
             </div>
 
             <div
