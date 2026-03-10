@@ -29,7 +29,8 @@ function generateVendorId(name: string): string {
 const EMPTY_VENDOR: Omit<ManagedVendor, 'id' | 'createdAt'> = {
   name: '', phone: '', email: '', category: '', products: '',
   representativeName: '', address: '', contactName: '', contactPhone: '',
-  notes: '', imageUrl: undefined, documents: [], loginId: '', loginPassword: '',
+  notes: '', imageUrl: undefined, documents: [],
+  businessNumber: '', loginId: '', loginPassword: '',
 };
 
 function ImageUpload({ value, onChange, height = 'h-36' }: { value: string; onChange: (v: string) => void; height?: string }) {
@@ -129,6 +130,12 @@ export default function VendorsManage() {
 
   const handleSave = () => {
     if (!form.name.trim()) { alert('상호를 입력해주세요.'); return; }
+    if (!form.businessNumber?.trim()) { alert('사업자번호를 입력해주세요.'); return; }
+    // 사업자번호 중복 체크 (신규 등록 시)
+    if (editingId === 'new') {
+      const dup = managedVendors.find(v => v.businessNumber && v.businessNumber.replace(/-/g, '') === form.businessNumber!.replace(/-/g, ''));
+      if (dup) { alert(`이미 등록된 사업자번호입니다. (${dup.name})`); return; }
+    }
     if (editingId === 'new') {
       addManagedVendor({ ...form, id: generateId(), createdAt: new Date().toISOString() });
     } else if (editingId) {
@@ -187,6 +194,22 @@ export default function VendorsManage() {
                     ...(editingId === 'new' ? { loginId: generateVendorId(name) } : {}),
                   }));
                 }} placeholder="예) 한샘" />
+              </div>
+              <div className="col-span-2">
+                <label className={labelCls}>사업자번호 <span className="text-red-400">*</span></label>
+                <input
+                  className={inputCls}
+                  value={form.businessNumber ?? ''}
+                  onChange={e => {
+                    const bn = e.target.value;
+                    const digits = bn.replace(/\D/g, '');
+                    const pw = digits.length >= 7 ? digits.slice(-7) : '';
+                    setForm(prev => ({ ...prev, businessNumber: bn, ...(pw ? { loginPassword: pw } : {}) }));
+                  }}
+                  placeholder="예) 123-45-67890"
+                  maxLength={12}
+                />
+                <p className="text-xs text-gray-400 mt-1">사업자번호 기준으로 동일 업체 여부를 구분합니다. 비밀번호는 뒷 7자리로 자동 설정됩니다.</p>
               </div>
               <div>
                 <label className={labelCls}>전화번호</label>
