@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { Keyboard, X, ChevronDown } from 'lucide-react';
+import { Keyboard, X, ChevronDown, RefreshCw, Power } from 'lucide-react';
 import SimpleKeyboard, { type KeyboardReactInterface } from 'react-simple-keyboard';
 import 'react-simple-keyboard/build/css/index.css';
 
@@ -82,6 +82,7 @@ function pressEnter() {
 }
 
 export default function VirtualKeyboardFAB() {
+  const [menuOpen, setMenuOpen] = useState(false);
   const [open, setOpen] = useState(false);
   const [mode, setMode] = useState<KeyboardMode>('korean');
   const [shift, setShift] = useState(false);
@@ -188,14 +189,51 @@ export default function VirtualKeyboardFAB() {
         </div>
       )}
 
-      {/* FAB */}
+      {/* 서브 메뉴 버튼들 */}
+      {menuOpen && (
+        <div className="fixed bottom-24 right-6 z-[9999] flex flex-col items-end gap-3">
+          {/* 키보드 */}
+          <div className="flex items-center gap-2">
+            <span className="bg-gray-800 text-white text-xs font-medium px-2.5 py-1 rounded-lg shadow">키보드</span>
+            <button
+              onClick={() => { setOpen(prev => !prev); setMenuOpen(false); }}
+              className="w-12 h-12 rounded-full shadow-lg flex items-center justify-center transition-all hover:scale-105 active:scale-95"
+              style={{ backgroundColor: open ? '#4F46E5' : '#667EEA' }}
+            >
+              <Keyboard size={20} color="white" />
+            </button>
+          </div>
+          {/* 새로고침 */}
+          <div className="flex items-center gap-2">
+            <span className="bg-gray-800 text-white text-xs font-medium px-2.5 py-1 rounded-lg shadow">새로고침</span>
+            <button
+              onClick={() => { window.location.reload(); }}
+              className="w-12 h-12 rounded-full shadow-lg flex items-center justify-center transition-all hover:scale-105 active:scale-95 bg-emerald-500"
+            >
+              <RefreshCw size={20} color="white" />
+            </button>
+          </div>
+          {/* 화면 닫기 */}
+          <div className="flex items-center gap-2">
+            <span className="bg-gray-800 text-white text-xs font-medium px-2.5 py-1 rounded-lg shadow">화면 닫기</span>
+            <button
+              onClick={() => { window.close(); }}
+              className="w-12 h-12 rounded-full shadow-lg flex items-center justify-center transition-all hover:scale-105 active:scale-95 bg-red-500"
+            >
+              <Power size={20} color="white" />
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* 메인 FAB */}
       <button
-        onClick={() => setOpen(prev => !prev)}
+        onClick={() => { setMenuOpen(prev => !prev); if (menuOpen) setOpen(false); }}
         className="fixed bottom-6 right-6 z-[9999] w-14 h-14 rounded-full shadow-lg flex items-center justify-center transition-all hover:scale-105 active:scale-95"
-        style={{ backgroundColor: open ? '#4F46E5' : '#667EEA' }}
-        title="가상 키보드"
+        style={{ backgroundColor: menuOpen ? '#374151' : '#667EEA' }}
+        title="메뉴"
       >
-        {open ? <X size={22} color="white" /> : <Keyboard size={22} color="white" />}
+        {menuOpen ? <X size={22} color="white" /> : <Keyboard size={22} color="white" />}
       </button>
     </>
   );
