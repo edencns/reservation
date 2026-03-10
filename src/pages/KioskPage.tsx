@@ -373,15 +373,15 @@ export default function KioskPage() {
 
         {/* 입력 화면 */}
         {phase === 'input' && (
-          <div className="flex-1 flex flex-col items-center justify-center pb-56">
-            {/* 행사명 */}
-            <div className="text-center mb-28 px-4">
+          <div className="flex-1 flex flex-col items-center px-8">
+            {/* 행사명 — 상단 5% 지점 */}
+            <div className="text-center px-4 pt-[5%]">
               <p className="text-5xl font-extrabold text-white leading-tight" style={{ wordBreak: 'keep-all' }}>{event.title}</p>
               {event.venue && <p className="text-gray-400 text-lg mt-5">{event.venue}</p>}
             </div>
 
-            {/* 넘패드 */}
-            <div className="w-full max-w-md">
+            {/* 넘패드 — 위에서 70% 위치 */}
+            <div className="w-full max-w-md mt-[20%]">
                 <p className="text-white text-lg font-bold text-center mb-4">예약 시 입력한 {unitLabel}을 입력하세요</p>
 
                 <div
