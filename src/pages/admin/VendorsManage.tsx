@@ -6,31 +6,11 @@ import { getVendorCategoryOptions, saveVendorCategoryOptions } from '../../utils
 import { exportToExcel } from '../../utils/exportExcel';
 import type { ManagedVendor, VendorDocument } from '../../types';
 
-const CHOSEONG = ['g','gg','n','d','dd','r','m','b','bb','s','ss','','j','jj','ch','k','t','p','h'];
-
-function generateVendorId(name: string): string {
-  let prefix = '';
-  for (const char of name) {
-    if (prefix.length >= 3) break;
-    const code = char.charCodeAt(0) - 0xAC00;
-    if (code >= 0 && code <= 11171) {
-      const initial = CHOSEONG[Math.floor(code / 588)] ?? '';
-      if (initial) prefix += initial[0];
-    } else if (/[a-zA-Z0-9]/.test(char)) {
-      prefix += char.toLowerCase();
-    }
-  }
-  if (!prefix) prefix = 'vd';
-  prefix = prefix.slice(0, 3);
-  const rand = Math.random().toString(36).slice(2, 2 + (7 - prefix.length)).replace(/[^a-z0-9]/g, '0').padEnd(7 - prefix.length, '0');
-  return prefix + rand;
-}
-
 const EMPTY_VENDOR: Omit<ManagedVendor, 'id' | 'createdAt'> = {
   name: '', phone: '', email: '', category: '', products: '',
   representativeName: '', address: '', contactName: '', contactPhone: '',
   notes: '', imageUrl: undefined, documents: [],
-  businessNumber: '', loginId: '', loginPassword: '',
+  businessNumber: '',
 };
 
 function ImageUpload({ value, onChange, height = 'h-36' }: { value: string; onChange: (v: string) => void; height?: string }) {
@@ -111,7 +91,7 @@ export default function VendorsManage() {
   const renameCatOption = (i: number, val: string) =>
     setCatEditing(prev => prev.map((c, idx) => idx === i ? val : c));
 
-  const openNew = () => { setForm({ ...EMPTY_VENDOR, loginPassword: '0000' }); setEditingId('new'); };
+  const openNew = () => { setForm({ ...EMPTY_VENDOR }); setEditingId('new'); };
   const openEdit = (v: ManagedVendor) => { setForm({ ...v }); setEditingId(v.id); };
   const close = () => { setEditingId(null); setNewDocName(''); };
 
@@ -186,30 +166,18 @@ export default function VendorsManage() {
             <div className="grid grid-cols-2 gap-4">
               <div className="col-span-2">
                 <label className={labelCls}>상호 <span className="text-red-400">*</span></label>
-                <input className={inputCls} value={form.name} onChange={e => {
-                  const name = e.target.value;
-                  setForm(prev => ({
-                    ...prev,
-                    name,
-                    ...(editingId === 'new' ? { loginId: generateVendorId(name) } : {}),
-                  }));
-                }} placeholder="예) 한샘" />
+                <input className={inputCls} value={form.name} onChange={e => set('name', e.target.value)} placeholder="예) 한샘" />
               </div>
               <div className="col-span-2">
                 <label className={labelCls}>사업자번호 <span className="text-red-400">*</span></label>
                 <input
                   className={inputCls}
                   value={form.businessNumber ?? ''}
-                  onChange={e => {
-                    const bn = e.target.value;
-                    const digits = bn.replace(/\D/g, '');
-                    const pw = digits.length >= 7 ? digits.slice(-7) : '';
-                    setForm(prev => ({ ...prev, businessNumber: bn, ...(pw ? { loginPassword: pw } : {}) }));
-                  }}
+                  onChange={e => set('businessNumber', e.target.value)}
                   placeholder="예) 123-45-67890"
                   maxLength={12}
                 />
-                <p className="text-xs text-gray-400 mt-1">사업자번호 기준으로 동일 업체 여부를 구분합니다. 비밀번호는 뒷 7자리로 자동 설정됩니다.</p>
+                <p className="text-xs text-gray-400 mt-1">사업자번호 기준으로 동일 업체 여부를 구분합니다.</p>
               </div>
               <div>
                 <label className={labelCls}>전화번호</label>
@@ -263,23 +231,6 @@ export default function VendorsManage() {
                 <textarea className={inputCls} rows={2} value={form.notes} onChange={e => set('notes', e.target.value)} placeholder="메모" />
               </div>
             </div>
-          </div>
-
-          {/* 업체 포털 로그인 */}
-          <div className="bg-white rounded-2xl shadow-sm p-5 space-y-4">
-            <h3 className="font-bold text-gray-700 text-sm border-b pb-2">업체 포털 로그인 정보</h3>
-            <p className="text-xs text-gray-400">업체가 계약 관리 포털에 접속할 때 사용하는 아이디/비밀번호입니다.</p>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className={labelCls}>아이디</label>
-                <input className={inputCls} value={form.loginId ?? ''} onChange={e => set('loginId', e.target.value)} placeholder="예) hanssem2024" />
-              </div>
-              <div>
-                <label className={labelCls}>비밀번호</label>
-                <input className={inputCls} value={form.loginPassword ?? ''} onChange={e => set('loginPassword', e.target.value)} placeholder="비밀번호 입력" />
-              </div>
-            </div>
-            <p className="text-xs text-gray-400">업체 포털 접속 주소: <span className="font-mono text-gray-600">/vendor/login</span></p>
           </div>
 
           {/* 업체 이미지 */}

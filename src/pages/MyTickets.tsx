@@ -1,9 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Search, X } from 'lucide-react';
+import { Search } from 'lucide-react';
 import { useApp } from '../context/AppContext';
-import QRTicket from '../components/QRTicket';
-import type { Reservation } from '../types';
 import { formatDate } from '../utils/helpers';
 
 export default function MyTickets() {
@@ -11,8 +9,6 @@ export default function MyTickets() {
   const { getUserReservations } = useApp();
   const [phone, setPhone] = useState('');
   const [submitted, setSubmitted] = useState('');
-  const [selected, setSelected] = useState<Reservation | null>(null);
-
   const reservations = submitted ? getUserReservations(submitted.replace(/-/g, '')) : [];
 
   const handleSearch = (e: React.FormEvent) => {
@@ -68,10 +64,9 @@ export default function MyTickets() {
                 {[...reservations].sort((a, b) => b.createdAt.localeCompare(a.createdAt)).map(r => (
                   <div
                     key={r.id}
-                    className={`bg-white rounded-2xl shadow-sm p-5 cursor-pointer hover:shadow-md transition-all border-l-4 ${
+                    className={`bg-white rounded-2xl shadow-sm p-5 border-l-4 ${
                       r.status === 'cancelled' ? 'opacity-60 border-gray-300' : 'border-[#667EEA]'
                     }`}
-                    onClick={() => setSelected(r)}
                   >
                     <div className="flex items-start justify-between">
                       <div className="flex-1 min-w-0">
@@ -92,7 +87,6 @@ export default function MyTickets() {
                           {r.customer.name}
                         </p>
                       </div>
-                      <span className="text-xs text-gray-400 shrink-0 ml-2">QR 보기 &rsaquo;</span>
                     </div>
                   </div>
                 ))}
@@ -102,24 +96,6 @@ export default function MyTickets() {
         )}
       </div>
 
-      {/* QR Modal */}
-      {selected && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-4"
-          style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}
-          onClick={() => setSelected(null)}
-        >
-          <div className="relative w-full max-w-sm" onClick={e => e.stopPropagation()}>
-            <button
-              onClick={() => setSelected(null)}
-              className="absolute -top-3 -right-3 z-10 w-9 h-9 bg-white rounded-full shadow flex items-center justify-center"
-            >
-              <X size={18} className="text-gray-600" />
-            </button>
-            <QRTicket reservation={selected} />
-          </div>
-        </div>
-      )}
     </div>
   );
 }

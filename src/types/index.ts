@@ -82,8 +82,6 @@ export interface ManagedVendor {
   imageUrl?: string;         // 업체 대표 이미지
   documents: VendorDocument[];
   businessNumber?: string;   // 사업자번호 (고유 식별)
-  loginId?: string;          // 업체 포털 로그인 ID
-  loginPassword?: string;    // 업체 포털 비밀번호
   createdAt: string;
 }
 

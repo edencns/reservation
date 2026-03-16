@@ -3,7 +3,6 @@ import { Search, X, MessageSquare, Send, Trash2, Download } from 'lucide-react';
 import { useSearchParams } from 'react-router-dom';
 import { useApp } from '../../context/AppContext';
 import { formatDate } from '../../utils/helpers';
-import QRTicket from '../../components/QRTicket';
 import { apiSendSms, type SmsSendResult } from '../../utils/cloudApi';
 import { exportToExcel } from '../../utils/exportExcel';
 import type { Reservation } from '../../types';
@@ -15,7 +14,6 @@ export default function ReservationsManage() {
   const [statusFilter, setStatusFilter] = useState('all');
   const [eventFilter, setEventFilter] = useState(searchParams.get('eventId') ?? 'all');
   const [detailR, setDetailR] = useState<Reservation | null>(null);
-  const [selected, setSelected] = useState<Reservation | null>(null);
   const [cancelTarget, setCancelTarget] = useState<string | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
   const [deletePassword, setDeletePassword] = useState('');
@@ -66,7 +64,6 @@ export default function ReservationsManage() {
   const confirmCancel = () => {
     if (cancelTarget) {
       cancelReservation(cancelTarget);
-      setSelected(null);
     }
     setCancelTarget(null);
   };
@@ -86,7 +83,6 @@ export default function ReservationsManage() {
     if (deleteTarget) {
       deleteReservation(deleteTarget);
       setDetailR(null);
-      setSelected(null);
     }
     setDeleteTarget(null);
     setDeletePassword('');
@@ -363,13 +359,6 @@ export default function ReservationsManage() {
               </div>
               {/* Footer buttons */}
               <div className="px-5 pb-5 pt-3 flex gap-2 shrink-0 border-t border-gray-100">
-                <button
-                  onClick={() => { setDetailR(null); setSelected(detailR); }}
-                  className="flex-1 py-2.5 rounded-xl text-white text-sm font-semibold hover:opacity-90"
-                  style={{ backgroundColor: '#667EEA' }}
-                >
-                  QR 보기
-                </button>
                 {detailR.status === 'confirmed' && (
                   <button
                     onClick={() => { setDetailR(null); handleCancel(detailR.id); }}
@@ -573,19 +562,6 @@ export default function ReservationsManage() {
         </div>
       )}
 
-      {/* QR Modal */}
-      {selected && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4"
-          style={{ backgroundColor: 'rgba(0,0,0,0.5)' }} onClick={() => setSelected(null)}>
-          <div className="relative w-full max-w-sm" onClick={e => e.stopPropagation()}>
-            <button onClick={() => setSelected(null)}
-              className="absolute -top-3 -right-3 z-10 w-9 h-9 bg-white rounded-full shadow flex items-center justify-center">
-              <X size={18} className="text-gray-600" />
-            </button>
-            <QRTicket reservation={selected} />
-          </div>
-        </div>
-      )}
     </div>
   );
 }

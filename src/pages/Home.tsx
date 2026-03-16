@@ -1,22 +1,17 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-  Container, Title, Text, Button, Group, Modal, TextInput, Paper, Grid, RingProgress, ThemeIcon
+  Container, Title, Text, Button, Group, Paper, Grid, RingProgress
 } from '@mantine/core';
 import {
   IconChevronRight, IconTicket,
-  IconQrcode, IconCheck, IconX, IconLock,
 } from '@tabler/icons-react';
 import { useApp } from '../context/AppContext';
 import { isAdminLoggedIn } from '../utils/storage';
-import { formatDate } from '../utils/helpers';
-import type { Reservation } from '../types';
-
-type LookupResult = Reservation | 'not-found' | null;
 
 export default function Home() {
   const navigate = useNavigate();
-  const { reservations, checkIn, companyInfo } = useApp();
+  const { reservations, companyInfo } = useApp();
   const [loggedIn, setLoggedIn] = useState(isAdminLoggedIn());
   useEffect(() => {
     const onAuth = () => setLoggedIn(isAdminLoggedIn());
@@ -24,45 +19,11 @@ export default function Home() {
     return () => window.removeEventListener('rv_auth_change', onAuth);
   }, []);
 
-  const [qrOpen, setQrOpen] = useState(false);
-  const [lookupId, setLookupId] = useState('');
-  const [lookupResult, setLookupResult] = useState<LookupResult>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
-
   const today = new Date().toISOString().split('T')[0];
   const todayRsvs = reservations.filter(r => r.date === today && r.status === 'confirmed');
   const checkedInCount = todayRsvs.filter(r => r.checkedIn).length;
   const totalVisitors = todayRsvs.reduce((s, r) => s + r.attendeeCount, 0);
   const checkedInVisitors = todayRsvs.filter(r => r.checkedIn).reduce((s, r) => s + r.attendeeCount, 0);
-
-  const handleLookup = (e: React.FormEvent) => {
-    e.preventDefault();
-    const id = lookupId.trim().toLowerCase();
-    const found = reservations.find(r =>
-      r.id.toLowerCase() === id || r.id.toLowerCase().startsWith(id)
-    );
-    setLookupResult(found ?? 'not-found');
-  };
-
-  const handleCheckIn = (id: string) => {
-    checkIn(id);
-    setLookupResult(prev =>
-      prev && prev !== 'not-found' && prev.id === id
-        ? { ...prev, checkedIn: true, checkedInAt: new Date().toISOString() }
-        : prev
-    );
-    setLookupId('');
-    setTimeout(() => inputRef.current?.focus(), 100);
-  };
-
-  const closeQr = () => {
-    setQrOpen(false);
-    setLookupId('');
-    setLookupResult(null);
-  };
-
-  const getName = (r: Reservation) =>
-    r.customer.name || r.extraFields['name'] || '(이름 없음)';
 
   return (
     <div style={{ backgroundColor: '#f0f2f5', minHeight: 'calc(100dvh - 4rem)' }}>
@@ -108,27 +69,6 @@ export default function Home() {
 
       <Container size="lg" style={{ padding: '2rem 1rem' }}>
         <Grid gutter="xl">
-          {/* ── Quick Actions ── */}
-          <Grid.Col span={{ base: 12, md: 6 }}>
-            <Paper
-              withBorder
-              radius="lg"
-              p="xl"
-              onClick={() => setQrOpen(true)}
-              style={{ cursor: 'pointer', transition: 'box-shadow 0.2s', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}
-            >
-              <Group align="center">
-                <ThemeIcon size="xl" radius="lg" color="grape">
-                  <IconQrcode size={28} />
-                </ThemeIcon>
-                <div>
-                  <Text size="xl" fw={700}>QR 체크인</Text>
-                  <Text size="sm" c="dimmed">방문객 QR코드를 스캔하여 체크인</Text>
-                </div>
-              </Group>
-            </Paper>
-          </Grid.Col>
-
           {/* ── Today's Summary ── */}
           {loggedIn && (
             <Grid.Col span={{ base: 12, md: 6 }}>
@@ -179,71 +119,6 @@ export default function Home() {
         </Paper>
       </Container>
 
-      {/* ── QR Modal ── */}
-      <Modal opened={qrOpen} onClose={closeQr} title="QR 체크인" centered>
-        {!loggedIn ? (
-          <div style={{ textAlign: 'center', padding: '2rem' }}>
-            <IconLock size={48} style={{ margin: '0 auto', color: '#ced4da' }} />
-            <Text size="lg" fw={700} mt="md">관리자 로그인이 필요합니다</Text>
-            <Text c="dimmed" mb="xl">이 기능은 관리자만 사용할 수 있습니다</Text>
-            <Group grow>
-              <Button variant="default" onClick={closeQr}>닫기</Button>
-              <Button onClick={() => navigate('/admin')} color="grape">로그인하기</Button>
-            </Group>
-          </div>
-        ) : (
-          <>
-            <form onSubmit={handleLookup}>
-              <Group>
-                <TextInput
-                  ref={inputRef}
-                  placeholder="예약 번호 입력 또는 QR 스캔"
-                  value={lookupId}
-                  onChange={(e) => setLookupId(e.currentTarget.value)}
-                  style={{ flex: 1 }}
-                  autoFocus
-                />
-                <Button type="submit" color="grape">조회</Button>
-              </Group>
-            </form>
-
-            {lookupResult && (
-              <Paper withBorder p="md" mt="md" radius="md" bg={
-                lookupResult === 'not-found'
-                  ? 'red.0'
-                  : lookupResult.checkedIn
-                    ? 'teal.0'
-                    : lookupResult.status === 'cancelled'
-                      ? 'gray.1'
-                      : 'grape.0'
-              }>
-                {lookupResult === 'not-found' ? (
-                  <Group>
-                    <IconX color="red" />
-                    <Text c="red" fw={700}>예약을 찾을 수 없습니다</Text>
-                  </Group>
-                ) : (
-                  <>
-                    <Group justify="space-between">
-                        <div>
-                            <Text size="sm" c={lookupResult.checkedIn ? 'teal' : 'grape'} fw={700}>
-                                {lookupResult.checkedIn ? '입장완료' : lookupResult.status === 'cancelled' ? '취소된 예약' : '예약확정'}
-                            </Text>
-                            <Text fw={700}>{lookupResult.eventTitle}</Text>
-                            <Text size="sm" c="dimmed">{formatDate(lookupResult.date)} · {lookupResult.time}</Text>
-                            <Text size="sm" mt="xs">{getName(lookupResult)}</Text>
-                        </div>
-                        {!lookupResult.checkedIn && lookupResult.status === 'confirmed' && (
-                        <Button color="teal" onClick={() => handleCheckIn(lookupResult.id)}><IconCheck size={16}/>&nbsp; 입장 처리</Button>
-                        )}
-                    </Group>
-                  </>
-                )}
-              </Paper>
-            )}
-          </>
-        )}
-      </Modal>
     </div>
   );
 }

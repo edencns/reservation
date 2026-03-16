@@ -102,9 +102,7 @@ export const getManagedVendors = (): ManagedVendor[] => {
   catch { return []; }
 };
 export const saveManagedVendors = (vendors: ManagedVendor[]) => {
-  // loginPassword는 절대 로컬스토리지에 저장하지 않음
-  const safe = vendors.map(({ loginPassword: _pw, ...v }) => v);
-  localStorage.setItem(MANAGED_VENDORS_KEY, JSON.stringify(safe));
+  localStorage.setItem(MANAGED_VENDORS_KEY, JSON.stringify(vendors));
 };
 
 const VENDOR_CATEGORY_OPTIONS_KEY = 'rv_vendor_category_options';

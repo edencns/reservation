@@ -3,7 +3,6 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import StepIndicator from '../components/StepIndicator';
-import QRTicket from '../components/QRTicket';
 import { formatDate, generateId, normalizeUnitNumber, isValidEmail, isValidKoreanName, isValidPhone010 } from '../utils/helpers';
 import { getVendorCategoryOptions } from '../utils/storage';
 import type { Reservation } from '../types';
@@ -281,9 +280,8 @@ export default function Reserve() {
                 ✓
               </div>
               <h2 className="text-2xl font-extrabold text-gray-800">예약이 완료되었습니다!</h2>
-              <p className="text-gray-500 mt-1 text-sm">아래 QR 티켓을 캡처하거나 저장해 두세요</p>
+              <p className="text-gray-500 mt-1 text-sm">예약 번호: {completed.id}</p>
             </div>
-            <QRTicket reservation={completed} />
             <div className="mt-6 flex flex-col sm:flex-row gap-3">
               <button
                 onClick={() => navigate('/my-tickets')}

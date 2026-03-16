@@ -4,7 +4,6 @@ import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import StepIndicator from '../components/StepIndicator';
 import CustomFieldInput from '../components/CustomFieldInput';
-import QRTicket from '../components/QRTicket';
 import { formatDate, generateId, normalizeUnitNumber, isValidEmail, isValidKoreanName, isValidPhone010 } from '../utils/helpers';
 import type { Reservation } from '../types';
 
@@ -252,16 +251,15 @@ export default function EventReserve() {
           </div>
         )}
 
-        {/* Step 3: 완료 + QR */}
+        {/* Step 3: 완료 */}
         {step === 3 && completed && (
           <div>
             <div className="text-center mb-6">
               <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 text-white text-3xl"
                 style={{ backgroundColor: '#667EEA' }}>✓</div>
               <h2 className="text-2xl font-extrabold text-gray-800">예약이 완료되었습니다!</h2>
-              <p className="text-gray-500 mt-1 text-sm">아래 QR 티켓을 캡처하거나 저장해 두세요</p>
+              <p className="text-gray-500 mt-1 text-sm">예약 번호: {completed.id}</p>
             </div>
-            <QRTicket reservation={completed} extraFields={event.customFields} />
             <div className="mt-6 flex flex-col sm:flex-row gap-3">
               <button
                 onClick={() => navigate(`/e/${slug}/ticket`)}

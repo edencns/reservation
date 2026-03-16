@@ -1,9 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
-import { Search, X, ChevronLeft } from 'lucide-react';
+import { Search, ChevronLeft } from 'lucide-react';
 import { useApp } from '../context/AppContext';
-import QRTicket from '../components/QRTicket';
-import type { Reservation } from '../types';
 import { formatDate } from '../utils/helpers';
 
 export default function EventTicket() {
@@ -24,8 +22,6 @@ export default function EventTicket() {
       setSubmitted(p.replace(/-/g, ''));
     }
   }, [searchParams]);
-  const [selected, setSelected] = useState<Reservation | null>(null);
-
   if (!event) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -99,31 +95,25 @@ export default function EventTicket() {
                 {[...reservations].sort((a, b) => b.createdAt.localeCompare(a.createdAt)).map(r => (
                   <div
                     key={r.id}
-                    className={`bg-white rounded-2xl shadow-sm p-4 cursor-pointer hover:shadow-md transition-all border-l-4 ${
+                    className={`bg-white rounded-2xl shadow-sm p-4 border-l-4 ${
                       r.status === 'cancelled' ? 'opacity-60 border-gray-300' :
                       r.checkedIn ? 'border-green-400' : 'border-[#667EEA]'
                     }`}
-                    onClick={() => setSelected(r)}
                   >
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1 min-w-0">
-                        <div className="flex flex-wrap gap-1.5 mb-1.5">
-                          <span
-                            className={`text-xs px-2 py-0.5 rounded-full font-semibold ${
-                              r.status === 'cancelled' ? 'bg-gray-100 text-gray-500' : 'text-white'
-                            }`}
-                            style={r.status === 'confirmed' ? { backgroundColor: '#667EEA' } : {}}
-                          >
-                            {r.status === 'confirmed' ? '예약확정' : '취소됨'}
-                          </span>
-                          {r.checkedIn && (
-                            <span className="text-xs px-2 py-0.5 rounded-full font-semibold bg-green-100 text-green-700">입장완료</span>
-                          )}
-                        </div>
-                        <p className="text-sm font-bold text-gray-800">{formatDate(r.date)} {r.time}</p>
-                      </div>
-                      <span className="text-xs text-gray-400 ml-2 shrink-0">QR 보기 ›</span>
+                    <div className="flex flex-wrap gap-1.5 mb-1.5">
+                      <span
+                        className={`text-xs px-2 py-0.5 rounded-full font-semibold ${
+                          r.status === 'cancelled' ? 'bg-gray-100 text-gray-500' : 'text-white'
+                        }`}
+                        style={r.status === 'confirmed' ? { backgroundColor: '#667EEA' } : {}}
+                      >
+                        {r.status === 'confirmed' ? '예약확정' : '취소됨'}
+                      </span>
+                      {r.checkedIn && (
+                        <span className="text-xs px-2 py-0.5 rounded-full font-semibold bg-green-100 text-green-700">입장완료</span>
+                      )}
                     </div>
+                    <p className="text-sm font-bold text-gray-800">{formatDate(r.date)} {r.time}</p>
                   </div>
                 ))}
               </div>
@@ -132,20 +122,6 @@ export default function EventTicket() {
         )}
       </div>
 
-      {/* QR 모달 */}
-      {selected && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4"
-          style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}
-          onClick={() => setSelected(null)}>
-          <div className="relative w-full max-w-sm" onClick={e => e.stopPropagation()}>
-            <button onClick={() => setSelected(null)}
-              className="absolute -top-3 -right-3 z-10 w-9 h-9 bg-white rounded-full shadow flex items-center justify-center">
-              <X size={18} className="text-gray-600" />
-            </button>
-            <QRTicket reservation={selected} extraFields={event.customFields} />
-          </div>
-        </div>
-      )}
        <footer className="w-full max-w-xl mx-auto px-4 py-8">
         <img
           src="https://storage.googleapis.com/maker-suite-attachments/v1/files/31a7b617-b038-4a6c-b9b5-a34657cdc234"
