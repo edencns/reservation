@@ -11,7 +11,7 @@ pages_build_output_dir = "dist"
 [[d1_databases]]
 binding = "DB"
 database_name = "reservation"
-database_id = "d7157116-7bf3-49e6-a7c9-e8e455846cf5"
+database_id = "32fd87bf-42bd-4c69-bacd-e2dbf9bfcb65"
 
 [ai]
 binding = "AI"
