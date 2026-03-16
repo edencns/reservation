@@ -113,30 +113,9 @@ export default function Home() {
           <Title order={1} style={{ color: 'white', fontSize: '3rem', marginBottom: '1rem' }}>
             아파트 입주박람회, <span style={{ color: '#d6c4f4' }}>스마트</span> 예약 시스템
           </Title>
-          <Text size="lg" style={{ color: '#e0d6f9', marginBottom: '2rem' }}>
+          <Text size="lg" style={{ color: '#e0d6f9' }}>
             방문객 예약부터 현장 체크인까지, 모든 과정을 간편하게 관리하고 성공적인 입주 박람회를 개최하세요.
           </Text>
-          <Group justify="center">
-            <Button
-              size="lg"
-              radius="xl"
-              onClick={() => navigate('/events')}
-              rightSection={<IconChevronRight size={20} />}
-              variant="white"
-              color="#667eea"
-            >
-              박람회 목록 보기
-            </Button>
-            <Button
-              size="lg"
-              radius="xl"
-              onClick={() => navigate('/my-tickets')}
-              variant="outline"
-              color="white"
-            >
-              내 예약 확인
-            </Button>
-          </Group>
         </Container>
       </Paper>
 
@@ -145,142 +124,118 @@ export default function Home() {
         {/* ── 진행 중인 박람회 슬라이드 ── */}
         {activeEvents.length > 0 && (
           <div style={{ marginBottom: '2rem' }}>
-            <Text fw={700} size="lg" mb="md" style={{ color: '#444' }}>
-              현재 진행 중인 박람회
-            </Text>
-            <div style={{ position: 'relative', overflow: 'hidden', borderRadius: '1rem' }}>
-              {/* Slide track */}
-              <div
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
+              <Text fw={700} size="lg" style={{ color: '#444' }}>
+                현재 진행 중인 박람회
+              </Text>
+              <button
+                onClick={() => navigate('/events')}
                 style={{
-                  display: 'flex',
-                  transition: 'transform 0.45s cubic-bezier(0.4,0,0.2,1)',
-                  transform: `translateX(-${slideIdx * 100}%)`,
+                  background: 'none', border: '1px solid #667eea', borderRadius: '999px',
+                  padding: '5px 14px', cursor: 'pointer', color: '#667eea',
+                  fontSize: '13px', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '3px',
                 }}
               >
-                {activeEvents.map(ev => {
-                  const startDate = ev.dates[0] ?? '';
-                  const endDate = ev.dates[ev.dates.length - 1] ?? '';
-                  const dateLabel = startDate === endDate
-                    ? formatDate(startDate)
-                    : `${formatDate(startDate)} ~ ${formatDate(endDate)}`;
-                  return (
-                    <div
-                      key={ev.id}
-                      style={{ minWidth: '100%', cursor: 'pointer' }}
-                      onClick={() => navigate(`/e/${ev.slug}`)}
-                    >
-                      {/* 카드: 배너 이미지 or 그라디언트 폴백 */}
+                목록 보기 <IconChevronRight size={13} />
+              </button>
+            </div>
+            {/* 페이드 슬라이드 컨테이너 */}
+            <div style={{ position: 'relative', borderRadius: '1rem', overflow: 'hidden', minHeight: '220px' }}>
+              {activeEvents.map((ev, i) => {
+                const startDate = ev.dates[0] ?? '';
+                const endDate = ev.dates[ev.dates.length - 1] ?? '';
+                const dateLabel = startDate === endDate
+                  ? formatDate(startDate)
+                  : `${formatDate(startDate)} ~ ${formatDate(endDate)}`;
+                return (
+                  <div
+                    key={ev.id}
+                    style={{
+                      position: 'absolute', inset: 0,
+                      opacity: i === slideIdx ? 1 : 0,
+                      transition: 'opacity 1.2s ease',
+                      cursor: 'pointer',
+                      pointerEvents: i === slideIdx ? 'auto' : 'none',
+                    }}
+                    onClick={() => navigate(`/e/${ev.slug}`)}
+                  >
+                    {/* 배너 이미지 or 그라디언트 */}
+                    {ev.imageUrl
+                      ? <img src={ev.imageUrl} alt={ev.title} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} />
+                      : <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' }} />
+                    }
+                    {/* 오버레이 */}
+                    <div style={{
+                      position: 'absolute', inset: 0,
+                      background: ev.imageUrl
+                        ? 'linear-gradient(to bottom, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.6) 100%)'
+                        : 'rgba(0,0,0,0.12)',
+                    }} />
+                    {/* 텍스트: 카드 중앙 배치, 좌측 정렬 */}
+                    <div style={{
+                      position: 'absolute', inset: 0,
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    }}>
                       <div style={{
-                        position: 'relative',
-                        borderRadius: '1rem',
-                        overflow: 'hidden',
-                        minHeight: '220px',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        background: ev.imageUrl
-                          ? undefined
-                          : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                        width: '100%', maxWidth: '540px',
+                        padding: '32px 28px',
+                        display: 'flex', flexDirection: 'column', gap: '8px',
                       }}>
-                        {/* 배너 이미지 */}
-                        {ev.imageUrl && (
-                          <img
-                            src={ev.imageUrl}
-                            alt={ev.title}
-                            style={{
-                              position: 'absolute', inset: 0,
-                              width: '100%', height: '100%',
-                              objectFit: 'cover',
-                            }}
-                          />
-                        )}
-                        {/* 어두운 오버레이 (글씨 가독성) */}
                         <div style={{
-                          position: 'absolute', inset: 0,
-                          background: ev.imageUrl
-                            ? 'linear-gradient(to bottom, rgba(0,0,0,0.35) 0%, rgba(0,0,0,0.62) 100%)'
-                            : 'rgba(0,0,0,0.15)',
-                        }} />
-                        {/* 텍스트 콘텐츠 — 카드 중앙 배치, 좌측 정렬 */}
-                        <div style={{
-                          position: 'relative',
-                          zIndex: 1,
-                          width: '100%',
-                          maxWidth: '520px',
-                          padding: '32px 28px',
-                          display: 'flex',
-                          flexDirection: 'column',
-                          gap: '8px',
-                        }}>
-                          <div style={{
-                            display: 'inline-block',
-                            alignSelf: 'flex-start',
-                            background: 'rgba(255,255,255,0.25)',
-                            backdropFilter: 'blur(4px)',
-                            borderRadius: '999px',
-                            padding: '3px 14px',
-                            fontSize: '12px',
-                            fontWeight: 700,
-                            color: 'white',
-                          }}>
-                            진행 중
-                          </div>
-                          <Title order={3} style={{ color: 'white', margin: 0, textShadow: '0 1px 4px rgba(0,0,0,0.5)' }}>
-                            {ev.title}
-                          </Title>
-                          <Text size="sm" style={{ color: 'rgba(255,255,255,0.9)', textShadow: '0 1px 3px rgba(0,0,0,0.4)' }}>
-                            {ev.venue}
+                          alignSelf: 'flex-start',
+                          background: 'rgba(255,255,255,0.25)',
+                          backdropFilter: 'blur(4px)',
+                          borderRadius: '999px',
+                          padding: '3px 14px',
+                          fontSize: '12px', fontWeight: 700, color: 'white',
+                        }}>진행 중</div>
+                        <Title order={3} style={{ color: 'white', margin: 0, textShadow: '0 1px 6px rgba(0,0,0,0.6)' }}>
+                          {ev.title}
+                        </Title>
+                        <Text size="sm" style={{ color: 'rgba(255,255,255,0.92)', textShadow: '0 1px 4px rgba(0,0,0,0.5)' }}>
+                          {ev.venue}
+                        </Text>
+                        {ev.address && (
+                          <Text size="xs" style={{ color: 'rgba(255,255,255,0.78)', textShadow: '0 1px 4px rgba(0,0,0,0.5)' }}>
+                            {ev.address}
                           </Text>
-                          {ev.address && (
-                            <Text size="xs" style={{ color: 'rgba(255,255,255,0.75)', textShadow: '0 1px 3px rgba(0,0,0,0.4)' }}>
-                              {ev.address}
-                            </Text>
-                          )}
-                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '8px' }}>
-                            <Text size="sm" style={{ color: 'rgba(255,255,255,0.85)', textShadow: '0 1px 3px rgba(0,0,0,0.4)' }}>
-                              {dateLabel}
-                            </Text>
-                            <div style={{
-                              display: 'flex', alignItems: 'center', gap: '5px',
-                              background: 'rgba(255,255,255,0.2)',
-                              backdropFilter: 'blur(4px)',
-                              padding: '6px 14px',
-                              borderRadius: '999px',
-                              fontSize: '13px', fontWeight: 700, color: 'white',
-                            }}>
-                              예약하기 <IconChevronRight size={14} />
-                            </div>
+                        )}
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '6px' }}>
+                          <Text size="sm" style={{ color: 'rgba(255,255,255,0.85)', textShadow: '0 1px 4px rgba(0,0,0,0.5)' }}>
+                            {dateLabel}
+                          </Text>
+                          <div style={{
+                            display: 'flex', alignItems: 'center', gap: '5px',
+                            background: 'rgba(255,255,255,0.2)', backdropFilter: 'blur(4px)',
+                            padding: '6px 14px', borderRadius: '999px',
+                            fontSize: '13px', fontWeight: 700, color: 'white',
+                          }}>
+                            예약하기 <IconChevronRight size={14} />
                           </div>
                         </div>
                       </div>
                     </div>
-                  );
-                })}
-              </div>
+                  </div>
+                );
+              })}
 
               {/* Prev / Next 버튼 */}
               {activeEvents.length > 1 && (
                 <>
-                  <button
-                    onClick={e => { e.stopPropagation(); goSlide(-1); }}
-                    style={{
-                      position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)',
-                      width: '32px', height: '32px', borderRadius: '50%',
-                      background: 'rgba(255,255,255,0.35)', border: 'none', cursor: 'pointer',
-                      display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    }}
-                  >
+                  <button onClick={e => { e.stopPropagation(); goSlide(-1); }} style={{
+                    position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)',
+                    width: '32px', height: '32px', borderRadius: '50%',
+                    background: 'rgba(0,0,0,0.3)', border: 'none', cursor: 'pointer',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 10,
+                  }}>
                     <IconChevronLeft size={18} color="white" />
                   </button>
-                  <button
-                    onClick={e => { e.stopPropagation(); goSlide(1); }}
-                    style={{
-                      position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)',
-                      width: '32px', height: '32px', borderRadius: '50%',
-                      background: 'rgba(255,255,255,0.35)', border: 'none', cursor: 'pointer',
-                      display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    }}
-                  >
+                  <button onClick={e => { e.stopPropagation(); goSlide(1); }} style={{
+                    position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)',
+                    width: '32px', height: '32px', borderRadius: '50%',
+                    background: 'rgba(0,0,0,0.3)', border: 'none', cursor: 'pointer',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 10,
+                  }}>
                     <IconChevronRight size={18} color="white" />
                   </button>
                 </>
@@ -290,23 +245,16 @@ export default function Home() {
               {activeEvents.length > 1 && (
                 <div style={{
                   position: 'absolute', bottom: '12px', left: '50%', transform: 'translateX(-50%)',
-                  display: 'flex', gap: '6px',
+                  display: 'flex', gap: '6px', zIndex: 10,
                 }}>
                   {activeEvents.map((_, i) => (
-                    <button
-                      key={i}
-                      onClick={e => { e.stopPropagation(); setSlideIdx(i); }}
-                      style={{
-                        width: i === slideIdx ? '20px' : '8px',
-                        height: '8px',
-                        borderRadius: '999px',
-                        background: i === slideIdx ? 'white' : 'rgba(255,255,255,0.5)',
-                        border: 'none',
-                        cursor: 'pointer',
-                        transition: 'all 0.3s',
-                        padding: 0,
-                      }}
-                    />
+                    <button key={i} onClick={e => { e.stopPropagation(); setSlideIdx(i); }} style={{
+                      width: i === slideIdx ? '20px' : '8px', height: '8px',
+                      borderRadius: '999px',
+                      background: i === slideIdx ? 'white' : 'rgba(255,255,255,0.5)',
+                      border: 'none', cursor: 'pointer',
+                      transition: 'all 0.3s', padding: 0,
+                    }} />
                   ))}
                 </div>
               )}
