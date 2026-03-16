@@ -169,51 +169,90 @@ export default function Home() {
                       style={{ minWidth: '100%', cursor: 'pointer' }}
                       onClick={() => navigate(`/e/${ev.slug}`)}
                     >
-                      <Paper
-                        radius="lg"
-                        p="xl"
-                        style={{
-                          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                          color: 'white',
-                          minHeight: '160px',
+                      {/* 카드: 배너 이미지 or 그라디언트 폴백 */}
+                      <div style={{
+                        position: 'relative',
+                        borderRadius: '1rem',
+                        overflow: 'hidden',
+                        minHeight: '220px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        background: ev.imageUrl
+                          ? undefined
+                          : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                      }}>
+                        {/* 배너 이미지 */}
+                        {ev.imageUrl && (
+                          <img
+                            src={ev.imageUrl}
+                            alt={ev.title}
+                            style={{
+                              position: 'absolute', inset: 0,
+                              width: '100%', height: '100%',
+                              objectFit: 'cover',
+                            }}
+                          />
+                        )}
+                        {/* 어두운 오버레이 (글씨 가독성) */}
+                        <div style={{
+                          position: 'absolute', inset: 0,
+                          background: ev.imageUrl
+                            ? 'linear-gradient(to bottom, rgba(0,0,0,0.35) 0%, rgba(0,0,0,0.62) 100%)'
+                            : 'rgba(0,0,0,0.15)',
+                        }} />
+                        {/* 텍스트 콘텐츠 — 카드 중앙 배치, 좌측 정렬 */}
+                        <div style={{
+                          position: 'relative',
+                          zIndex: 1,
+                          width: '100%',
+                          maxWidth: '520px',
+                          padding: '32px 28px',
                           display: 'flex',
                           flexDirection: 'column',
-                          justifyContent: 'space-between',
-                        }}
-                      >
-                        <div>
+                          gap: '8px',
+                        }}>
                           <div style={{
                             display: 'inline-block',
+                            alignSelf: 'flex-start',
                             background: 'rgba(255,255,255,0.25)',
+                            backdropFilter: 'blur(4px)',
                             borderRadius: '999px',
-                            padding: '2px 12px',
+                            padding: '3px 14px',
                             fontSize: '12px',
-                            fontWeight: 700,
-                            marginBottom: '10px',
-                          }}>
-                            진행 중
-                          </div>
-                          <Title order={3} style={{ color: 'white', marginBottom: '6px' }}>{ev.title}</Title>
-                          <Text size="sm" style={{ color: '#e0d6f9' }}>{ev.venue}</Text>
-                          {ev.address && <Text size="xs" style={{ color: '#d6c4f4', marginTop: '2px' }}>{ev.address}</Text>}
-                        </div>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginTop: '16px' }}>
-                          <Text size="sm" style={{ color: '#e0d6f9' }}>{dateLabel}</Text>
-                          <div style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '6px',
-                            background: 'rgba(255,255,255,0.2)',
-                            padding: '6px 14px',
-                            borderRadius: '999px',
-                            fontSize: '13px',
                             fontWeight: 700,
                             color: 'white',
                           }}>
-                            예약하기 <IconChevronRight size={14} />
+                            진행 중
+                          </div>
+                          <Title order={3} style={{ color: 'white', margin: 0, textShadow: '0 1px 4px rgba(0,0,0,0.5)' }}>
+                            {ev.title}
+                          </Title>
+                          <Text size="sm" style={{ color: 'rgba(255,255,255,0.9)', textShadow: '0 1px 3px rgba(0,0,0,0.4)' }}>
+                            {ev.venue}
+                          </Text>
+                          {ev.address && (
+                            <Text size="xs" style={{ color: 'rgba(255,255,255,0.75)', textShadow: '0 1px 3px rgba(0,0,0,0.4)' }}>
+                              {ev.address}
+                            </Text>
+                          )}
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '8px' }}>
+                            <Text size="sm" style={{ color: 'rgba(255,255,255,0.85)', textShadow: '0 1px 3px rgba(0,0,0,0.4)' }}>
+                              {dateLabel}
+                            </Text>
+                            <div style={{
+                              display: 'flex', alignItems: 'center', gap: '5px',
+                              background: 'rgba(255,255,255,0.2)',
+                              backdropFilter: 'blur(4px)',
+                              padding: '6px 14px',
+                              borderRadius: '999px',
+                              fontSize: '13px', fontWeight: 700, color: 'white',
+                            }}>
+                              예약하기 <IconChevronRight size={14} />
+                            </div>
                           </div>
                         </div>
-                      </Paper>
+                      </div>
                     </div>
                   );
                 })}
