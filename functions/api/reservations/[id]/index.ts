@@ -1,11 +1,13 @@
 import { json, notFound } from '../../_lib/db';
 import type { Env } from '../../_lib/db';
+import { withAdmin } from '../../_lib/auth';
 
 interface Params {
   id: string;
 }
 
-export const onRequestDelete: PagesFunction<Env, Params> = async ({ params, env }) => {
+/** DELETE /api/reservations/:id — 관리자 전용 */
+export const onRequestDelete: PagesFunction<Env, Params> = withAdmin(async ({ params, env }) => {
   if (!env.DB) return json({ ok: true });
   try {
     const id = params.id;
@@ -15,4 +17,4 @@ export const onRequestDelete: PagesFunction<Env, Params> = async ({ params, env 
     await env.DB.prepare('DELETE FROM reservations WHERE id = ?').bind(id).run();
   } catch { /* DB 없으면 무시 */ }
   return json({ ok: true });
-};
+});

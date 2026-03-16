@@ -93,16 +93,19 @@ const MANAGED_VENDORS_KEY = 'rv_managed_vendors';
 export const getManagedVendors = (): ManagedVendor[] => {
   try {
     const raw = JSON.parse(localStorage.getItem(MANAGED_VENDORS_KEY) || '[]') as (ManagedVendor & { businessType?: string })[];
-    // Migrate: businessType → category
     return raw.map(v => ({
       ...v,
       category: v.category ?? v.businessType ?? '',
+      loginPassword: undefined, // 비밀번호는 로컬에 보관하지 않음
     })) as ManagedVendor[];
   }
   catch { return []; }
 };
-export const saveManagedVendors = (vendors: ManagedVendor[]) =>
-  localStorage.setItem(MANAGED_VENDORS_KEY, JSON.stringify(vendors));
+export const saveManagedVendors = (vendors: ManagedVendor[]) => {
+  // loginPassword는 절대 로컬스토리지에 저장하지 않음
+  const safe = vendors.map(({ loginPassword: _pw, ...v }) => v);
+  localStorage.setItem(MANAGED_VENDORS_KEY, JSON.stringify(safe));
+};
 
 const VENDOR_CATEGORY_OPTIONS_KEY = 'rv_vendor_category_options';
 const DEFAULT_CATEGORY_OPTIONS = [
@@ -164,19 +167,67 @@ export const saveVendorPreSignature = (vendorId: string, dataUrl: string) =>
 export const clearVendorPreSignature = (vendorId: string) =>
   localStorage.removeItem(`rv_vendor_sig_${vendorId}`);
 
-const VENDOR_SESSION_KEY = 'rv_vendor_session';
-export const getVendorSession = (): string | null =>
-  sessionStorage.getItem(VENDOR_SESSION_KEY);
-export const setVendorSession = (vendorId: string) =>
-  sessionStorage.setItem(VENDOR_SESSION_KEY, vendorId);
-export const clearVendorSession = () =>
-  sessionStorage.removeItem(VENDOR_SESSION_KEY);
+// ── 세션 관리 (세션 캐시 - 실제 인증은 서버 쿠키) ──────────────────────────
 
-export const vendorLogin = (loginId: string, password: string): ManagedVendor | null => {
-  const vendors = getManagedVendors();
-  const found = vendors.find(v => v.loginId === loginId && v.loginPassword === password);
-  if (found) { setVendorSession(found.id); return found; }
-  return null;
+export const isAdminLoggedIn = (): boolean =>
+  sessionStorage.getItem(ADMIN_AUTH_KEY) === 'true';
+
+/**
+ * 로그인 — /api/auth/login 호출 후 세션 캐시 업데이트
+ * 쿠키 기반 JWT가 실제 인증 수단
+ */
+export const adminLogin = async (
+  username: string,
+  password: string,
+): Promise<{ ok: boolean }> => {
+  try {
+    const res = await fetch('/api/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({ loginId: username, password }),
+    });
+    if (!res.ok) return { ok: false };
+    const data = await res.json() as { ok: boolean; role: string };
+    if (!data.ok || data.role !== 'admin') return { ok: false };
+
+    sessionStorage.setItem(ADMIN_AUTH_KEY, 'true');
+    window.dispatchEvent(new Event('rv_auth_change'));
+    return { ok: true };
+  } catch {
+    return { ok: false };
+  }
+};
+
+/**
+ * 로그아웃 — /api/auth/logout 호출 + 로컬 캐시 삭제
+ */
+export const adminLogout = async (): Promise<void> => {
+  try {
+    await fetch('/api/auth/logout', {
+      method: 'POST',
+      credentials: 'include',
+    });
+  } catch { /* 네트워크 오류 시에도 로컬 세션은 삭제 */ }
+  sessionStorage.removeItem(ADMIN_AUTH_KEY);
+  window.dispatchEvent(new Event('rv_auth_change'));
+};
+
+/**
+ * 서버 세션 검증 및 캐시 갱신 (페이지 로드 시 호출)
+ */
+export const validateSession = async (): Promise<void> => {
+  try {
+    const res = await fetch('/api/auth/me', { credentials: 'include' });
+    if (!res.ok) { sessionStorage.removeItem(ADMIN_AUTH_KEY); return; }
+    const data = await res.json() as { user: { role: string } | null };
+    if (data.user?.role === 'admin') {
+      sessionStorage.setItem(ADMIN_AUTH_KEY, 'true');
+    } else {
+      sessionStorage.removeItem(ADMIN_AUTH_KEY);
+    }
+    window.dispatchEvent(new Event('rv_auth_change'));
+  } catch { /* 네트워크 오류 시 기존 캐시 유지 */ }
 };
 
 export const getSlotUsedCount = (
@@ -188,20 +239,3 @@ export const getSlotUsedCount = (
   reservations
     .filter(r => r.eventId === eventId && r.date === date && r.time === time && r.status === 'confirmed')
     .reduce((sum, r) => sum + r.attendeeCount, 0);
-
-export const isAdminLoggedIn = (): boolean =>
-  sessionStorage.getItem(ADMIN_AUTH_KEY) === 'true';
-
-export const adminLogin = (username: string, password: string): boolean => {
-  if (username === 'admin' && password === 'admin123') {
-    sessionStorage.setItem(ADMIN_AUTH_KEY, 'true');
-    window.dispatchEvent(new Event('rv_auth_change'));
-    return true;
-  }
-  return false;
-};
-
-export const adminLogout = () => {
-  sessionStorage.removeItem(ADMIN_AUTH_KEY);
-  window.dispatchEvent(new Event('rv_auth_change'));
-};

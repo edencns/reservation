@@ -1,5 +1,6 @@
 import { sendSms } from '../_lib/sms';
 import type { Env } from '../_lib/db';
+import { withAdmin } from '../_lib/auth';
 
 interface ContractSmsBody {
   to: string;
@@ -33,11 +34,17 @@ function buildContractMessage(data: ContractSmsBody): string {
   return lines.join('\n');
 }
 
-export const onRequestPost: PagesFunction<Env> = async (ctx) => {
+/** POST /api/sms/contract — 관리자 전용 */
+export const onRequestPost: PagesFunction<Env> = withAdmin(async (ctx) => {
   try {
     const body = await ctx.request.json() as ContractSmsBody;
     if (!body.to) {
       return Response.json({ ok: false, error: '수신 번호가 없습니다.' }, { status: 400 });
+    }
+    // 전화번호 형식 검증
+    const digits = body.to.replace(/\D/g, '');
+    if (digits.length < 10 || digits.length > 11) {
+      return Response.json({ ok: false, error: '올바른 전화번호가 아닙니다.' }, { status: 400 });
     }
     const text = buildContractMessage(body);
     await sendSms(ctx.env, body.to, text);
@@ -45,4 +52,4 @@ export const onRequestPost: PagesFunction<Env> = async (ctx) => {
   } catch (e) {
     return Response.json({ ok: false, error: String(e) }, { status: 500 });
   }
-};
+});

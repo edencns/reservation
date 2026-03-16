@@ -1,15 +1,12 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
-import { apiGetReservations } from '../utils/cloudApi';
-import { getReservations } from '../utils/storage';
-import { formatDate, normalizeUnitNumber } from '../utils/helpers';
+import { formatDate, normalizeUnitNumber, parseUnitNumber } from '../utils/helpers';
 import type { Event, Reservation } from '../types';
 
 type Phase = 'input' | 'result' | 'alreadyprinted' | 'notfound' | 'error';
 
 const NUMPAD_KEYS = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '동', '0', '호'];
-const REPRINT_CODE = '12345';
 
 const TICKET_LOGO_URL = '/logo.png';
 
@@ -21,14 +18,56 @@ function raffleNumber(id: string): string {
   return String(h % 1000000).padStart(6, '0');
 }
 
+/**
+ * 정밀 동호수 매칭 — 오탐지 방지
+ * - 정규화된 형태(동-호)가 있으면 반드시 exact match
+ * - 그 외에는 완전 동일한 경우만 허용 (substring 금지)
+ */
 function matchUnitNumber(stored: string, query: string): boolean {
-  const s = stored.replace(/\s/g, '').toLowerCase();
-  const q = query.replace(/\s/g, '').toLowerCase();
-  if (!s || !q) return false;
+  if (!stored || !query) return false;
+
   const sNorm = normalizeUnitNumber(stored);
   const qNorm = normalizeUnitNumber(query);
-  if (sNorm && qNorm && sNorm === qNorm) return true;
-  return s === q || s.includes(q) || q.includes(s);
+
+  // 둘 다 파싱 가능한 경우: 정규화 exact match
+  if (sNorm && qNorm) return sNorm === qNorm;
+
+  // 한 쪽만 숫자(호수만 입력)인 경우: 파싱된 호수 번호와 exact match
+  const sParsed = parseUnitNumber(stored);
+  const qParsed = parseUnitNumber(query);
+
+  if (qParsed.unit && !qParsed.building) {
+    // 호수만 입력됨 → 저장된 호수와 exact match (동 번호는 무관)
+    return sParsed.unit === qParsed.unit;
+  }
+
+  // 완전히 동일한 문자열만 허용 (공백 제거 후)
+  const sClean = stored.replace(/\s/g, '').toLowerCase();
+  const qClean = query.replace(/\s/g, '').toLowerCase();
+  return sClean === qClean;
+}
+
+/** 키오스크 전용 예약 목록 조회 (마스킹된 데이터) */
+async function fetchKioskReservations(slug: string): Promise<Reservation[]> {
+  const res = await fetch(`/api/kiosk/${encodeURIComponent(slug)}/reservations`);
+  if (!res.ok) return [];
+  return res.json() as Promise<Reservation[]>;
+}
+
+/** 재출력 PIN 검증 */
+async function checkReprintPin(slug: string, pin: string): Promise<boolean> {
+  try {
+    const res = await fetch(`/api/kiosk/${encodeURIComponent(slug)}/pin-check`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ pin }),
+    });
+    if (!res.ok) return false;
+    const data = await res.json() as { valid: boolean };
+    return data.valid === true;
+  } catch {
+    return false;
+  }
 }
 
 function buildTicketHtml(reservations: Reservation[], event: Event, logoUrl?: string): string {
@@ -224,42 +263,40 @@ export default function KioskPage() {
 
   const handleBackspace = () => setInput(prev => prev.trimEnd().slice(0, -1));
 
-  // 공통 검색 함수
-  const searchReservations = async (query: string, includeCheckedIn: boolean) => {
-    let fromApi: Reservation[] = [];
+  // 공통 검색 함수 (키오스크 전용 API 사용, 마스킹된 데이터)
+  const searchReservations = async (query: string) => {
+    let reservations: Reservation[] = [];
     let apiError = '';
-    try { fromApi = await apiGetReservations(); } catch (e) { apiError = String(e); }
-    const fromLocal = getReservations();
-    const apiIds = new Set(fromApi.map(r => r.id));
-    const fresh = [...fromApi, ...fromLocal.filter(r => !apiIds.has(r.id))];
+    try {
+      reservations = await fetchKioskReservations(slug ?? '');
+    } catch (e) {
+      apiError = String(e);
+    }
 
     const unitFieldKeys = event!.customFields
       .filter(f => f.key === 'unitNumber' || f.label.includes('동호') || f.label.includes('호수'))
       .map(f => f.key);
     const keysToSearch = unitFieldKeys.length > 0 ? unitFieldKeys : null;
 
-    const isThisEvent = (r: Reservation) => r.eventId === event!.id || r.eventTitle === event!.title;
     const matchesUnit = (r: Reservation) => {
       if (keysToSearch) return keysToSearch.some(k => r.extraFields[k] && matchUnitNumber(r.extraFields[k], query));
-      return Object.values(r.extraFields).some(v => matchUnitNumber(v, query));
+      // keysToSearch가 없을 때는 extraFields 전체에서 검색하되, 정밀 매칭 적용
+      return Object.entries(r.extraFields).some(([, v]) => typeof v === 'string' && matchUnitNumber(v, query));
     };
 
-    const results = fresh.filter(r =>
-      isThisEvent(r) &&
-      r.status !== 'cancelled' &&
-      matchesUnit(r) &&
-      (includeCheckedIn || true) // 항상 전체 포함, 이후 단계에서 분기
+    const results = reservations.filter(r =>
+      r.status !== 'cancelled' && matchesUnit(r)
     );
 
-    const eventReservations = fresh.filter(isThisEvent);
-    return { results, fresh, eventReservations, apiError };
+    return { results, total: reservations.length, apiError };
   };
 
   const handleSearch = async () => {
     if (!input.trim() || !event || searching) return;
 
-    // 재출력 코드 감지
-    if (input.trim() === REPRINT_CODE) {
+    // 재출력 PIN 검증 (API 기반, 하드코딩 제거)
+    const isPinValid = await checkReprintPin(slug ?? '', input.trim());
+    if (isPinValid) {
       setShowReprint(true);
       setReprintInput('');
       setReprintPhase('input');
@@ -270,10 +307,10 @@ export default function KioskPage() {
 
     setSearching(true);
     try {
-      const { results, eventReservations, apiError } = await searchReservations(input.trim(), true);
+      const { results, total, apiError } = await searchReservations(input.trim());
 
       setDebugInfo(
-        `이 행사: ${eventReservations.length}건 | 입력: "${input.trim()}"` +
+        `이 행사: ${total}건 | 입력: "${input.trim()}"` +
         (apiError ? ` | API오류: ${apiError}` : '')
       );
 
@@ -300,7 +337,7 @@ export default function KioskPage() {
     if (!reprintInput.trim() || !event || reprintSearching) return;
     setReprintSearching(true);
     try {
-      const { results } = await searchReservations(reprintInput.trim(), true);
+      const { results } = await searchReservations(reprintInput.trim());
       // 이미 발급된(checkedIn) 것만 재출력 허용
       const issued = results.filter(r => r.checkedIn);
       if (issued.length === 0) {

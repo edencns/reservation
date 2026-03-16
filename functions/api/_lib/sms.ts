@@ -1,5 +1,6 @@
 import type { Env } from './db';
 import type { Event, Reservation } from '../../../src/types';
+import { encryptPII } from './auth';
 
 const DAY_NAMES = ['일', '월', '화', '수', '목', '금', '토'];
 
@@ -115,7 +116,29 @@ export async function sendSms(
   });
 }
 
-export function getTicketUrl(env: Env, slug: string, phone: string): string {
+/**
+ * 티켓 URL 생성 (토큰 방식으로 전화번호 직접 노출 방지)
+ * DB와 ENCRYPT_KEY가 없으면 레거시 URL로 폴백 (개발 환경용)
+ */
+export async function getTicketUrl(
+  env: Env,
+  slug: string,
+  phone: string,
+): Promise<string> {
   const base = (env.SITE_URL ?? '').replace(/\/+$/, '');
-  return `${base}/e/${slug}/ticket?phone=${encodeURIComponent(phone)}`;
+
+  if (!env.DB || !env.ENCRYPT_KEY) {
+    // 개발 환경 폴백 (운영에서는 ENCRYPT_KEY 필수)
+    return `${base}/e/${slug}/ticket?phone=${encodeURIComponent(phone)}`;
+  }
+
+  const token = crypto.randomUUID();
+  const phoneEnc = await encryptPII(phone, env.ENCRYPT_KEY);
+  const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(); // 7일
+
+  await env.DB.prepare(
+    `INSERT INTO ticket_tokens (token, event_slug, phone_enc, expires_at) VALUES (?, ?, ?, ?)`,
+  ).bind(token, slug, phoneEnc, expiresAt).run().catch(() => undefined);
+
+  return `${base}/e/${slug}/ticket?token=${token}`;
 }

@@ -1,6 +1,7 @@
 import type { Reservation } from '../../../../src/types';
 import { json, notFound } from '../../_lib/db';
 import type { Env } from '../../_lib/db';
+import { withAdmin } from '../../_lib/auth';
 
 interface Params {
   id: string;
@@ -10,7 +11,8 @@ interface ReservationRow {
   data: string;
 }
 
-export const onRequestPatch: PagesFunction<Env, Params> = async ({ params, env }) => {
+/** PATCH /api/reservations/:id/cancel — 관리자 전용 */
+export const onRequestPatch: PagesFunction<Env, Params> = withAdmin(async ({ params, env }) => {
   if (!env.DB) return json({ ok: true });
   try {
     const id = params.id;
@@ -29,4 +31,4 @@ export const onRequestPatch: PagesFunction<Env, Params> = async ({ params, env }
       .run();
   } catch { /* DB 없으면 무시 */ }
   return json({ ok: true });
-};
+});

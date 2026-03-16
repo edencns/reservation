@@ -15,3 +15,19 @@ database_id = "d7157116-7bf3-49e6-a7c9-e8e455846cf5"
 
 [ai]
 binding = "AI"
+
+# ── 보안 필수 환경변수 (Cloudflare Dashboard > Settings > Environment Variables 에서 설정) ──
+# 아래 변수들은 절대 wrangler.toml에 직접 입력하지 말고 Cloudflare 시크릿으로 등록할 것
+#
+# JWT_SECRET      : 32자 이상 랜덤 문자열 (JWT 서명 키)
+#                   생성: openssl rand -base64 32
+#
+# ENCRYPT_KEY     : 64자 hex 문자열 (AES-256 개인정보 암호화 키)
+#                   생성: openssl rand -hex 32
+#
+# ADMIN_PASSWORD  : 최초 관리자 계정 비밀번호 (DB에 해시 저장 후 삭제 권장)
+#
+# 등록 방법:
+#   wrangler secret put JWT_SECRET
+#   wrangler secret put ENCRYPT_KEY
+#   wrangler secret put ADMIN_PASSWORD

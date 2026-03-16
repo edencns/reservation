@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Ticket, Eye, EyeOff } from 'lucide-react';
-import { adminLogin, isAdminLoggedIn, vendorLogin, getVendorSession } from '../../utils/storage';
+import { adminLogin, isAdminLoggedIn } from '../../utils/storage';
 
 const SAVE_ID_KEY = 'savedLoginId';
 
@@ -12,22 +12,33 @@ export default function AdminLogin() {
   const [showPw, setShowPw] = useState(false);
   const [saveId, setSaveId] = useState(() => !!localStorage.getItem(SAVE_ID_KEY));
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (isAdminLoggedIn()) navigate('/admin/dashboard');
-    else if (getVendorSession()) navigate('/vendor/dashboard');
   }, [navigate]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (loading) return;
+
     if (saveId) localStorage.setItem(SAVE_ID_KEY, username);
     else localStorage.removeItem(SAVE_ID_KEY);
-    if (adminLogin(username, password)) {
-      navigate('/admin/dashboard');
-    } else if (vendorLogin(username, password)) {
-      navigate('/vendor/dashboard');
-    } else {
-      setError('아이디 또는 비밀번호가 올바르지 않습니다.');
+
+    setLoading(true);
+    setError('');
+
+    try {
+      const result = await adminLogin(username, password);
+      if (result.ok) {
+        navigate('/admin/dashboard');
+      } else {
+        setError('아이디 또는 비밀번호가 올바르지 않습니다.');
+      }
+    } catch {
+      setError('서버 연결에 실패했습니다. 잠시 후 다시 시도하세요.');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -50,7 +61,8 @@ export default function AdminLogin() {
               type="text"
               value={username}
               onChange={e => setUsername(e.target.value)}
-              placeholder="admin"
+              placeholder="아이디 입력"
+              autoComplete="username"
               className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#667EEA] text-sm"
             />
           </div>
@@ -62,6 +74,7 @@ export default function AdminLogin() {
                 value={password}
                 onChange={e => setPassword(e.target.value)}
                 placeholder="••••••••"
+                autoComplete="current-password"
                 className="w-full px-4 py-3 pr-11 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#667EEA] text-sm"
               />
               <button
@@ -91,15 +104,16 @@ export default function AdminLogin() {
 
           <button
             type="submit"
-            className="w-full py-3.5 rounded-xl font-bold text-white text-base transition-all hover:opacity-90"
+            disabled={loading}
+            className="w-full py-3.5 rounded-xl font-bold text-white text-base transition-all hover:opacity-90 disabled:opacity-60"
             style={{ backgroundColor: '#667EEA' }}
           >
-            로그인
+            {loading ? '로그인 중...' : '로그인'}
           </button>
         </form>
 
         <p className="text-xs text-center text-gray-400 mt-6">
-          관리자: admin / admin123<br />업체는 관리자에게 발급받은 계정을 사용하세요
+          ReserveTicket 관리자만 이용 가능합니다
         </p>
 
         <button

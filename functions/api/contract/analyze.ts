@@ -1,6 +1,5 @@
-interface EnvWithVision {
-  GOOGLE_VISION_API_KEY?: string;
-}
+import type { Env } from '../_lib/db';
+import { withAuth } from '../_lib/auth';
 
 interface FieldDef {
   label: string;
@@ -20,7 +19,6 @@ function extractFields(fullText: string): FieldDef[] {
   const lines = fullText.split('\n').map(l => l.trim()).filter(Boolean);
 
   for (const line of lines) {
-    // 패턴 1: "레이블:" 또는 "레이블：" 형태 (빈칸 입력 필드)
     const colonMatch = line.match(/^([가-힣a-zA-Z ()（）]{1,15})[：:]\s*[_\s□]*$/);
     if (colonMatch) {
       const label = colonMatch[1].trim();
@@ -31,7 +29,6 @@ function extractFields(fullText: string): FieldDef[] {
       continue;
     }
 
-    // 패턴 2: 레이블: 뒤에 밑줄이 있는 경우
     const underlineMatch = line.match(/^([가-힣a-zA-Z ()（）]{1,15})[：:]\s*_{3,}/);
     if (underlineMatch) {
       const label = underlineMatch[1].trim();
@@ -42,9 +39,7 @@ function extractFields(fullText: string): FieldDef[] {
       continue;
     }
 
-    // 패턴 3: 서명/날인 영역
     if (/서명|날인|\(인\)|\(印\)/.test(line)) {
-      // 앞에 붙는 주체 이름 추출 (예: "임대인 서명", "갑 (인)")
       const sigMatch = line.match(/([가-힣a-zA-Z]{1,10})\s*[（(]?[서날][명인]/);
       const label = sigMatch ? `${sigMatch[1]} 서명` : line.replace(/[_\s□]/g, '').slice(0, 10) || '서명';
       if (!seen.has(label)) {
@@ -54,7 +49,6 @@ function extractFields(fullText: string): FieldDef[] {
       continue;
     }
 
-    // 패턴 4: 연 월 일 날짜 필드
     if (/년\s*월\s*일/.test(line) && !line.includes(':')) {
       const dateMatch = line.match(/^([가-힣a-zA-Z\s]{1,15})/);
       const label = (dateMatch?.[1]?.trim() || '날짜').replace(/\s+/g, ' ');
@@ -68,12 +62,13 @@ function extractFields(fullText: string): FieldDef[] {
   return fields;
 }
 
-export const onRequestPost: PagesFunction<EnvWithVision> = async (context) => {
+/** POST /api/contract/analyze — 인증 필요 (관리자/업체) */
+export const onRequestPost: PagesFunction<Env> = withAuth(async (context) => {
   try {
     const apiKey = context.env.GOOGLE_VISION_API_KEY;
     if (!apiKey) {
       return Response.json(
-        { error: 'Google Vision API 키가 설정되지 않았습니다. Cloudflare 환경변수에 GOOGLE_VISION_API_KEY를 추가해주세요.' },
+        { error: 'Google Vision API 키가 설정되지 않았습니다.' },
         { status: 503 }
       );
     }
@@ -85,7 +80,6 @@ export const onRequestPost: PagesFunction<EnvWithVision> = async (context) => {
 
     const base64 = image.replace(/^data:image\/\w+;base64,/, '');
 
-    // Google Vision API 호출
     const visionRes = await fetch(
       `https://vision.googleapis.com/v1/images:annotate?key=${apiKey}`,
       {
@@ -123,10 +117,9 @@ export const onRequestPost: PagesFunction<EnvWithVision> = async (context) => {
     }
 
     const fields = extractFields(fullText);
-
     return Response.json({ fields, rawText: fullText });
 
   } catch (err) {
     return Response.json({ error: String(err) }, { status: 500 });
   }
-};
+});

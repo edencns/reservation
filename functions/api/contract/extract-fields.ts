@@ -1,13 +1,11 @@
-interface Env {
-  ANTHROPIC_API_KEY?: string;
-}
+import type { Env } from '../_lib/db';
+import { withAuth } from '../_lib/auth';
 
 interface FieldDef {
   label: string;
   type: 'text' | 'date' | 'amount' | 'signature';
 }
 
-// ─── 폴백: 정규식 기반 필드 추출 ───────────────────────────────────────────
 function classifyType(label: string): FieldDef['type'] {
   if (/날짜|일자|연월일|년.*월|계약일|작성일|기간|생년월일/.test(label)) return 'date';
   if (/금액|금$|원$|비용|가격|계약금|잔금|총액|보증금|월세|대금|공급가|부가세/.test(label)) return 'amount';
@@ -21,7 +19,6 @@ function extractFieldsRegex(fullText: string): FieldDef[] {
   const lines = fullText.split('\n').map(l => l.trim()).filter(Boolean);
 
   for (const line of lines) {
-    // 패턴 1: "레이블:" 뒤에 빈칸/밑줄/아무것도 없는 경우
     const colonEmpty = line.match(/^([가-힣a-zA-Z\s()（）]{1,15})[：:]\s*[_\s□]*$/);
     if (colonEmpty) {
       const label = colonEmpty[1].trim();
@@ -32,7 +29,6 @@ function extractFieldsRegex(fullText: string): FieldDef[] {
       continue;
     }
 
-    // 패턴 2: "레이블:" 뒤에 밑줄 3개 이상
     const colonUnderline = line.match(/^([가-힣a-zA-Z\s()（）]{1,15})[：:]\s*_{3,}/);
     if (colonUnderline) {
       const label = colonUnderline[1].trim();
@@ -43,7 +39,6 @@ function extractFieldsRegex(fullText: string): FieldDef[] {
       continue;
     }
 
-    // 패턴 3: 서명/날인 영역
     if (/서명|날인|\(인\)|\(印\)/.test(line)) {
       const sigMatch = line.match(/([가-힣a-zA-Z]{1,10})\s*[（(]?[서날][명인]/);
       const label = sigMatch ? `${sigMatch[1]} 서명` : '서명';
@@ -54,7 +49,6 @@ function extractFieldsRegex(fullText: string): FieldDef[] {
       continue;
     }
 
-    // 패턴 4: 년 월 일 날짜 필드
     if (/년\s*월\s*일/.test(line) && !line.includes(':')) {
       const dateMatch = line.match(/^([가-힣a-zA-Z\s]{1,15})/);
       const label = (dateMatch?.[1]?.trim() || '날짜').replace(/\s+/g, ' ');
@@ -68,7 +62,6 @@ function extractFieldsRegex(fullText: string): FieldDef[] {
   return fields;
 }
 
-// ─── Claude API 기반 필드 추출 ─────────────────────────────────────────────
 async function extractFieldsClaude(rawText: string, apiKey: string): Promise<FieldDef[]> {
   const prompt = `다음은 계약서를 OCR로 인식한 텍스트입니다. 작성자가 직접 입력해야 하는 빈칸/밑줄/괄호 필드만 추출해주세요.
 
@@ -113,8 +106,8 @@ JSON 배열만 반환 (다른 설명 없이):
   return JSON.parse(jsonMatch[0]) as FieldDef[];
 }
 
-// ─── Handler ───────────────────────────────────────────────────────────────
-export const onRequestPost: PagesFunction<Env> = async (context) => {
+/** POST /api/contract/extract-fields — 인증 필요 (관리자/업체) */
+export const onRequestPost: PagesFunction<Env> = withAuth(async (context) => {
   const { rawText } = await context.request.json() as { rawText: string };
   if (!rawText?.trim()) {
     return Response.json({ fields: [], method: 'none' });
@@ -127,13 +120,11 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
       const fields = await extractFieldsClaude(rawText, apiKey);
       return Response.json({ fields, method: 'llm' });
     } catch (err) {
-      // Claude 실패 시 정규식 폴백
       const fields = extractFieldsRegex(rawText);
       return Response.json({ fields, method: 'regex', warning: String(err) });
     }
   }
 
-  // API 키 없으면 정규식으로 처리
   const fields = extractFieldsRegex(rawText);
   return Response.json({ fields, method: 'regex' });
-};
+});

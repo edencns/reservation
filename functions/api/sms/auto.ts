@@ -1,14 +1,12 @@
 /**
  * POST /api/sms/auto
- * 예약 생성 또는 취소 시 즉시 문자 발송
- * Body: { reservationId: string, template: 'confirm' | 'cancel' }
- *
- * COOLSMS 환경변수가 설정되지 않으면 발송 없이 {ok: true, skipped: true} 반환
+ * 예약 생성 또는 취소 시 즉시 문자 발송 — 관리자 전용
  */
 import type { Event, Reservation } from '../../../src/types';
 import { json, readBody, badRequest } from '../_lib/db';
 import type { Env } from '../_lib/db';
 import { sendSms, buildConfirmMessage, buildCancelMessage, getTicketUrl } from '../_lib/sms';
+import { withAdmin, decryptPII, isEncrypted } from '../_lib/auth';
 
 interface AutoSmsRequest {
   reservationId: string;
@@ -18,8 +16,7 @@ interface AutoSmsRequest {
 interface ReservationRow { data: string; }
 interface EventRow { data: string; }
 
-export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
-  // API 키 미설정 시 조용히 성공 반환 (실제 발송 안 함)
+export const onRequestPost: PagesFunction<Env> = withAdmin(async ({ request, env }) => {
   if (!env.COOLSMS_API_KEY || !env.COOLSMS_API_SECRET || !env.COOLSMS_SENDER) {
     return json({ ok: true, skipped: true });
   }
@@ -39,6 +36,16 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
 
     const reservation = JSON.parse(row.data) as Reservation;
 
+    // PII 복호화
+    if (env.ENCRYPT_KEY) {
+      const customer = { ...reservation.customer };
+      try {
+        if (customer.phone && isEncrypted(customer.phone)) customer.phone = await decryptPII(customer.phone, env.ENCRYPT_KEY);
+        if (customer.name && isEncrypted(customer.name)) customer.name = await decryptPII(customer.name, env.ENCRYPT_KEY);
+      } catch { /* 무시 */ }
+      Object.assign(reservation, { customer });
+    }
+
     const eventRow = await env.DB.prepare('SELECT data FROM events WHERE id = ?')
       .bind(reservation.eventId)
       .first<EventRow>();
@@ -49,7 +56,7 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
     if (!phone) return json({ ok: true, skipped: true });
 
     const text = body.template === 'confirm'
-      ? buildConfirmMessage(reservation, event, getTicketUrl(env, event.slug, phone))
+      ? buildConfirmMessage(reservation, event, await getTicketUrl(env, event.slug, phone))
       : buildCancelMessage(reservation, event);
 
     await sendSms(env, phone, text);
@@ -57,4 +64,4 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
   } catch {
     return json({ ok: false, error: 'SMS 발송 중 오류가 발생했습니다.' }, 500);
   }
-};
+});

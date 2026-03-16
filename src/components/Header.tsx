@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { Menu, X, Ticket } from 'lucide-react';
 import { useApp } from '../context/AppContext';
-import { adminLogout, isAdminLoggedIn, getVendorSession, clearVendorSession, getManagedVendors } from '../utils/storage';
+import { adminLogout, isAdminLoggedIn } from '../utils/storage';
 
 export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -11,34 +11,22 @@ export default function Header() {
   const { slug } = useParams<{ slug?: string }>();
   const { getEventBySlug } = useApp();
   const [adminLoggedIn, setAdminLoggedIn] = useState(isAdminLoggedIn());
-  const [vendorLoggedIn, setVendorLoggedIn] = useState(!!getVendorSession());
-  const [vendorName, setVendorName] = useState(() => {
-    const sid = getVendorSession();
-    return sid ? (getManagedVendors().find(v => v.id === sid)?.name ?? '') : '';
-  });
 
   useEffect(() => {
-    const refresh = () => {
-      setAdminLoggedIn(isAdminLoggedIn());
-      const sid = getVendorSession();
-      setVendorLoggedIn(!!sid);
-      setVendorName(sid ? (getManagedVendors().find(v => v.id === sid)?.name ?? '') : '');
-    };
+    const refresh = () => setAdminLoggedIn(isAdminLoggedIn());
     refresh();
-    window.addEventListener('storage', refresh);
     window.addEventListener('rv_auth_change', refresh);
     document.addEventListener('visibilitychange', refresh);
     return () => {
-      window.removeEventListener('storage', refresh);
       window.removeEventListener('rv_auth_change', refresh);
       document.removeEventListener('visibilitychange', refresh);
     };
   }, [location]);
 
-  // 관리자/업체 페이지에서는 헤더 숨김
-  if (location.pathname.startsWith('/admin') || location.pathname.startsWith('/vendor')) return null;
+  // 관리자 페이지에서는 헤더 숨김
+  if (location.pathname.startsWith('/admin')) return null;
 
-  // 슬러그 기반 이벤트 페이지: 최소화된 헤더 (vendors 페이지는 일반 헤더 사용)
+  // 슬러그 기반 이벤트 페이지: 최소화된 헤더
   const isEventPage = location.pathname.startsWith('/e/') && !location.pathname.includes('/vendors');
   const eventSlug = slug ?? location.pathname.split('/e/')[1]?.split('/')[0];
   const event = isEventPage && eventSlug ? getEventBySlug(eventSlug) : null;
@@ -70,21 +58,13 @@ export default function Header() {
   const lockBrandLink = isEventDetailPage || isReservePage;
 
   const handleAdminAction = () => {
-    if (vendorLoggedIn) {
-      clearVendorSession();
-      setVendorLoggedIn(false);
-      setVendorName('');
-      return;
-    }
     if (adminLoggedIn) {
-      adminLogout();
-      setAdminLoggedIn(false);
-      return;
+      adminLogout().then(() => setAdminLoggedIn(false));
+    } else {
+      navigate('/admin');
     }
-    navigate('/admin');
   };
 
-  // 일반 공개 페이지 (홈 등)
   return (
     <header className="bg-white shadow-sm sticky top-0 z-50">
       <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
@@ -100,16 +80,7 @@ export default function Header() {
           </Link>
         )}
         <div className="hidden md:flex items-center gap-4">
-          {vendorLoggedIn && (
-            <button
-              onClick={() => navigate('/vendor/events')}
-              className="px-4 py-2 rounded-lg text-white font-medium text-sm transition-opacity hover:opacity-90"
-              style={{ backgroundColor: '#667EEA' }}
-            >
-              {vendorName} 포털
-            </button>
-          )}
-          {adminLoggedIn && !vendorLoggedIn && (
+          {adminLoggedIn && (
             <button
               onClick={() => navigate('/admin/dashboard')}
               className="px-4 py-2 rounded-lg text-white font-medium text-sm transition-opacity hover:opacity-90"
@@ -123,7 +94,7 @@ export default function Header() {
             className="px-4 py-2 rounded-lg text-white font-medium text-sm transition-opacity hover:opacity-90"
             style={{ backgroundColor: '#667EEA' }}
           >
-            {vendorLoggedIn ? '로그아웃' : adminLoggedIn ? '관리자 로그아웃' : '관리자 로그인'}
+            {adminLoggedIn ? '로그아웃' : '관리자 로그인'}
           </button>
         </div>
         <button className="md:hidden p-2 text-gray-600" onClick={() => setMenuOpen(!menuOpen)}>
@@ -132,16 +103,7 @@ export default function Header() {
       </div>
       {menuOpen && (
         <div className="md:hidden bg-white border-t px-4 py-3 space-y-2">
-          {vendorLoggedIn && (
-            <button
-              onClick={() => { navigate('/vendor/events'); setMenuOpen(false); }}
-              className="w-full py-2.5 rounded-lg text-white font-medium text-center"
-              style={{ backgroundColor: '#667EEA' }}
-            >
-              {vendorName} 포털
-            </button>
-          )}
-          {adminLoggedIn && !vendorLoggedIn && (
+          {adminLoggedIn && (
             <button
               onClick={() => { navigate('/admin/dashboard'); setMenuOpen(false); }}
               className="w-full py-2.5 rounded-lg text-white font-medium text-center"
@@ -155,7 +117,7 @@ export default function Header() {
             className="w-full py-2.5 rounded-lg text-white font-medium text-center"
             style={{ backgroundColor: '#667EEA' }}
           >
-            {vendorLoggedIn ? '로그아웃' : adminLoggedIn ? '관리자 로그아웃' : '관리자 로그인'}
+            {adminLoggedIn ? '로그아웃' : '관리자 로그인'}
           </button>
         </div>
       )}

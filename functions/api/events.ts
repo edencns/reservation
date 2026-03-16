@@ -1,12 +1,14 @@
 import type { Event } from '../../src/types';
 import { json, readBody, badRequest } from './_lib/db';
 import type { Env } from './_lib/db';
+import { withAdmin } from './_lib/auth';
 
 interface EventRow {
   id: string;
   data: string;
 }
 
+/** GET /api/events — 공개 (예약 폼에서 사용) */
 export const onRequestGet: PagesFunction<Env> = async ({ env }) => {
   if (!env.DB) return json([]);
   try {
@@ -20,7 +22,8 @@ export const onRequestGet: PagesFunction<Env> = async ({ env }) => {
   }
 };
 
-export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
+/** POST /api/events — 관리자 전용 */
+export const onRequestPost: PagesFunction<Env> = withAdmin(async ({ request, env }) => {
   const event = await readBody<Event>(request);
   if (!event || !event.id || !event.slug) return badRequest('Invalid event payload');
   if (!env.DB) return json({ ok: true });
@@ -39,4 +42,4 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
       .run();
   } catch { /* DB 저장 실패 시 무시 */ }
   return json({ ok: true });
-};
+});

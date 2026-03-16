@@ -1,12 +1,14 @@
 import type { Event } from '../../../src/types';
 import { json, readBody, badRequest, notFound } from '../_lib/db';
 import type { Env } from '../_lib/db';
+import { withAdmin } from '../_lib/auth';
 
 interface Params {
   id: string;
 }
 
-export const onRequestPut: PagesFunction<Env, Params> = async ({ params, request, env }) => {
+/** PUT /api/events/:id — 관리자 전용 */
+export const onRequestPut: PagesFunction<Env, Params> = withAdmin(async ({ params, request, env }) => {
   const id = params.id;
   const event = await readBody<Event>(request);
   if (!event || !event.id || event.id !== id) return badRequest('Invalid event payload');
@@ -23,13 +25,15 @@ export const onRequestPut: PagesFunction<Env, Params> = async ({ params, request
     .run();
 
   return json({ ok: true });
-};
+});
 
-export const onRequestDelete: PagesFunction<Env, Params> = async ({ params, env }) => {
+/** DELETE /api/events/:id — 관리자 전용 */
+export const onRequestDelete: PagesFunction<Env, Params> = withAdmin(async ({ params, env }) => {
   const id = params.id;
 
   await env.DB.prepare('DELETE FROM reservations WHERE event_id = ?').bind(id).run();
   await env.DB.prepare('DELETE FROM events WHERE id = ?').bind(id).run();
+  await env.DB.prepare('DELETE FROM kiosk_pins WHERE event_id = ?').bind(id).run();
 
   return json({ ok: true });
-};
+});
