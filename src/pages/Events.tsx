@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Search } from 'lucide-react';
 import { useApp } from '../context/AppContext';
-import EventCard from '../components/EventCard';
+import { EventCard } from '../components/EventCard';
 
 export default function Events() {
   const { events } = useApp();
