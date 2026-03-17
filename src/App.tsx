@@ -1,7 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { AppProvider } from './context/AppContext';
 import Header from './components/Header';
-import Footer from './components/Footer';
 import Home from './pages/Home';
 import Events from './pages/Events';
 import EventDetail from './pages/EventDetail';
@@ -27,11 +26,12 @@ import VirtualKeyboardFAB from './components/VirtualKeyboardFAB';
 
 function AppRoutes() {
   const location = useLocation();
+  const isHomePage = location.pathname === '/';
   const isKiosk = location.pathname.startsWith('/kiosk');
 
   return (
     <>
-      {!isKiosk && <Header />}
+      {!isHomePage && !isKiosk && <Header />}
       <Routes>
         {/* Public */}
         <Route path="/" element={<Home />} />
@@ -66,7 +66,6 @@ function AppRoutes() {
 
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
-      {!isKiosk && <Footer />}
       <VirtualKeyboardFAB />
     </>
   );

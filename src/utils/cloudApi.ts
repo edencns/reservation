@@ -2,46 +2,6 @@ import type { Event, Reservation, TemplateField } from '../types';
 
 const jsonHeaders = { 'Content-Type': 'application/json' };
 
-// ── 인증 API ──────────────────────────────────────────────────────────────────
-
-export const apiMe = async (): Promise<{ id: string; loginId: string; role: string; vendorId?: string } | null> => {
-  try {
-    const res = await fetch('/api/auth/me', { credentials: 'include' });
-    if (!res.ok) return null;
-    const data = await res.json() as { user: { id: string; loginId: string; role: string; vendorId?: string } | null };
-    return data.user;
-  } catch {
-    return null;
-  }
-};
-
-export const apiChangePassword = async (currentPassword: string, newPassword: string): Promise<void> => {
-  const res = await fetch('/api/auth/change-password', {
-    method: 'POST',
-    headers: jsonHeaders,
-    credentials: 'include',
-    body: JSON.stringify({ currentPassword, newPassword }),
-  });
-  await parseJson<{ ok: true }>(res);
-};
-
-// ── 업체 관리 API ─────────────────────────────────────────────────────────────
-
-export const apiGetVendorsFromDB = async () => {
-  const res = await fetch('/api/vendors', { credentials: 'include' });
-  return parseJson<unknown[]>(res);
-};
-
-export const apiSetKioskPin = async (slug: string, pin: string): Promise<void> => {
-  const res = await fetch(`/api/kiosk/${encodeURIComponent(slug)}/set-pin`, {
-    method: 'POST',
-    headers: jsonHeaders,
-    credentials: 'include',
-    body: JSON.stringify({ pin }),
-  });
-  await parseJson<{ ok: true }>(res);
-};
-
 async function parseJson<T>(res: Response): Promise<T> {
   if (!res.ok) {
     const text = await res.text();

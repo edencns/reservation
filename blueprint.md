@@ -1,50 +1,60 @@
 
-# Project Blueprint
+# Blueprint: ReserveTicket - 스마트 예약 시스템
 
-## Overview
+## 1. 개요
 
-This document outlines the plan for a comprehensive UI overhaul of the event ticketing application. The goal is to create a modern, visually appealing, and user-friendly interface by leveraging the Mantine component library.
+ReserveTicket은 아파트 입주 박람회, 전시, 공연 등 다양한 이벤트의 예약 및 현장 관리를 위한 스마트 시스템입니다. 사용자는 간편하게 이벤트를 탐색하고 예약할 수 있으며, 관리자는 효율적으로 예약 현황과 방문객 데이터를 관리할 수 있습니다.
 
-## Current State
+## 2. 디자인 및 기능 명세 (V2 - 이미지 기반 리디자인)
 
-The application is a React-based event ticketing platform with a range of features for both users and administrators. The current UI is functional but lacks a cohesive and modern design.
+### 스타일 가이드
 
-## The Plan: A UI Overhaul with Mantine
+*   **색상 팔레트:**
+    *   주요 색상 (Primary): 부드러운 파란색 (`#3B82F6`)
+    *   배경 (Background): 상단 하늘색에서 하단 베이지로 이어지는 부드러운 그라데이션.
+    *   텍스트 (Text): 기본 검정색, 보조 회색.
+    *   카드 (Card): 흰색 배경에 부드러운 그림자 효과.
+*   **타이포그래피:**
+    *   전체적으로 깔끔하고 가독성 높은 Noto Sans KR 폰트 사용.
+    *   Hero 섹션의 메인 타이틀은 크고 굵게 처리하여 주목성을 높입니다.
+*   **레이아웃:**
+    *   모바일 반응형 디자인.
+    *   전체적으로 넉넉한 여백을 사용하여 시각적 편안함을 제공합니다.
 
-To elevate the user experience, I will perform a significant UI refactoring using the Mantine component library. This will involve the following steps:
+### 주요 기능
 
-### 1. Dependency Installation
+*   **메인 페이지 (Home):**
+    *   **Hero 섹션:** 서비스의 핵심 가치를 전달하는 메인 타이틀과 서브 텍스트, 그리고 '예약하기', '내 예약 확인' CTA 버튼을 배치합니다.
+    *   **진행 중인 박람회:** 현재 진행 중인 이벤트 목록을 카드 형태의 캐러셀로 보여줍니다.
+    *   **오늘의 방문 현황:** 실시간 방문객 입장률, 총 방문객, 입장 완료 방문객 수를 시각적으로 보여주는 통계 카드를 배치합니다.
+*   **푸터 (Footer):**
+    *   ReserveTicket 브랜드 소개, 회사 정보, 이용약관 및 개인정보처리방침 링크를 포함하는 3단 레이아웃으로 구성합니다.
 
-I will begin by installing Mantine and its required dependencies:
+## 3. 현재 작업 계획: V2 리디자인 적용
 
-```bash
-npm install @mantine/core @mantine/hooks postcss postcss-preset-mantine
-```
+**목표:** 제공된 이미지를 기반으로 애플리케이션의 전체적인 UI/UX를 개선합니다.
 
-### 2. PostCSS Configuration
+**세부 작업 단계:**
 
-I will create a `postcss.config.js` file to enable the Mantine PostCSS preset:
-
-```javascript
-module.exports = {
-  plugins: {
-    'postcss-preset-mantine': {},
-  },
-};
-```
-
-### 3. Mantine Provider Setup
-
-I will wrap the application's root component with the `MantineProvider` in `src/main.tsx` to apply the default theme and styles. I will also import the necessary Mantine CSS files.
-
-### 4. Component Refactoring
-
-I will then refactor the existing components and pages to use Mantine components. This will be a gradual process, starting with the home page (`src/pages/Home.tsx`) to provide an immediate visual improvement.
-
-### 5. Styling and Theming
-
-I will leverage Mantine's theming capabilities to create a consistent and visually appealing design system. This will include customizing colors, typography, and other design tokens to match the application's brand.
-
-## Expected Outcome
-
-The result will be a refreshed and modern user interface that is both beautiful and intuitive. The use of Mantine will ensure a consistent and high-quality user experience across the entire application.
+1.  **`package.json` 업데이트:**
+    *   슬라이드(캐러셀) 기능을 위해 `@mantine/carousel` 패키지를 추가합니다.
+2.  **`index.html` 수정:**
+    *   웹사이트의 타이틀과 설명을 이미지에 맞게 "아파트 입주박람회, 스마트 예약 시스템"으로 변경합니다.
+3.  **`seedData.ts` 수정:**
+    *   샘플 이벤트 데이터를 이미지에 나온 "자이 더 파크 모델하우스 관람"으로 변경하여 리디자인된 UI에 적합한 콘텐츠를 제공합니다.
+4.  **`Home.tsx` 리디자인:**
+    *   **Hero 섹션:** 그라데이션 배경과 함께 새로운 타이틀, 서브 텍스트, CTA 버튼들을 구현합니다.
+    *   **메인 콘텐츠:** '현재 진행 중인 박람회'와 '오늘의 방문 현황' 섹션을 `Grid` 레이아웃을 사용하여 재구성합니다.
+    *   이벤트 목록을 `Carousel` 컴포넌트를 사용하여 구현합니다.
+    *   방문 현황 통계 카드를 `RingProgress`와 텍스트를 조합하여 시각적으로 구현합니다.
+    *   **푸터:** 3단 레이아웃으로 재구성하고, 이용약관 및 개인정보처리방침 모달을 연결합니다.
+5.  **`EventCard.tsx` 리디자인:**
+    *   홈페이지의 이벤트 캐러셀에 사용될 카드의 디자인을 이미지에 맞게 수정합니다. 이미지, 제목, 장소, 일시, '예약하기' 버튼을 포함하는 수직형 카드로 변경합니다.
+6.  **`App.tsx` 수정:**
+    *   전체적인 레이아웃 구조를 새 디자인에 맞게 조정하고, 필요시 `Header`를 숨깁니다.
+7.  **`index.css` 수정:**
+    *   전체 페이지의 배경 및 기본 폰트 등 글로벌 스타일을 정의합니다.
+8.  **`Header.tsx` 수정:**
+    *   홈페이지에서는 보이지 않도록 처리하고, 다른 페이지에서는 새로운 디자인과 어울리도록 스타일을 간소화합니다.
+9.  **오류 수정 및 최종 확인:**
+    *   모든 변경 사항 적용 후 `eslint`로 코드 스타일을 정리하고, `npm install`로 의존성을 확인하며, 개발 서버에서 컴파일 및 런타임 오류가 없는지 최종 확인합니다.

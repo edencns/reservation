@@ -43,7 +43,7 @@ export default function Home() {
             <Button size="lg" radius="xl" onClick={() => navigate('/events')} style={{ background: '#3B82F6' }}>
               예약하기
             </Button>
-            <Button variant="outline" size="lg" radius="xl" onClick={() => navigate('/tickets')} style={{ borderColor: '#3B82F6', color: '#3B82F6' }}>
+            <Button variant="outline" size="lg" radius="xl" onClick={() => navigate('/my-tickets')} style={{ borderColor: '#3B82F6', color: '#3B82F6' }}>
               내 예약 확인
             </Button>
           </Group>
@@ -51,7 +51,7 @@ export default function Home() {
       </Center>
 
       <Container size="lg" style={{ paddingBottom: '4rem' }}>
-        <Grid gutter="xl">
+        <Grid gutter="xl" align="flex-start">
           {/* ── 진행 중인 박람회 ── */}
           <Grid.Col span={{ base: 12, md: 7 }}>
             <Text size="xl" fw={700} mb="lg" style={{ color: '#1E3A8A' }}>
@@ -73,7 +73,7 @@ export default function Home() {
 
           {/* ── 오늘의 방문 현황 ── */}
           <Grid.Col span={{ base: 12, md: 5 }}>
-            <Paper radius="lg" shadow="md" p="xl" style={{ height: '100%' }}>
+            <Paper radius="lg" shadow="md" p="xl">
               <Text size="xl" fw={700} ta="center" mb="xl" style={{ color: '#1E3A8A' }}>
                 오늘의 방문 현황
               </Text>

@@ -1,36 +1,27 @@
-@import "tailwindcss";
-
-
-@theme {
-  --color-main: #E0D6F9;
-  --color-point: #667EEA;
-  --color-point-dark: #5a67d8;
-  --color-main-dark: #d6c4f4;
-}
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap');
 
 body {
   margin: 0;
-  font-family: 'Pretendard', 'Noto Sans KR', -apple-system, BlinkMacSystemFont,
-    'Segoe UI', 'Apple SD Gothic Neo', sans-serif;
-  color: #2c3e50;
-  background-color: #f9fafb;
+  font-family: 'Noto Sans KR', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background-color: #FDF6E8;
 }
 
 * {
   box-sizing: border-box;
 }
 
-#root {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
+.carousel-indicators .mantine-Carousel-indicator {
+  background-color: #A5B4FC !important;
+  width: 10px;
+  height: 10px;
+  transition: width 250ms ease;
 }
 
-a {
-  text-decoration: none;
-  color: inherit;
+.carousel-indicators .mantine-Carousel-indicator[data-active] {
+  background-color: #3B82F6 !important;
+  width: 30px;
 }
 
 ::-webkit-scrollbar {
@@ -44,6 +35,6 @@ a {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #667EEA;
+  background: #3B82F6; /* 포인트 컬러로 변경 */
   border-radius: 6px;
 }
