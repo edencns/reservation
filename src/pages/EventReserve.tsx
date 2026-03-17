@@ -1,13 +1,9 @@
 import { useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
-import StepIndicator from '../components/StepIndicator';
 import CustomFieldInput from '../components/CustomFieldInput';
 import { formatDate, generateId, normalizeUnitNumber, isValidEmail, isValidKoreanName, isValidPhone010 } from '../utils/helpers';
 import type { Reservation } from '../types';
-
-const STEPS = ['날짜 선택', '예약 정보', '예약 완료'];
 
 export default function EventReserve() {
   const { slug } = useParams<{ slug: string }>();
@@ -25,11 +21,16 @@ export default function EventReserve() {
 
   if (!event || event.status !== 'active') {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center bg-surface">
         <div className="text-center">
-          <p className="text-4xl mb-3">🔒</p>
-          <p className="font-bold text-gray-700">접근할 수 없는 페이지입니다</p>
-          <button onClick={() => navigate(`/e/${slug}`)} className="mt-3 text-sm underline" style={{ color: '#667EEA' }}>
+          <div className="w-16 h-16 rounded-full bg-surface-container-high flex items-center justify-center mx-auto mb-4">
+            <span className="material-symbols-outlined text-outline text-3xl">lock</span>
+          </div>
+          <p className="font-headline font-bold text-on-surface text-lg mb-2">접근할 수 없는 페이지입니다</p>
+          <button
+            onClick={() => navigate(`/e/${slug}`)}
+            className="mt-3 text-sm text-primary underline hover:text-primary-container transition-colors"
+          >
             행사 페이지로 돌아가기
           </button>
         </div>
@@ -90,7 +91,6 @@ export default function EventReserve() {
         phone: getFieldValue('phone'),
         email: getFieldValue('email'),
       };
-
       const reservation: Reservation = {
         id: generateId(),
         eventId: event.id,
@@ -118,180 +118,360 @@ export default function EventReserve() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-24">
-      {/* Top bar */}
-      <div className="sticky top-0 z-10 bg-white border-b shadow-sm">
-        <div className="max-w-2xl mx-auto px-4 py-3 flex items-center gap-3">
+    <div className="min-h-screen bg-surface text-on-surface antialiased">
+
+      {/* ─── Top Navigation ─── */}
+      <nav className="glass-nav sticky top-0 z-50 px-8 md:px-16 py-4 flex items-center justify-between border-b border-outline-variant/15">
+        <div className="flex items-center gap-6">
           <button
             onClick={() => step > 1 && step < 3 ? setStep(s => s - 1) : navigate(`/e/${slug}`)}
-            className="p-1.5 rounded-lg hover:bg-gray-100"
+            className="flex items-center justify-center w-10 h-10 rounded-lg hover:bg-surface-container transition-colors text-on-surface-variant"
           >
-            <ChevronLeft size={22} className="text-gray-600" />
+            <span className="material-symbols-outlined">arrow_back</span>
           </button>
-          <div className="flex-1 min-w-0">
-            <p className="font-bold text-gray-800 text-sm truncate">{event.title}</p>
-            <p className="text-xs text-gray-400">{event.venue}</p>
-          </div>
+          <span className="text-primary font-headline font-extrabold text-xl truncate max-w-xs">{event.title}</span>
         </div>
-      </div>
+        <div className="hidden lg:flex items-center gap-10">
+          <Link to="/" className="text-sm font-medium text-on-surface hover:text-primary transition-colors">홈</Link>
+          <Link to="/events" className="text-sm font-medium text-primary border-b-2 border-primary pb-1">예약</Link>
+          <Link to="/admin" className="text-sm font-medium text-on-surface hover:text-primary transition-colors">관리자</Link>
+        </div>
+        <button
+          className="hidden md:flex bg-gradient-to-r from-primary to-primary-container text-on-primary px-6 py-2.5 rounded-md font-medium shadow-md text-sm"
+        >
+          예약하기
+        </button>
+      </nav>
 
-      <div className="max-w-2xl mx-auto px-4 pt-6">
-        <StepIndicator steps={STEPS} currentStep={step} />
+      <main className="max-w-7xl mx-auto px-8 md:px-16 py-20">
 
-        {/* Step 1: 날짜 */}
-        {step === 1 && (
-          <div className="bg-white rounded-2xl shadow-sm p-6">
-            <h2 className="font-bold text-gray-800 text-lg mb-5">방문 날짜를 선택하세요</h2>
-            <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
-              {event.dates.map(date => {
-                const d = new Date(date + 'T00:00:00');
-                const dayNames = ['일', '월', '화', '수', '목', '금', '토'];
-                const day = d.getDay();
-                return (
-                  <button
-                    key={date}
-                    onClick={() => { setSelectedDate(date); }}
-                    className={`p-2.5 rounded-xl border-2 text-center transition-all ${
-                      selectedDate === date ? 'text-white border-transparent' : 'border-gray-200 hover:border-[#667EEA] bg-white'
-                    }`}
-                    style={selectedDate === date ? { backgroundColor: '#667EEA' } : {}}
-                  >
-                    <p className="text-xs font-medium">{d.getMonth() + 1}/{d.getDate()}</p>
-                    <p className={`text-[11px] font-semibold ${
-                      selectedDate === date ? 'text-white' : day === 0 ? 'text-red-500' : day === 6 ? 'text-blue-500' : 'text-gray-500'
-                    }`}>{dayNames[day]}</p>
-                  </button>
-                );
-              })}
+        {/* ─── Page Header ─── */}
+        <div className="mb-16">
+          <p className="text-primary font-bold tracking-widest uppercase text-xs mb-4">
+            {step === 1 ? 'Step 1: 날짜 선택' : step === 2 ? 'Step 2: 예약 정보 입력' : '예약 완료'}
+          </p>
+          <h1 className="text-5xl font-headline font-extrabold text-on-background max-w-2xl leading-tight">
+            {step === 1 && <>방문 날짜를<br />선택하세요</>}
+            {step === 2 && <>나만의 프리미엄<br />컨설팅 공간 확보</>}
+            {step === 3 && <>예약이<br />완료되었습니다!</>}
+          </h1>
+        </div>
+
+        {/* ─── Step 3: Completion ─── */}
+        {step === 3 && completed && (
+          <div className="max-w-2xl mx-auto">
+            <div className="hero-gradient p-10 rounded-xl text-on-primary shadow-xl">
+              <div className="flex items-center gap-4 mb-8">
+                <div className="w-16 h-16 rounded-full bg-white/20 flex items-center justify-center">
+                  <span className="material-symbols-outlined text-4xl" style={{ fontVariationSettings: "'FILL' 1" }}>check_circle</span>
+                </div>
+                <div>
+                  <h3 className="text-2xl font-bold">예약 확인됨</h3>
+                  <p className="text-sm opacity-70">예약 번호: {completed.id}</p>
+                </div>
+              </div>
+              <div className="space-y-6">
+                <div className="flex gap-4">
+                  <span className="material-symbols-outlined text-primary-fixed-dim">apartment</span>
+                  <div>
+                    <p className="text-xs opacity-70 uppercase font-bold tracking-widest">행사</p>
+                    <p className="text-lg font-medium">{completed.eventTitle}</p>
+                  </div>
+                </div>
+                <div className="flex gap-4">
+                  <span className="material-symbols-outlined text-primary-fixed-dim">event</span>
+                  <div>
+                    <p className="text-xs opacity-70 uppercase font-bold tracking-widest">방문 날짜</p>
+                    <p className="text-lg font-medium">{formatDate(completed.date)}</p>
+                  </div>
+                </div>
+                <div className="flex gap-4">
+                  <span className="material-symbols-outlined text-primary-fixed-dim">location_on</span>
+                  <div>
+                    <p className="text-xs opacity-70 uppercase font-bold tracking-widest">장소</p>
+                    <p className="text-lg font-medium">{completed.venue}</p>
+                  </div>
+                </div>
+                <div className="flex gap-4">
+                  <span className="material-symbols-outlined text-primary-fixed-dim">person</span>
+                  <div>
+                    <p className="text-xs opacity-70 uppercase font-bold tracking-widest">예약자</p>
+                    <p className="text-lg font-medium">{completed.customer.name}</p>
+                  </div>
+                </div>
+              </div>
+              <div className="mt-12 pt-8 border-t border-white/20 flex flex-col sm:flex-row gap-3">
+                <button
+                  onClick={() => navigate(`/e/${slug}/ticket`)}
+                  className="flex-1 bg-white text-primary font-bold py-4 rounded-md shadow-lg flex items-center justify-center gap-2 hover:bg-surface-container-low transition-colors"
+                >
+                  내 예약 보기
+                  <span className="material-symbols-outlined">arrow_forward</span>
+                </button>
+                <button
+                  onClick={() => navigate(`/e/${slug}`)}
+                  className="flex-1 bg-white/10 text-on-primary font-bold py-4 rounded-md hover:bg-white/20 transition-colors"
+                >
+                  행사 페이지로
+                </button>
+              </div>
+              <p className="text-center text-xs mt-4 opacity-60">
+                예약 완료 후 확인 메시지가 전송됩니다.
+              </p>
             </div>
           </div>
         )}
 
-        {/* Step 2: 예약 정보 (커스텀 필드) */}
-        {step === 2 && (
-          <div className="bg-white rounded-2xl shadow-sm p-6">
-            <h2 className="font-bold text-gray-800 text-lg mb-1">예약 정보를 입력하세요</h2>
-            <p className="text-sm text-gray-400 mb-5">{formatDate(selectedDate)}</p>
+        {/* ─── Step 1 & 2: 2-Column Layout ─── */}
+        {step < 3 && (
+          <div className="grid grid-cols-12 gap-10">
 
-            <div className="space-y-4">
-              {event.customFields.map(field => (
-                <CustomFieldInput
-                  key={field.id}
-                  field={field}
-                  value={fieldValues[field.key] ?? ''}
-                  onChange={handleFieldChange}
-                  error={getFieldError(field.key)}
-                />
-              ))}
+            {/* ── Left Column ── */}
+            <div className="col-span-12 lg:col-span-7 flex flex-col gap-10">
 
-              {/* 관심 서비스 (행사에 입점 업체 카테고리가 있을 때 자동 표시) */}
-              {(event.vendorCategories?.length ?? 0) > 0 && (() => {
-                const MAX = 5;
-                const selected = (fieldValues['interestedServices'] ?? '')
-                  .split(',').map(s => s.trim()).filter(Boolean);
-                return (
-                  <div className="pt-1">
-                    <div className="flex items-baseline gap-2 mb-2">
-                      <label className="block text-sm font-semibold text-gray-700">관심 서비스</label>
-                      <span className="text-xs text-gray-400">최대 {MAX}개 선택</span>
-                      {selected.length > 0 && (
-                        <span className="text-xs font-semibold ml-auto" style={{ color: '#667EEA' }}>
-                          {selected.length}/{MAX}
-                        </span>
-                      )}
+              {/* Step 1: Date Selection */}
+              {step === 1 && (
+                <section className="bg-surface-container-lowest p-10 rounded-xl shadow-sm">
+                  <div className="flex items-center gap-3 mb-8">
+                    <span className="material-symbols-outlined text-primary" style={{ fontVariationSettings: "'FILL' 1" }}>calendar_month</span>
+                    <h2 className="text-xl font-bold">방문 날짜 선택</h2>
+                  </div>
+                  <p className="text-sm font-semibold text-on-surface-variant mb-4">날짜를 선택하세요</p>
+                  <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
+                    {event.dates.map(date => {
+                      const d = new Date(date + 'T00:00:00');
+                      const dayNames = ['일', '월', '화', '수', '목', '금', '토'];
+                      const day = d.getDay();
+                      const isSelected = selectedDate === date;
+                      return (
+                        <button
+                          key={date}
+                          onClick={() => setSelectedDate(date)}
+                          className={`p-3 rounded-xl border-2 text-center transition-all ${
+                            isSelected
+                              ? 'bg-primary-container text-on-primary border-transparent shadow-md'
+                              : 'border-outline-variant/30 bg-surface-container-low hover:border-primary-container'
+                          }`}
+                        >
+                          <p className={`text-xs font-medium ${isSelected ? 'text-on-primary' : 'text-on-surface'}`}>
+                            {d.getMonth() + 1}/{d.getDate()}
+                          </p>
+                          <p className={`text-[11px] font-semibold ${
+                            isSelected ? 'text-on-primary/80' : day === 0 ? 'text-error' : day === 6 ? 'text-primary' : 'text-on-surface-variant'
+                          }`}>{dayNames[day]}</p>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </section>
+              )}
+
+              {/* Step 2: Personal Information */}
+              {step === 2 && (
+                <>
+                  <section className="bg-surface-container-lowest p-10 rounded-xl shadow-sm">
+                    <div className="flex items-center gap-3 mb-8">
+                      <span className="material-symbols-outlined text-primary" style={{ fontVariationSettings: "'FILL' 1" }}>person</span>
+                      <h2 className="text-xl font-bold">개인 정보</h2>
                     </div>
-                    <div className="border border-gray-200 rounded-xl px-4 py-3 grid grid-cols-2 gap-x-4 gap-y-2.5">
-                      {event.vendorCategories!.map(cat => {
-                        const checked = selected.includes(cat.name);
-                        const disabled = !checked && selected.length >= MAX;
-                        const toggle = () => {
-                          if (disabled) return;
-                          const next = checked
-                            ? selected.filter(s => s !== cat.name)
-                            : [...selected, cat.name];
-                          handleFieldChange('interestedServices', next.join(', '));
-                        };
+                    <div className="space-y-5">
+                      {event.customFields.map(field => (
+                        <CustomFieldInput
+                          key={field.id}
+                          field={field}
+                          value={fieldValues[field.key] ?? ''}
+                          onChange={handleFieldChange}
+                          error={getFieldError(field.key)}
+                        />
+                      ))}
+
+                      {/* 관심 서비스 */}
+                      {(event.vendorCategories?.length ?? 0) > 0 && (() => {
+                        const MAX = 5;
+                        const selected = (fieldValues['interestedServices'] ?? '')
+                          .split(',').map(s => s.trim()).filter(Boolean);
                         return (
-                          <label key={cat.id}
-                            className={`flex items-center gap-2 cursor-pointer group ${disabled ? 'opacity-40 cursor-not-allowed' : ''}`}>
-                            <input
-                              type="checkbox"
-                              checked={checked}
-                              disabled={disabled}
-                              onChange={toggle}
-                              className="w-4 h-4 accent-[#667EEA] rounded"
-                            />
-                            <span className="text-sm text-gray-700 group-hover:text-gray-900">{cat.name}</span>
-                          </label>
+                          <div className="pt-1">
+                            <div className="flex items-baseline gap-2 mb-3">
+                              <label className="block text-sm font-semibold text-on-surface-variant">관심 서비스</label>
+                              <span className="text-xs text-on-surface-variant">최대 {MAX}개 선택</span>
+                              {selected.length > 0 && (
+                                <span className="text-xs font-semibold text-primary ml-auto">{selected.length}/{MAX}</span>
+                              )}
+                            </div>
+                            <div className="border border-outline-variant/30 rounded-xl px-4 py-3 grid grid-cols-2 gap-x-4 gap-y-2.5">
+                              {event.vendorCategories!.map(cat => {
+                                const checked = selected.includes(cat.name);
+                                const disabled = !checked && selected.length >= MAX;
+                                const toggle = () => {
+                                  if (disabled) return;
+                                  const next = checked
+                                    ? selected.filter(s => s !== cat.name)
+                                    : [...selected, cat.name];
+                                  handleFieldChange('interestedServices', next.join(', '));
+                                };
+                                return (
+                                  <label key={cat.id}
+                                    className={`flex items-center gap-2 cursor-pointer group ${disabled ? 'opacity-40 cursor-not-allowed' : ''}`}>
+                                    <input
+                                      type="checkbox"
+                                      checked={checked}
+                                      disabled={disabled}
+                                      onChange={toggle}
+                                      className="w-4 h-4 accent-primary rounded"
+                                    />
+                                    <span className="text-sm text-on-surface group-hover:text-on-background">{cat.name}</span>
+                                  </label>
+                                );
+                              })}
+                            </div>
+                            {selected.length >= MAX && (
+                              <p className="text-xs text-primary mt-2">최대 {MAX}개까지 선택할 수 있습니다.</p>
+                            )}
+                          </div>
                         );
-                      })}
+                      })()}
+
+                      {/* Privacy consent */}
+                      <label className="flex items-start gap-2.5 cursor-pointer pt-2">
+                        <input
+                          type="checkbox"
+                          checked={agree}
+                          onChange={e => setAgree(e.target.checked)}
+                          className="mt-0.5 accent-primary"
+                        />
+                        <span className="text-sm text-on-surface-variant">
+                          개인정보 수집 및 이용에 동의합니다. <span className="text-error">*</span><br />
+                          <span className="text-xs">
+                            수집 항목: 입력한 정보 전체 / 목적: 방문 예약 확인 및 현장 운영 / 보유: 행사 종료 후 1개월
+                          </span>
+                        </span>
+                      </label>
                     </div>
-                    {selected.length >= MAX && (
-                      <p className="text-xs mt-2" style={{ color: '#667EEA' }}>최대 {MAX}개까지 선택할 수 있습니다.</p>
+                  </section>
+                </>
+              )}
+
+              {/* Next Button */}
+              <button
+                onClick={handleNext}
+                disabled={!canNext}
+                className="w-full hero-gradient text-on-primary py-4 rounded-md font-bold text-base flex items-center justify-center gap-2 hover:scale-[1.01] transition-transform disabled:opacity-40 disabled:cursor-not-allowed disabled:transform-none"
+              >
+                {step === 2 ? '예약 완료하기' : '다음 단계로'}
+                <span className="material-symbols-outlined">arrow_forward</span>
+              </button>
+            </div>
+
+            {/* ── Right Column: Sticky Summary ── */}
+            <div className="col-span-12 lg:col-span-5">
+              <div className="sticky top-28 flex flex-col gap-8">
+
+                {/* Reservation Summary Card */}
+                <div className="hero-gradient p-10 rounded-xl text-on-primary shadow-xl">
+                  <h3 className="text-2xl font-bold mb-8">예약 요약</h3>
+                  <div className="space-y-6">
+                    <div className="flex gap-4">
+                      <span className="material-symbols-outlined text-primary-fixed-dim">apartment</span>
+                      <div>
+                        <p className="text-xs opacity-70 uppercase font-bold tracking-widest">행사</p>
+                        <p className="text-lg font-medium">{event.title}</p>
+                      </div>
+                    </div>
+                    <div className="flex gap-4">
+                      <span className="material-symbols-outlined text-primary-fixed-dim">event</span>
+                      <div>
+                        <p className="text-xs opacity-70 uppercase font-bold tracking-widest">방문 날짜</p>
+                        <p className="text-lg font-medium">
+                          {selectedDate ? formatDate(selectedDate) : '날짜를 선택하세요'}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex gap-4">
+                      <span className="material-symbols-outlined text-primary-fixed-dim">location_on</span>
+                      <div>
+                        <p className="text-xs opacity-70 uppercase font-bold tracking-widest">장소</p>
+                        <p className="text-lg font-medium">{event.venue}</p>
+                        <p className="text-sm opacity-80">{event.address}</p>
+                      </div>
+                    </div>
+                    {step === 2 && fieldValues.name && (
+                      <div className="flex gap-4">
+                        <span className="material-symbols-outlined text-primary-fixed-dim">verified_user</span>
+                        <div>
+                          <p className="text-xs opacity-70 uppercase font-bold tracking-widest">예약자</p>
+                          <p className="text-lg font-medium">{fieldValues.name}</p>
+                        </div>
+                      </div>
                     )}
                   </div>
-                );
-              })()}
+                  {step === 2 && (
+                    <div className="mt-12 pt-8 border-t border-white/20">
+                      <button
+                        onClick={handleNext}
+                        disabled={!canNext}
+                        className="w-full bg-white text-primary font-bold py-4 rounded-md shadow-lg flex items-center justify-center gap-2 hover:bg-surface-container-low transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                      >
+                        예약 확정하기
+                        <span className="material-symbols-outlined">arrow_forward</span>
+                      </button>
+                      <p className="text-center text-xs mt-4 opacity-60">
+                        예약 완료 후 확인 메시지가 전송됩니다.
+                      </p>
+                    </div>
+                  )}
+                </div>
 
-              <label className="flex items-start gap-2.5 cursor-pointer mt-2">
-                <input
-                  type="checkbox"
-                  checked={agree}
-                  onChange={e => setAgree(e.target.checked)}
-                  className="mt-0.5 accent-[#667EEA]"
-                />
-                <span className="text-sm text-gray-600">
-                  개인정보 수집 및 이용에 동의합니다. <span className="text-red-400">*</span><br />
-                  <span className="text-xs text-gray-400">
-                    수집 항목: 입력한 정보 전체 / 목적: 방문 예약 확인 및 현장 운영 / 보유: 행사 종료 후 1개월
-                  </span>
-                </span>
-              </label>
+                {/* Progress Bar */}
+                <div className="bg-surface-container-high p-6 rounded-lg">
+                  <p className="text-xs font-bold mb-4 uppercase text-on-surface-variant tracking-wider">진행 단계</p>
+                  <div className="flex items-center gap-2">
+                    <div className={`flex-1 h-3 rounded-full relative ${step >= 1 ? 'bg-primary shadow-[0_0_10px_rgba(45,97,151,0.5)]' : 'bg-surface-container-highest'}`}>
+                      {step === 1 && <div className="absolute inset-0 bg-surface-tint opacity-30 animate-pulse rounded-full"></div>}
+                    </div>
+                    <div className={`flex-1 h-3 rounded-full ${step >= 2 ? 'bg-primary' : 'bg-surface-container-highest'}`}></div>
+                    <div className={`flex-1 h-3 rounded-full ${step >= 3 ? 'bg-primary' : 'bg-surface-container-highest'}`}></div>
+                  </div>
+                  <div className="flex justify-between mt-3 text-[10px] font-bold text-on-surface-variant uppercase tracking-tighter">
+                    <span className={step >= 1 ? 'text-primary' : ''}>날짜 선택</span>
+                    <span className={step >= 2 ? 'text-primary' : ''}>예약 정보</span>
+                    <span className={step >= 3 ? 'text-primary' : ''}>완료</span>
+                  </div>
+                </div>
+
+                {/* Informational Card */}
+                <div className="bg-surface-container-low p-6 rounded-lg border-l-4 border-primary">
+                  <div className="flex gap-3">
+                    <span className="material-symbols-outlined text-primary">info</span>
+                    <div>
+                      <h4 className="font-bold text-sm">일정 변경이 필요하신가요?</h4>
+                      <p className="text-xs text-on-surface-variant leading-relaxed mt-1">
+                        예약 변경은 방문 24시간 전까지 가능합니다. 긴급한 변경은 고객 지원팀으로 문의해주세요.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
             </div>
           </div>
         )}
+      </main>
 
-        {/* Step 3: 완료 */}
-        {step === 3 && completed && (
-          <div>
-            <div className="text-center mb-6">
-              <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 text-white text-3xl"
-                style={{ backgroundColor: '#667EEA' }}>✓</div>
-              <h2 className="text-2xl font-extrabold text-gray-800">예약이 완료되었습니다!</h2>
-              <p className="text-gray-500 mt-1 text-sm">예약 번호: {completed.id}</p>
-            </div>
-            <div className="mt-6 flex flex-col sm:flex-row gap-3">
-              <button
-                onClick={() => navigate(`/e/${slug}/ticket`)}
-                className="flex-1 py-3.5 rounded-xl font-bold text-white hover:opacity-90"
-                style={{ backgroundColor: '#667EEA' }}
-              >
-                내 예약 보기
-              </button>
-              <button
-                onClick={() => navigate(`/e/${slug}`)}
-                className="flex-1 py-3.5 rounded-xl font-bold bg-gray-100 text-gray-700 hover:bg-gray-200"
-              >
-                행사 페이지로
-              </button>
-            </div>
+      {/* ─── Footer ─── */}
+      <footer className="bg-surface-container-high border-t border-outline-variant/15 px-8 md:px-16 py-12">
+        <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-8">
+          <div className="flex flex-col gap-2">
+            <span className="text-primary font-headline font-extrabold text-xl">Move-In Fair</span>
+            <p className="text-on-surface-variant text-sm">© 2024 Move-In Fair Management. All rights reserved.</p>
           </div>
-        )}
-
-        {/* Next btn */}
-        {step < 3 && (
-          <div className="mt-6">
-            <button
-              onClick={handleNext}
-              disabled={!canNext}
-              className="w-full py-4 rounded-xl font-bold text-white text-base flex items-center justify-center gap-2 hover:opacity-90 disabled:bg-gray-300 disabled:cursor-not-allowed"
-              style={{ backgroundColor: canNext ? '#667EEA' : undefined }}
-            >
-              {step === 2 ? '예약 완료하기' : '다음'} {step < 2 && <ChevronRight size={20} />}
-            </button>
+          <div className="flex gap-10">
+            <Link to="#" className="text-sm font-semibold text-on-surface-variant hover:text-primary transition-colors">문의하기</Link>
+            <Link to="#" className="text-sm font-semibold text-on-surface-variant hover:text-primary transition-colors">개인정보처리방침</Link>
+            <Link to="#" className="text-sm font-semibold text-on-surface-variant hover:text-primary transition-colors">이용약관</Link>
           </div>
-        )}
-      </div>
+        </div>
+      </footer>
     </div>
   );
 }
