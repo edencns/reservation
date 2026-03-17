@@ -1,123 +1,80 @@
-import { useEffect, useState } from 'react';
-import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
+import { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { Menu, X, Ticket } from 'lucide-react';
-import { useApp } from '../context/AppContext';
-import { adminLogout, isAdminLoggedIn } from '../utils/storage';
 
 export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
-  const location = useLocation();
   const navigate = useNavigate();
-  const { slug } = useParams<{ slug?: string }>();
-  const { getEventBySlug } = useApp();
-  const [adminLoggedIn, setAdminLoggedIn] = useState(isAdminLoggedIn());
 
-  useEffect(() => {
-    const refresh = () => setAdminLoggedIn(isAdminLoggedIn());
-    refresh();
-    window.addEventListener('rv_auth_change', refresh);
-    document.addEventListener('visibilitychange', refresh);
-    return () => {
-      window.removeEventListener('rv_auth_change', refresh);
-      document.removeEventListener('visibilitychange', refresh);
-    };
-  }, [location]);
-
-  // 관리자 페이지에서는 헤더 숨김
-  if (location.pathname.startsWith('/admin')) return null;
-
-  // 슬러그 기반 이벤트 페이지: 최소화된 헤더
-  const isEventPage = location.pathname.startsWith('/e/') && !location.pathname.includes('/vendors');
-  const eventSlug = slug ?? location.pathname.split('/e/')[1]?.split('/')[0];
-  const event = isEventPage && eventSlug ? getEventBySlug(eventSlug) : null;
-
-  if (isEventPage) {
-    return (
-      <header className="bg-white shadow-sm sticky top-0 z-50">
-        <div className="max-w-3xl mx-auto px-4 h-14 flex items-center justify-between">
-          <div className="flex items-center gap-2" style={{ color: '#667EEA' }}>
-            <Ticket size={22} />
-            <span className="font-bold text-sm">ReserveTicket</span>
-          </div>
-          {event && (
-            <Link
-              to={`/e/${event.slug}/ticket`}
-              className="text-sm font-medium hover:underline"
-              style={{ color: '#667EEA' }}
-            >
-              내 예약 확인
-            </Link>
-          )}
-        </div>
-      </header>
-    );
-  }
-
-  const isEventDetailPage = location.pathname.startsWith('/events/');
-  const isReservePage = location.pathname.startsWith('/reserve/');
-  const lockBrandLink = isEventDetailPage || isReservePage;
-
-  const handleAdminAction = () => {
-    if (adminLoggedIn) {
-      adminLogout().then(() => setAdminLoggedIn(false));
-    } else {
-      navigate('/admin');
-    }
-  };
+  const navLinks = [
+    { href: '/', label: '홈' },
+    { href: '/events', label: '박람회 목록' },
+    { href: '/my-tickets', label: '내 예약' },
+    { href: '/admin', label: '관리자' },
+  ];
 
   return (
     <header className="bg-white shadow-sm sticky top-0 z-50">
-      <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
-        {lockBrandLink ? (
-          <div className="flex items-center gap-2 font-bold text-xl" style={{ color: '#667EEA' }}>
-            <Ticket size={28} />
-            <span>ReserveTicket</span>
-          </div>
-        ) : (
-          <Link to="/" className="flex items-center gap-2 font-bold text-xl" style={{ color: '#667EEA' }}>
-            <Ticket size={28} />
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-16">
+
+          {/* Logo */}
+          <Link to="/" className="flex items-center gap-2 font-bold text-xl text-gray-800">
+            <Ticket size={24} className="text-blue-600" />
             <span>ReserveTicket</span>
           </Link>
-        )}
-        <div className="hidden md:flex items-center gap-4">
-          {adminLoggedIn && (
+
+          {/* Desktop Nav */}
+          <nav className="hidden md:flex items-center gap-6">
+            {navLinks.map((link) => (
+              <Link
+                key={link.label}
+                to={link.href}
+                className="text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors"
+              >
+                {link.label}
+              </Link>
+            ))}
+          </nav>
+
+          {/* Desktop CTA */}
+          <div className="hidden md:block">
             <button
-              onClick={() => navigate('/admin/dashboard')}
-              className="px-4 py-2 rounded-lg text-white font-medium text-sm transition-opacity hover:opacity-90"
-              style={{ backgroundColor: '#667EEA' }}
+              onClick={() => navigate('/events')}
+              className="px-5 py-2 bg-blue-600 text-white rounded-lg text-sm font-semibold hover:bg-blue-700 transition-colors"
             >
-              관리자 페이지
+              예약하기
             </button>
-          )}
+          </div>
+
+          {/* Mobile menu button */}
           <button
-            onClick={handleAdminAction}
-            className="px-4 py-2 rounded-lg text-white font-medium text-sm transition-opacity hover:opacity-90"
-            style={{ backgroundColor: '#667EEA' }}
+            onClick={() => setMenuOpen(!menuOpen)}
+            className="md:hidden p-2 rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100"
           >
-            {adminLoggedIn ? '로그아웃' : '관리자 로그인'}
+            {menuOpen ? <X size={22} /> : <Menu size={22} />}
           </button>
         </div>
-        <button className="md:hidden p-2 text-gray-600" onClick={() => setMenuOpen(!menuOpen)}>
-          {menuOpen ? <X size={24} /> : <Menu size={24} />}
-        </button>
       </div>
+
+      {/* Mobile menu */}
       {menuOpen && (
-        <div className="md:hidden bg-white border-t px-4 py-3 space-y-2">
-          {adminLoggedIn && (
-            <button
-              onClick={() => { navigate('/admin/dashboard'); setMenuOpen(false); }}
-              className="w-full py-2.5 rounded-lg text-white font-medium text-center"
-              style={{ backgroundColor: '#667EEA' }}
+        <div className="md:hidden border-t border-gray-100 bg-white px-4 py-3 space-y-1">
+          {navLinks.map((link) => (
+            <Link
+              key={link.label}
+              to={link.href}
+              onClick={() => setMenuOpen(false)}
+              className="block px-3 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50"
             >
-              관리자 페이지
-            </button>
-          )}
+              {link.label}
+            </Link>
+          ))}
           <button
-            onClick={() => { handleAdminAction(); setMenuOpen(false); }}
-            className="w-full py-2.5 rounded-lg text-white font-medium text-center"
-            style={{ backgroundColor: '#667EEA' }}
+            onClick={() => { navigate('/events'); setMenuOpen(false); }}
+            className="w-full mt-2 py-2.5 bg-blue-600 text-white rounded-lg text-sm font-semibold hover:bg-blue-700 transition-colors"
           >
-            {adminLoggedIn ? '로그아웃' : '관리자 로그인'}
+            예약하기
           </button>
         </div>
       )}
