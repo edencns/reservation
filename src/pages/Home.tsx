@@ -1,9 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import {
-  Container, Title, Text, Button, Group, Paper, Grid, RingProgress, Modal, Center, Box, Stack
-} from '@mantine/core';
 import { Carousel } from '@mantine/carousel';
+import { RingProgress, Modal, Center, Title } from '@mantine/core';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { EventCard } from '../components/EventCard';
@@ -29,79 +27,83 @@ export default function Home() {
   const admissionRate = Math.round((checkedInCount / (todayRsvs.length || 1)) * 100);
 
   return (
-    <Box style={{ background: 'linear-gradient(to bottom, #E0F2FE, #FDF6E8)', minHeight: '100vh' }}>
+    <div style={{ background: 'linear-gradient(to bottom, #E0F2FE, #FDF6E8)', minHeight: '100vh' }}>
 
       {/* ── Hero ── */}
-      <Center style={{ paddingTop: '6rem', paddingBottom: '4rem', textAlign: 'center' }}>
-        <Container>
-          <Title order={1} style={{ fontSize: '2.5rem', color: '#1E3A8A', fontWeight: 900, marginBottom: '1rem' }}>
-            아파트 입주박람회, 스마트 예약 시스템
-          </Title>
-          <Text size="lg" style={{ color: '#475569', marginBottom: '2rem' }}>
-            방문객 예약부터 현장 체크인까지, 모든 과정을 간편하게 관리하고<br />성공적인 입주 박람회를 개최하세요.
-          </Text>
-          <Group justify="center">
-            <Button size="lg" radius="xl" onClick={() => navigate('/events')} style={{ background: '#3B82F6' }}>
-              예약하기
-            </Button>
-            <Button variant="outline" size="lg" radius="xl" onClick={() => navigate('/my-tickets')} style={{ borderColor: '#3B82F6', color: '#3B82F6' }}>
-              내 예약 확인
-            </Button>
-          </Group>
-        </Container>
-      </Center>
+      <div className="py-20 md:py-28 text-center px-4">
+        <h1 className="text-3xl sm:text-4xl md:text-5xl font-black mb-4 leading-tight" style={{ color: '#1E3A8A' }}>
+          아파트 입주박람회,<br className="sm:hidden" /> 스마트 예약 시스템
+        </h1>
+        <p className="text-sm sm:text-base md:text-lg mb-8 max-w-xl mx-auto leading-relaxed" style={{ color: '#475569' }}>
+          방문객 예약부터 현장 체크인까지, 모든 과정을 간편하게 관리하고 성공적인 입주 박람회를 개최하세요.
+        </p>
+        <div className="flex flex-wrap gap-3 justify-center">
+          <button
+            onClick={() => navigate('/events')}
+            className="px-8 py-3 rounded-full text-white font-bold text-base shadow-md hover:opacity-90 transition-opacity"
+            style={{ background: '#3B82F6' }}
+          >
+            예약하기
+          </button>
+          <button
+            onClick={() => navigate('/my-tickets')}
+            className="px-8 py-3 rounded-full font-bold text-base border-2 bg-white hover:bg-blue-50 transition-colors"
+            style={{ borderColor: '#3B82F6', color: '#3B82F6' }}
+          >
+            내 예약 확인
+          </button>
+        </div>
+      </div>
 
-      <Container size="lg" style={{ paddingBottom: '4rem' }}>
-        <Grid gutter="xl" align="flex-start">
-          {/* ── 진행 중인 박람회 ── */}
-          <Grid.Col span={{ base: 12, md: 7 }}>
-            <Paper radius="lg" shadow="md" p="xl">
-              <Text size="xl" fw={700} mb="lg" style={{ color: '#1E3A8A' }}>
-                현재 진행 중인 박람회
-              </Text>
-              <Carousel
-                slideSize="100%"
-                emblaOptions={{ align: 'start', loop: true }}
-                withControls
-                withIndicators
-                previousControlIcon={<ChevronLeft size={36} strokeWidth={2.5} color="#3B82F6" />}
-                nextControlIcon={<ChevronRight size={36} strokeWidth={2.5} color="#3B82F6" />}
-                classNames={{ indicators: 'carousel-indicators' }}
-                styles={{
-                  control: {
-                    background: 'transparent',
-                    border: 'none',
-                    boxShadow: 'none',
-                    width: 48,
-                    height: 48,
-                    '&:hover': { background: 'rgba(59,130,246,0.08)' },
-                  },
-                  controls: {
-                    padding: '0 2px',
-                  },
-                  root: {
-                    paddingBottom: '2rem',
-                  },
-                  indicators: {
-                    bottom: 0,
-                  },
-                }}
-              >
-                {activeEvents.map(event => (
-                  <Carousel.Slide key={event.id}>
-                    <EventCard event={event} plain />
-                  </Carousel.Slide>
-                ))}
-              </Carousel>
-            </Paper>
-          </Grid.Col>
+      {/* ── Main content ── */}
+      <div className="max-w-6xl mx-auto px-4 pb-16">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-start">
 
-          {/* ── 오늘의 방문 현황 ── */}
-          <Grid.Col span={{ base: 12, md: 5 }}>
-            <Paper radius="lg" shadow="md" p="xl">
-              <Text size="xl" fw={700} ta="center" mb="xl" style={{ color: '#1E3A8A' }}>
-                오늘의 방문 현황
-              </Text>
+          {/* 현재 진행 중인 박람회 */}
+          <div className="md:col-span-7">
+            <div className="bg-white rounded-2xl shadow-md p-6">
+              <h2 className="text-xl font-bold mb-4" style={{ color: '#1E3A8A' }}>현재 진행 중인 박람회</h2>
+              {activeEvents.length === 0 ? (
+                <div className="text-center py-12 text-gray-400">
+                  <p className="text-4xl mb-3">🏢</p>
+                  <p className="font-medium">진행 중인 박람회가 없습니다</p>
+                </div>
+              ) : (
+                <Carousel
+                  slideSize="100%"
+                  emblaOptions={{ align: 'start', loop: activeEvents.length > 1 }}
+                  withControls={activeEvents.length > 1}
+                  withIndicators={activeEvents.length > 1}
+                  previousControlIcon={<ChevronLeft size={32} strokeWidth={2.5} color="#3B82F6" />}
+                  nextControlIcon={<ChevronRight size={32} strokeWidth={2.5} color="#3B82F6" />}
+                  classNames={{ indicators: 'carousel-indicators' }}
+                  styles={{
+                    control: {
+                      background: 'transparent',
+                      border: 'none',
+                      boxShadow: 'none',
+                      width: 44,
+                      height: 44,
+                    },
+                    controls: { padding: '0' },
+                    root: { paddingBottom: activeEvents.length > 1 ? '2.5rem' : '0' },
+                    indicators: { bottom: '0' },
+                  }}
+                >
+                  {activeEvents.map(event => (
+                    <Carousel.Slide key={event.id}>
+                      <EventCard event={event} plain />
+                    </Carousel.Slide>
+                  ))}
+                </Carousel>
+              )}
+            </div>
+          </div>
+
+          {/* 오늘의 방문 현황 */}
+          <div className="md:col-span-5">
+            <div className="bg-white rounded-2xl shadow-md p-6">
+              <h2 className="text-xl font-bold text-center mb-6" style={{ color: '#1E3A8A' }}>오늘의 방문 현황</h2>
               <Center>
                 <RingProgress
                   size={180}
@@ -109,62 +111,84 @@ export default function Home() {
                   sections={[{ value: admissionRate, color: '#3B82F6' }]}
                   label={
                     <Center>
-                      <Title order={2} style={{ fontSize: '2.5rem', color: '#1E3A8A' }}>{`${admissionRate}%`}</Title>
+                      <Title order={2} style={{ fontSize: '2.5rem', color: '#1E3A8A' }}>{admissionRate}%</Title>
                     </Center>
                   }
                 />
               </Center>
-              <Text ta="center" c="dimmed" mt="sm">입장율 ({checkedInCount}/{todayRsvs.length})</Text>
-
-              <Grid mt="xl" grow>
-                <Grid.Col span={6} style={{ textAlign: 'center' }}>
-                  <Text c="dimmed">총 방문객</Text>
-                  <Text size="2rem" fw={700} style={{ color: '#1E3A8A' }}>{totalVisitors}명</Text>
-                </Grid.Col>
-                <Grid.Col span={6} style={{ textAlign: 'center' }}>
-                  <Text c="dimmed">입장 완료 방문객</Text>
-                  <Text size="2rem" fw={700} style={{ color: '#1E3A8A' }}>{checkedInVisitors}명</Text>
-                </Grid.Col>
-              </Grid>
-            </Paper>
-          </Grid.Col>
-        </Grid>
-      </Container>
+              <p className="text-center text-sm text-gray-400 mt-2">
+                입장율 ({checkedInCount}/{todayRsvs.length})
+              </p>
+              <div className="grid grid-cols-2 gap-4 mt-6">
+                <div className="text-center">
+                  <p className="text-sm text-gray-400">총 방문객</p>
+                  <p className="text-3xl font-bold" style={{ color: '#1E3A8A' }}>{totalVisitors}명</p>
+                </div>
+                <div className="text-center">
+                  <p className="text-sm text-gray-400">입장 완료 방문객</p>
+                  <p className="text-3xl font-bold" style={{ color: '#1E3A8A' }}>{checkedInVisitors}명</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
 
       {/* ── Footer ── */}
-      <Box style={{ backgroundColor: '#FFFFFF', borderTop: '1px solid #E5E7EB', padding: '3rem 0' }}>
-        <Container size="lg">
-          <Grid gutter="xl">
-            <Grid.Col span={{ base: 12, sm: 4 }}>
-              <Title order={4} style={{ color: '#111827' }}>ReserveTicket</Title>
-              <Text c="dimmed" mt="sm">
-                성공적인 입주 박람회를 위한 최고의 선택, ReserveTicket과 함께하세요.
-              </Text>
-            </Grid.Col>
-            <Grid.Col span={{ base: 12, sm: 4 }}>
-              <Title order={5} style={{ color: '#374151' }}>회사정보</Title>
-              <Text c="dimmed" mt="sm">{companyInfo.name || '이든씨엔에스 주식회사'}</Text>
-              <Text c="dimmed">{companyInfo.address || '경기도 수원시 영통구 중부대로462번길 41-4'}</Text>
-              <Text c="dimmed">{companyInfo.email || 'edencns1999@naver.com'}</Text>
-            </Grid.Col>
-            <Grid.Col span={{ base: 12, sm: 4 }}>
-              <Title order={5} style={{ color: '#374151' }}>법적 고지</Title>
-              <Stack gap="xs" mt="sm">
-                 <a onClick={() => setModalContent({ title: '이용약관', body: TERMS_CONTENT })} style={{ cursor: 'pointer', color: '#6B7280', textDecoration:'none' }}>이용약관</a>
-                 <a onClick={() => setModalContent({ title: '개인정보처리방침', body: PRIVACY_CONTENT })} style={{ cursor: 'pointer', color: '#6B7280', textDecoration:'none' }}>개인정보처리방침</a>
-              </Stack>
-            </Grid.Col>
-          </Grid>
-          <Text c="dimmed" ta="center" mt="xl" pt="xl" style={{ borderTop: '1px solid #E5E7EB' }}>
+      <div className="bg-white border-t border-gray-200">
+        <div className="max-w-6xl mx-auto px-4 py-12">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-8">
+            <div>
+              <h3 className="font-bold text-gray-900 mb-2">ReserveTicket</h3>
+              <p className="text-sm text-gray-500">성공적인 입주 박람회를 위한 최고의 선택, ReserveTicket과 함께하세요.</p>
+            </div>
+            <div>
+              <h4 className="font-semibold text-gray-700 mb-2">회사정보</h4>
+              <p className="text-sm text-gray-500">{companyInfo.name || '이든씨엔에스 주식회사'}</p>
+              <p className="text-sm text-gray-500">{companyInfo.address || '경기도 수원시 영통구 중부대로462번길 41-4'}</p>
+              <p className="text-sm text-gray-500">{companyInfo.email || 'edencns1999@naver.com'}</p>
+            </div>
+            <div>
+              <h4 className="font-semibold text-gray-700 mb-2">법적 고지</h4>
+              <div className="space-y-1">
+                <button
+                  onClick={() => setModalContent({ title: '이용약관', body: TERMS_CONTENT })}
+                  className="block text-sm text-gray-500 hover:text-gray-700"
+                >
+                  이용약관
+                </button>
+                <button
+                  onClick={() => setModalContent({ title: '개인정보처리방침', body: PRIVACY_CONTENT })}
+                  className="block text-sm text-gray-500 hover:text-gray-700"
+                >
+                  개인정보처리방침
+                </button>
+              </div>
+            </div>
+          </div>
+          <p className="text-center text-sm text-gray-400 mt-8 pt-8 border-t border-gray-100">
             © {new Date().getFullYear()} ReserveTicket. All rights reserved.
-          </Text>
-        </Container>
-      </Box>
+          </p>
+        </div>
+      </div>
 
-      <Modal opened={!!modalContent} onClose={() => setModalContent(null)} title={modalContent?.title} size="lg" centered>
-        <Text style={{ whiteSpace: 'pre-wrap' }} c="dimmed" size="sm">{modalContent?.body}</Text>
-        <Button fullWidth mt="xl" onClick={() => setModalContent(null)} style={{ background: '#3B82F6' }}>확인</Button>
+      {/* ── Modal ── */}
+      <Modal
+        opened={!!modalContent}
+        onClose={() => setModalContent(null)}
+        title={modalContent?.title}
+        size="lg"
+        centered
+      >
+        <p className="text-sm text-gray-500 whitespace-pre-wrap">{modalContent?.body}</p>
+        <button
+          onClick={() => setModalContent(null)}
+          className="w-full mt-6 py-3 rounded-xl text-white font-medium hover:opacity-90 transition-opacity"
+          style={{ background: '#3B82F6' }}
+        >
+          확인
+        </button>
       </Modal>
-    </Box>
+    </div>
   );
 }

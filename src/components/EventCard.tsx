@@ -1,5 +1,4 @@
 import { useNavigate } from 'react-router-dom';
-import { Paper, Text, Button, AspectRatio } from '@mantine/core';
 import type { Event } from '../types';
 import { formatDate } from '../utils/helpers';
 
@@ -16,38 +15,31 @@ export function EventCard({ event, plain }: EventCardProps) {
 
   const content = (
     <>
-      <AspectRatio ratio={16 / 9} mb="md" mx={plain ? 'xl' : 0}>
+      <div className={`aspect-video mb-4 overflow-hidden rounded-xl ${plain ? 'mx-8' : ''}`}>
         <img
           src={event.imageUrl || 'https://via.placeholder.com/400x225?text=Event+Image'}
           alt={event.title}
-          style={{ borderRadius: '8px', objectFit: 'cover' }}
+          className="w-full h-full object-cover"
         />
-      </AspectRatio>
-
-      <Text fw={700} size="lg" mb="xs" truncate>{event.title}</Text>
-
-      <Text c="dimmed" size="sm">장소: {event.address}</Text>
-      <Text c="dimmed" size="sm" mb="lg">
-        일시: {startDate} ~ {endDate}
-      </Text>
-
-      <Button
-        fullWidth
-        size="md"
-        radius="lg"
-        style={{ background: '#3B82F6' }}
+      </div>
+      <p className="font-bold text-lg mb-1 truncate text-gray-900">{event.title}</p>
+      <p className="text-sm text-gray-500 mb-1">장소: {event.address}</p>
+      <p className="text-sm text-gray-500 mb-5">일시: {startDate} ~ {endDate}</p>
+      <button
         onClick={() => navigate(`/e/${event.slug}`)}
+        className="w-full py-3 rounded-xl text-white font-bold text-sm hover:opacity-90 transition-opacity"
+        style={{ background: '#3B82F6' }}
       >
         예약하기
-      </Button>
+      </button>
     </>
   );
 
   if (plain) return content;
 
   return (
-    <Paper radius="lg" shadow="md" p="lg" withBorder>
+    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 hover:shadow-md transition-shadow">
       {content}
-    </Paper>
+    </div>
   );
 }
