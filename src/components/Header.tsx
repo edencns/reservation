@@ -14,68 +14,73 @@ export default function Header() {
   const navigate = useNavigate();
 
   return (
-    <header className="fixed top-0 w-full z-50 glass-nav border-b" style={{ borderColor: 'rgba(194,199,209,0.2)' }}>
-      <div className="max-w-7xl mx-auto px-6 md:px-10 h-20 flex items-center justify-between">
+    <header className="sticky top-0 z-50" style={{ background: '#f3f5f8', borderBottom: '1px solid rgba(255,255,255,0.5)' }}>
+      <div className="mx-auto flex w-full max-w-[1280px] items-center justify-between px-6 py-5 lg:px-10">
 
-        {/* Logo */}
-        <Link to="/" className="flex items-center gap-2.5 font-bold text-xl" style={{ color: 'var(--primary)', fontFamily: 'Manrope, sans-serif' }}>
-          <Ticket size={24} style={{ color: 'var(--primary-container)' }} />
-          <span>ReserveTicket</span>
-        </Link>
+        {/* Logo + Nav */}
+        <div className="flex items-center gap-10">
+          <Link
+            to="/"
+            className="flex items-center gap-2"
+            style={{ fontSize: '22px', fontWeight: 300, letterSpacing: '-0.04em', color: '#0d2754' }}
+          >
+            <Ticket size={20} style={{ color: '#0a4b8e' }} />
+            ReserveTicket
+          </Link>
 
-        {/* Desktop Nav */}
-        <nav className="hidden md:flex items-center gap-8">
-          {navLinks.map((link) => (
-            <Link
-              key={link.label}
-              to={link.href}
-              className="text-sm font-medium transition-colors"
-              style={{ color: 'var(--on-surface-variant)' }}
-              onMouseEnter={e => (e.currentTarget.style.color = 'var(--primary)')}
-              onMouseLeave={e => (e.currentTarget.style.color = 'var(--on-surface-variant)')}
-            >
-              {link.label}
-            </Link>
-          ))}
-        </nav>
+          <nav className="hidden items-center gap-8 text-sm md:flex" style={{ color: '#31435f' }}>
+            {navLinks.map((link) => (
+              <Link
+                key={link.label}
+                to={link.href}
+                className="transition-colors hover:text-[#0d2754]"
+                style={{ color: '#31435f' }}
+              >
+                {link.label}
+              </Link>
+            ))}
+          </nav>
+        </div>
 
-        {/* Desktop CTA */}
-        <div className="hidden md:block">
+        {/* CTA */}
+        <div className="flex items-center gap-3">
           <button
             onClick={() => navigate('/events')}
-            className="hero-gradient text-white px-6 py-2.5 rounded-lg text-sm font-semibold hover:opacity-90 transition-opacity shadow-sm"
+            className="hidden rounded-xl px-5 py-2.5 text-sm font-medium text-white shadow-sm transition hover:opacity-90 md:block"
+            style={{ background: '#0a3d78' }}
           >
             예약하기
           </button>
-        </div>
 
-        {/* Mobile menu button */}
-        <button
-          onClick={() => setMenuOpen(!menuOpen)}
-          className="md:hidden p-2 rounded-md transition-colors"
-          style={{ color: 'var(--on-surface-variant)' }}
-        >
-          {menuOpen ? <X size={22} /> : <Menu size={22} />}
-        </button>
+          {/* Mobile hamburger */}
+          <button
+            onClick={() => setMenuOpen(!menuOpen)}
+            className="flex h-10 w-10 items-center justify-center rounded-xl border md:hidden"
+            style={{ borderColor: '#c8d4e4', background: '#e8edf3', color: '#0d2754' }}
+          >
+            {menuOpen ? <X size={18} /> : <Menu size={18} />}
+          </button>
+        </div>
       </div>
 
       {/* Mobile menu */}
       {menuOpen && (
-        <div className="md:hidden border-t px-6 py-3 space-y-1" style={{ background: 'var(--surface-container-lowest)', borderColor: 'var(--outline-variant)' }}>
+        <div className="border-t px-6 py-4 space-y-1 md:hidden" style={{ background: '#edf1f5', borderColor: '#d8e0eb' }}>
           {navLinks.map((link) => (
             <Link
               key={link.label}
               to={link.href}
               onClick={() => setMenuOpen(false)}
-              className="block px-3 py-2.5 rounded-lg text-sm font-medium transition-colors"
-              style={{ color: 'var(--on-surface)' }}
+              className="block rounded-xl px-4 py-2.5 text-sm transition-colors hover:bg-white"
+              style={{ color: '#17315d' }}
             >
               {link.label}
             </Link>
           ))}
           <button
             onClick={() => { navigate('/events'); setMenuOpen(false); }}
-            className="hero-gradient w-full mt-2 py-3 text-white rounded-lg text-sm font-semibold hover:opacity-90 transition-opacity"
+            className="mt-2 w-full rounded-xl py-3 text-sm font-medium text-white transition hover:opacity-90"
+            style={{ background: '#0a3d78' }}
           >
             예약하기
           </button>

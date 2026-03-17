@@ -33,7 +33,7 @@ function Layout({ children }: { children: React.ReactNode }) {
   if (isKiosk) return <>{children}</>;
 
   return (
-    <div className="flex flex-col min-h-screen" style={{ background: 'var(--surface)' }}>
+    <div className="flex flex-col min-h-screen" style={{ background: '#f3f5f8' }}>
       <Header />
       <main className="flex-1">{children}</main>
       <Footer />
