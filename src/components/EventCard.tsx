@@ -5,17 +5,18 @@ import { formatDate } from '../utils/helpers';
 
 interface EventCardProps {
   event: Event;
+  plain?: boolean;
 }
 
-export function EventCard({ event }: EventCardProps) {
+export function EventCard({ event, plain }: EventCardProps) {
   const navigate = useNavigate();
 
   const startDate = event.dates[0] ? formatDate(event.dates[0]) : '';
   const endDate = event.dates.length > 1 ? formatDate(event.dates[event.dates.length - 1]) : '';
 
-  return (
-    <Paper radius="lg" shadow="md" p="lg" withBorder>
-      <AspectRatio ratio={16 / 9} mb="md">
+  const content = (
+    <>
+      <AspectRatio ratio={16 / 9} mb="md" mx={plain ? 'xl' : 0}>
         <img
           src={event.imageUrl || 'https://via.placeholder.com/400x225?text=Event+Image'}
           alt={event.title}
@@ -39,6 +40,14 @@ export function EventCard({ event }: EventCardProps) {
       >
         예약하기
       </Button>
+    </>
+  );
+
+  if (plain) return content;
+
+  return (
+    <Paper radius="lg" shadow="md" p="lg" withBorder>
+      {content}
     </Paper>
   );
 }

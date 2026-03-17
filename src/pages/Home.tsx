@@ -54,30 +54,34 @@ export default function Home() {
         <Grid gutter="xl" align="flex-start">
           {/* ── 진행 중인 박람회 ── */}
           <Grid.Col span={{ base: 12, md: 7 }}>
-            <Text size="xl" fw={700} mb="lg" style={{ color: '#1E3A8A' }}>
-              현재 진행 중인 박람회
-            </Text>
-            <Carousel
-              slideSize="100%"
-              emblaOptions={{ align: 'start', loop: true }}
-              withControls
-              withIndicators
-              classNames={{ indicators: 'carousel-indicators' }}
-              styles={{
-                control: {
-                  background: '#3B82F6',
-                  border: 'none',
-                  color: '#fff',
-                  boxShadow: '0 2px 8px rgba(59,130,246,0.4)',
-                },
-              }}
-            >
-              {activeEvents.map(event => (
-                <Carousel.Slide key={event.id}>
-                  <EventCard event={event} />
-                </Carousel.Slide>
-              ))}
-            </Carousel>
+            <Paper radius="lg" shadow="md" p="xl">
+              <Text size="xl" fw={700} mb="lg" style={{ color: '#1E3A8A' }}>
+                현재 진행 중인 박람회
+              </Text>
+              <Carousel
+                slideSize="100%"
+                emblaOptions={{ align: 'start', loop: true }}
+                withControls
+                withIndicators
+                classNames={{ indicators: 'carousel-indicators' }}
+                styles={{
+                  control: {
+                    background: '#3B82F6',
+                    border: 'none',
+                    color: '#fff',
+                    width: 44,
+                    height: 44,
+                    boxShadow: '0 2px 10px rgba(59,130,246,0.5)',
+                  },
+                }}
+              >
+                {activeEvents.map(event => (
+                  <Carousel.Slide key={event.id}>
+                    <EventCard event={event} plain />
+                  </Carousel.Slide>
+                ))}
+              </Carousel>
+            </Paper>
           </Grid.Col>
 
           {/* ── 오늘의 방문 현황 ── */}
