@@ -140,18 +140,17 @@ export default function ReservationsManage() {
   return (
     <div className="space-y-5">
       <div className="flex items-center justify-between">
-        <h2 className="font-bold text-gray-800">예약 관리</h2>
+        <h2 className="font-bold text-on-surface">예약 관리</h2>
         <div className="flex gap-2">
           <button
             onClick={handleExport}
-            className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl font-semibold text-sm hover:bg-gray-50 border border-gray-200 text-gray-600"
+            className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl font-semibold text-sm hover:bg-surface-container border border-outline-variant text-on-surface-variant"
           >
             <Download size={15} /> 엑셀
           </button>
           <button
             onClick={() => { setShowSmsModal(true); setSmsResult(null); setSmsError(''); }}
-            className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-white font-semibold text-sm hover:opacity-90"
-            style={{ backgroundColor: '#667EEA' }}
+            className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-primary text-on-primary font-semibold text-sm hover:opacity-90"
           >
             <MessageSquare size={15} /> 문자 발송
           </button>
@@ -159,21 +158,21 @@ export default function ReservationsManage() {
       </div>
 
       {/* Filters */}
-      <div className="bg-white rounded-2xl shadow-sm p-4 flex flex-col sm:flex-row gap-3">
+      <div className="bg-surface-container-lowest rounded-xl border border-outline-variant/10 p-4 flex flex-col sm:flex-row gap-3">
         <div className="relative flex-1">
-          <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+          <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-outline" />
           <input
             type="text"
             placeholder="행사명, 예약자명, 연락처, 예약번호 검색"
             value={search}
             onChange={e => setSearch(e.target.value)}
-            className="w-full pl-9 pr-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#667EEA]"
+            className="w-full pl-9 pr-4 py-2.5 border border-outline-variant rounded-xl text-sm bg-surface-container-lowest focus:outline-none focus:ring-2 focus:ring-primary"
           />
         </div>
         <select
           value={eventFilter}
           onChange={e => updateEventFilter(e.target.value)}
-          className="min-w-[180px] px-3 py-2.5 border border-gray-200 rounded-xl text-sm text-gray-700 bg-white"
+          className="min-w-[180px] px-3 py-2.5 border border-outline-variant rounded-xl text-sm text-on-surface bg-surface-container-lowest"
         >
           <option value="all">모든 행사</option>
           {eventOptions.map(e => (
@@ -190,9 +189,10 @@ export default function ReservationsManage() {
               key={f.value}
               onClick={() => setStatusFilter(f.value)}
               className={`px-4 py-2 rounded-xl text-sm font-semibold transition-all ${
-                statusFilter === f.value ? 'text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                statusFilter === f.value
+                  ? 'bg-primary text-on-primary'
+                  : 'bg-surface-container text-on-surface-variant hover:bg-surface-container-high'
               }`}
-              style={statusFilter === f.value ? { backgroundColor: '#667EEA' } : {}}
             >
               {f.label}
             </button>
@@ -200,38 +200,38 @@ export default function ReservationsManage() {
         </div>
       </div>
 
-      <p className="text-sm text-gray-500">총 {filtered.length}건</p>
+      <p className="text-sm text-on-surface-variant">총 {filtered.length}건</p>
 
       {/* Desktop table */}
-      <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
+      <div className="bg-surface-container-lowest rounded-xl border border-outline-variant/10 overflow-hidden">
         <div className="hidden md:block overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr style={{ backgroundColor: '#E0D6F9' }}>
+              <tr className="bg-surface-container-low">
                 {['예약번호', '행사명', '예약자', '방문날짜', '상태', '입장', ''].map(h => (
-                  <th key={h} className="px-3 py-3 text-left font-semibold text-gray-700 whitespace-nowrap">{h}</th>
+                  <th key={h} className="px-3 py-3 text-left text-on-surface-variant text-[10px] uppercase tracking-widest whitespace-nowrap">{h}</th>
                 ))}
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-50">
+            <tbody className="divide-y divide-outline-variant/10">
               {filtered.length === 0 ? (
-                <tr><td colSpan={7} className="text-center py-12 text-gray-400">예약 내역이 없습니다</td></tr>
+                <tr><td colSpan={7} className="text-center py-12 text-on-surface-variant">예약 내역이 없습니다</td></tr>
               ) : filtered.map(r => (
                 <tr key={r.id}
                   onClick={() => setDetailR(r)}
-                  className={`cursor-pointer hover:bg-blue-50 transition-colors ${r.checkedIn ? 'bg-green-50 hover:bg-green-100' : ''}`}>
-                  <td className="px-3 py-3 font-mono text-xs text-gray-400">{r.id.slice(0, 8).toUpperCase()}</td>
+                  className={`cursor-pointer hover:bg-surface-container-low transition-colors ${r.checkedIn ? 'bg-green-50/50 hover:bg-green-50' : ''}`}>
+                  <td className="px-3 py-3 font-mono text-xs text-on-surface-variant">{r.id.slice(0, 8).toUpperCase()}</td>
                   <td className="px-3 py-3 max-w-[160px]">
-                    <p className="font-medium text-gray-800 truncate">{r.eventTitle}</p>
+                    <p className="font-medium text-on-surface truncate">{r.eventTitle}</p>
                   </td>
                   <td className="px-3 py-3">
-                    <p className="font-medium text-gray-700">{r.customer.name}</p>
-                    <p className="text-xs text-gray-400">{r.customer.phone}</p>
+                    <p className="font-medium text-on-surface">{r.customer.name}</p>
+                    <p className="text-xs text-outline">{r.customer.phone}</p>
                   </td>
-                  <td className="px-3 py-3 text-gray-600 whitespace-nowrap">{formatDate(r.date)}</td>
+                  <td className="px-3 py-3 text-on-surface-variant whitespace-nowrap">{formatDate(r.date)}</td>
                   <td className="px-3 py-3">
                     <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${
-                      r.status === 'confirmed' ? 'bg-green-100 text-green-600' : 'bg-gray-100 text-gray-500'
+                      r.status === 'confirmed' ? 'bg-primary/10 text-primary' : 'bg-surface-container text-on-surface-variant'
                     }`}>
                       {r.status === 'confirmed' ? '확정' : '취소'}
                     </span>
@@ -240,10 +240,10 @@ export default function ReservationsManage() {
                     {r.checkedIn ? (
                       <span className="px-2 py-0.5 rounded-full text-xs font-semibold bg-green-100 text-green-700">입장완료</span>
                     ) : r.status === 'confirmed' ? (
-                      <span className="px-2 py-0.5 rounded-full text-xs font-semibold bg-gray-100 text-gray-400">미입장</span>
+                      <span className="px-2 py-0.5 rounded-full text-xs font-semibold bg-surface-container text-outline">미입장</span>
                     ) : null}
                   </td>
-                  <td className="px-3 py-3 text-xs text-gray-300">상세 →</td>
+                  <td className="px-3 py-3 text-xs text-outline-variant">상세 →</td>
                 </tr>
               ))}
             </tbody>
@@ -251,24 +251,24 @@ export default function ReservationsManage() {
         </div>
 
         {/* Mobile */}
-        <div className="md:hidden divide-y divide-gray-100">
+        <div className="md:hidden divide-y divide-outline-variant/10">
           {filtered.length === 0 ? (
-            <p className="text-center py-10 text-gray-400 text-sm">예약 내역이 없습니다</p>
+            <p className="text-center py-10 text-on-surface-variant text-sm">예약 내역이 없습니다</p>
           ) : filtered.map(r => (
-            <div key={r.id} className={`p-4 cursor-pointer hover:bg-blue-50 transition-colors ${r.checkedIn ? 'bg-green-50' : ''}`}
+            <div key={r.id} className={`p-4 cursor-pointer hover:bg-surface-container-low transition-colors ${r.checkedIn ? 'bg-green-50/50' : ''}`}
               onClick={() => setDetailR(r)}>
               <div className="flex items-start justify-between mb-2">
                 <div>
-                  <p className="font-bold text-gray-800">{r.eventTitle}</p>
-                  <p className="text-xs text-gray-500">{r.customer.name} · {r.customer.phone}</p>
+                  <p className="font-bold text-on-surface">{r.eventTitle}</p>
+                  <p className="text-xs text-on-surface-variant">{r.customer.name} · {r.customer.phone}</p>
                 </div>
                 <span className={`text-xs px-2 py-0.5 rounded-full font-semibold ${
-                  r.status === 'confirmed' ? 'bg-green-100 text-green-600' : 'bg-gray-100 text-gray-500'
+                  r.status === 'confirmed' ? 'bg-primary/10 text-primary' : 'bg-surface-container text-on-surface-variant'
                 }`}>
                   {r.status === 'confirmed' ? '확정' : '취소'}
                 </span>
               </div>
-              <p className="text-xs text-gray-500">{formatDate(r.date)}</p>
+              <p className="text-xs text-on-surface-variant">{formatDate(r.date)}</p>
               {r.checkedIn && (
                 <span className="inline-block mt-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-green-100 text-green-700">입장완료</span>
               )}
@@ -289,76 +289,76 @@ export default function ReservationsManage() {
         return (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4"
             style={{ backgroundColor: 'rgba(0,0,0,0.5)' }} onClick={() => setDetailR(null)}>
-            <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm flex flex-col max-h-[90vh]" onClick={e => e.stopPropagation()}>
+            <div className="bg-surface-container-lowest rounded-2xl shadow-xl w-full max-w-sm flex flex-col max-h-[90vh]" onClick={e => e.stopPropagation()}>
               {/* Header */}
-              <div className="flex items-center justify-between px-5 pt-5 pb-3 border-b border-gray-100 shrink-0">
-                <h3 className="font-bold text-gray-800">예약 상세</h3>
-                <button onClick={() => setDetailR(null)} className="p-1 rounded-lg hover:bg-gray-100">
-                  <X size={18} className="text-gray-400" />
+              <div className="flex items-center justify-between px-5 pt-5 pb-3 border-b border-outline-variant/15 shrink-0">
+                <h3 className="font-bold text-on-surface">예약 상세</h3>
+                <button onClick={() => setDetailR(null)} className="p-1 rounded-lg hover:bg-surface-container">
+                  <X size={18} className="text-on-surface-variant" />
                 </button>
               </div>
               {/* Body */}
               <div className="overflow-y-auto px-5 py-4 space-y-4">
                 {/* 예약 메타 */}
-                <div className="bg-gray-50 rounded-xl p-3 space-y-1.5 text-sm">
+                <div className="bg-surface-container-low rounded-xl p-3 space-y-1.5 text-sm">
                   <div className="flex justify-between">
-                    <span className="text-gray-400">예약번호</span>
-                    <span className="font-mono text-xs text-gray-600">{detailR.id.slice(0, 8).toUpperCase()}</span>
+                    <span className="text-on-surface-variant">예약번호</span>
+                    <span className="font-mono text-xs text-on-surface-variant">{detailR.id.slice(0, 8).toUpperCase()}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-400">행사명</span>
-                    <span className="font-medium text-gray-800 text-right max-w-[180px] truncate">{detailR.eventTitle}</span>
+                    <span className="text-on-surface-variant">행사명</span>
+                    <span className="font-medium text-on-surface text-right max-w-[180px] truncate">{detailR.eventTitle}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-400">방문날짜</span>
-                    <span className="text-gray-700">{formatDate(detailR.date)}</span>
+                    <span className="text-on-surface-variant">방문날짜</span>
+                    <span className="text-on-surface">{formatDate(detailR.date)}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-400">상태</span>
+                    <span className="text-on-surface-variant">상태</span>
                     <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${
-                      detailR.status === 'confirmed' ? 'bg-green-100 text-green-600' : 'bg-gray-100 text-gray-500'
+                      detailR.status === 'confirmed' ? 'bg-primary/10 text-primary' : 'bg-surface-container text-on-surface-variant'
                     }`}>
                       {detailR.status === 'confirmed' ? '확정' : '취소'}
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-400">입장</span>
+                    <span className="text-on-surface-variant">입장</span>
                     <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${
-                      detailR.checkedIn ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-400'
+                      detailR.checkedIn ? 'bg-green-100 text-green-700' : 'bg-surface-container text-outline'
                     }`}>
                       {detailR.checkedIn ? '입장완료' : '미입장'}
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-400">예약일시</span>
-                    <span className="text-xs text-gray-500">{new Date(detailR.createdAt).toLocaleString('ko-KR')}</span>
+                    <span className="text-on-surface-variant">예약일시</span>
+                    <span className="text-xs text-on-surface-variant">{new Date(detailR.createdAt).toLocaleString('ko-KR')}</span>
                   </div>
                 </div>
                 {/* 예약자 정보 */}
                 <div>
-                  <p className="text-xs font-semibold text-gray-500 mb-2">예약자 정보</p>
+                  <p className="text-xs font-semibold text-on-surface-variant mb-2">예약자 정보</p>
                   <div className="space-y-2 text-sm">
                     {[
                       { label: '이름', value: detailR.customer.name },
                       { label: '연락처', value: detailR.customer.phone },
                       { label: '이메일', value: detailR.customer.email || '-' },
                     ].map(row => (
-                      <div key={row.label} className="flex justify-between border-b border-gray-50 pb-2">
-                        <span className="text-gray-400">{row.label}</span>
-                        <span className="text-gray-800 font-medium">{row.value}</span>
+                      <div key={row.label} className="flex justify-between border-b border-outline-variant/10 pb-2">
+                        <span className="text-on-surface-variant">{row.label}</span>
+                        <span className="text-on-surface font-medium">{row.value}</span>
                       </div>
                     ))}
                     {extraEntries.map(([key, val]) => (
-                      <div key={key} className="flex justify-between border-b border-gray-50 pb-2">
-                        <span className="text-gray-400 shrink-0">{fieldLabelMap[key] ?? key}</span>
-                        <span className="text-gray-800 font-medium text-right max-w-[200px]">{val || '-'}</span>
+                      <div key={key} className="flex justify-between border-b border-outline-variant/10 pb-2">
+                        <span className="text-on-surface-variant shrink-0">{fieldLabelMap[key] ?? key}</span>
+                        <span className="text-on-surface font-medium text-right max-w-[200px]">{val || '-'}</span>
                       </div>
                     ))}
                   </div>
                 </div>
               </div>
               {/* Footer buttons */}
-              <div className="px-5 pb-5 pt-3 flex gap-2 shrink-0 border-t border-gray-100">
+              <div className="px-5 pb-5 pt-3 flex gap-2 shrink-0 border-t border-outline-variant/15">
                 {detailR.status === 'confirmed' && (
                   <button
                     onClick={() => { setDetailR(null); handleCancel(detailR.id); }}
@@ -369,7 +369,7 @@ export default function ReservationsManage() {
                 )}
                 <button
                   onClick={() => { setDetailR(null); handleDelete(detailR.id); }}
-                  className="py-2.5 px-3 rounded-xl bg-gray-100 text-gray-500 text-sm font-semibold hover:bg-gray-200"
+                  className="py-2.5 px-3 rounded-xl bg-surface-container text-on-surface-variant text-sm font-semibold hover:bg-surface-container-high"
                   title="예약 삭제"
                 >
                   <Trash2 size={15} />
@@ -384,12 +384,12 @@ export default function ReservationsManage() {
       {cancelTarget && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4"
           style={{ backgroundColor: 'rgba(0,0,0,0.5)' }} onClick={() => setCancelTarget(null)}>
-          <div className="bg-white rounded-2xl shadow-xl w-full max-w-xs p-6" onClick={e => e.stopPropagation()}>
-            <h3 className="font-bold text-gray-800 text-lg mb-2">예약 취소</h3>
-            <p className="text-sm text-gray-500 mb-6">이 예약을 취소하시겠습니까?<br />취소 내역은 목록에 남습니다.</p>
+          <div className="bg-surface-container-lowest rounded-2xl shadow-xl w-full max-w-xs p-6" onClick={e => e.stopPropagation()}>
+            <h3 className="font-bold text-on-surface text-lg mb-2">예약 취소</h3>
+            <p className="text-sm text-on-surface-variant mb-6">이 예약을 취소하시겠습니까?<br />취소 내역은 목록에 남습니다.</p>
             <div className="flex gap-3">
               <button onClick={() => setCancelTarget(null)}
-                className="flex-1 py-2.5 rounded-xl border border-gray-200 text-sm font-semibold text-gray-600 hover:bg-gray-50">
+                className="flex-1 py-2.5 rounded-xl border border-outline-variant text-sm font-semibold text-on-surface-variant hover:bg-surface-container">
                 아니오
               </button>
               <button onClick={confirmCancel}
@@ -405,9 +405,9 @@ export default function ReservationsManage() {
       {deleteTarget && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4"
           style={{ backgroundColor: 'rgba(0,0,0,0.5)' }} onClick={() => setDeleteTarget(null)}>
-          <div className="bg-white rounded-2xl shadow-xl w-full max-w-xs p-6" onClick={e => e.stopPropagation()}>
-            <h3 className="font-bold text-gray-800 text-lg mb-1">예약 삭제</h3>
-            <p className="text-sm text-gray-500 mb-4">삭제하면 복구할 수 없습니다.<br />비밀번호를 입력하세요.</p>
+          <div className="bg-surface-container-lowest rounded-2xl shadow-xl w-full max-w-xs p-6" onClick={e => e.stopPropagation()}>
+            <h3 className="font-bold text-on-surface text-lg mb-1">예약 삭제</h3>
+            <p className="text-sm text-on-surface-variant mb-4">삭제하면 복구할 수 없습니다.<br />비밀번호를 입력하세요.</p>
             <input
               ref={deleteInputRef}
               type="password"
@@ -415,12 +415,12 @@ export default function ReservationsManage() {
               onChange={e => { setDeletePassword(e.target.value); setDeleteError(''); }}
               onKeyDown={e => e.key === 'Enter' && confirmDelete()}
               placeholder="비밀번호"
-              className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-red-400 mb-2"
+              className="w-full px-3 py-2.5 border border-outline-variant rounded-xl text-sm bg-surface-container-lowest focus:outline-none focus:ring-2 focus:ring-red-400 mb-2"
             />
             {deleteError && <p className="text-xs text-red-500 mb-3">{deleteError}</p>}
             <div className="flex gap-3 mt-2">
               <button onClick={() => setDeleteTarget(null)}
-                className="flex-1 py-2.5 rounded-xl border border-gray-200 text-sm font-semibold text-gray-600 hover:bg-gray-50">
+                className="flex-1 py-2.5 rounded-xl border border-outline-variant text-sm font-semibold text-on-surface-variant hover:bg-surface-container">
                 취소
               </button>
               <button onClick={confirmDelete}
@@ -437,26 +437,26 @@ export default function ReservationsManage() {
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4"
           style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}
           onClick={() => { if (!smsSending) setShowSmsModal(false); }}>
-          <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-6 space-y-5" onClick={e => e.stopPropagation()}>
+          <div className="bg-surface-container-lowest rounded-2xl shadow-xl w-full max-w-md p-6 space-y-5" onClick={e => e.stopPropagation()}>
             <div className="flex items-center justify-between">
-              <h3 className="font-bold text-gray-800 text-lg flex items-center gap-2">
-                <MessageSquare size={18} style={{ color: '#667EEA' }} /> 문자 일괄 발송
+              <h3 className="font-bold text-on-surface text-lg flex items-center gap-2">
+                <MessageSquare size={18} className="text-primary" /> 문자 일괄 발송
               </h3>
               {!smsSending && (
-                <button onClick={() => setShowSmsModal(false)} className="p-1 rounded-lg hover:bg-gray-100">
-                  <X size={18} className="text-gray-400" />
+                <button onClick={() => setShowSmsModal(false)} className="p-1 rounded-lg hover:bg-surface-container">
+                  <X size={18} className="text-on-surface-variant" />
                 </button>
               )}
             </div>
 
             {/* 발송 대상 */}
-            <div className="bg-blue-50 rounded-xl p-3">
-              <p className="text-xs font-semibold text-gray-600 mb-1">발송 대상</p>
-              <p className="text-sm text-gray-800">
-                현재 필터 기준 확정 예약 <span className="font-bold" style={{ color: '#667EEA' }}>{smsTargets.length}건</span>
+            <div className="bg-primary-fixed/20 rounded-xl p-3">
+              <p className="text-xs font-semibold text-on-surface-variant mb-1">발송 대상</p>
+              <p className="text-sm text-on-surface">
+                현재 필터 기준 확정 예약 <span className="font-bold text-primary">{smsTargets.length}건</span>
               </p>
               {eventFilter !== 'all' && (
-                <p className="text-xs text-gray-400 mt-0.5">
+                <p className="text-xs text-on-surface-variant mt-0.5">
                   행사: {events.find(e => e.id === eventFilter)?.title ?? ''}
                 </p>
               )}
@@ -467,7 +467,7 @@ export default function ReservationsManage() {
 
             {/* 문자 유형 */}
             <div>
-              <p className="text-xs font-semibold text-gray-600 mb-2">문자 유형</p>
+              <p className="text-xs font-semibold text-on-surface-variant mb-2">문자 유형</p>
               <div className="grid grid-cols-2 gap-2">
                 {[
                   { value: 'confirm' as const, label: '예약 확인 문자', desc: '예약 완료 안내 + QR 링크' },
@@ -478,11 +478,11 @@ export default function ReservationsManage() {
                     type="button"
                     onClick={() => setSmsTemplate(opt.value)}
                     className={`p-3 rounded-xl border-2 text-left transition-all ${
-                      smsTemplate === opt.value ? 'border-[#667EEA] bg-blue-50' : 'border-gray-200 hover:border-gray-300'
+                      smsTemplate === opt.value ? 'border-primary bg-primary-fixed/20' : 'border-outline-variant hover:border-outline'
                     }`}
                   >
-                    <p className="text-xs font-bold text-gray-800">{opt.label}</p>
-                    <p className="text-xs text-gray-400 mt-0.5">{opt.desc}</p>
+                    <p className="text-xs font-bold text-on-surface">{opt.label}</p>
+                    <p className="text-xs text-on-surface-variant mt-0.5">{opt.desc}</p>
                   </button>
                 ))}
               </div>
@@ -491,7 +491,7 @@ export default function ReservationsManage() {
             {/* 리마인더 일수 */}
             {smsTemplate === 'reminder' && (
               <div>
-                <p className="text-xs font-semibold text-gray-600 mb-2">발송 기준</p>
+                <p className="text-xs font-semibold text-on-surface-variant mb-2">발송 기준</p>
                 <div className="flex gap-2">
                   {[{ label: '1일 전', days: 1 }, { label: '3일 전', days: 3 }, { label: '1주일 전', days: 7 }].map(d => (
                     <button
@@ -499,9 +499,10 @@ export default function ReservationsManage() {
                       type="button"
                       onClick={() => setSmsDays(d.days)}
                       className={`flex-1 py-2 rounded-xl text-sm font-semibold border transition-all ${
-                        smsDays === d.days ? 'text-white border-transparent' : 'border-gray-200 text-gray-600 hover:border-gray-300'
+                        smsDays === d.days
+                          ? 'bg-primary text-on-primary border-transparent'
+                          : 'border-outline-variant text-on-surface-variant hover:border-outline'
                       }`}
-                      style={smsDays === d.days ? { backgroundColor: '#667EEA' } : {}}
                     >
                       {d.label}
                     </button>
@@ -521,7 +522,7 @@ export default function ReservationsManage() {
               <div className="bg-red-50 rounded-xl p-3 text-sm">
                 <p className="font-bold text-red-600">오류 발생</p>
                 <p className="text-red-500">{smsError}</p>
-                <p className="text-xs text-gray-400 mt-1">Cloudflare 환경변수(COOLSMS_API_KEY, COOLSMS_API_SECRET, COOLSMS_SENDER, SITE_URL)를 확인하세요.</p>
+                <p className="text-xs text-on-surface-variant mt-1">Cloudflare 환경변수(COOLSMS_API_KEY, COOLSMS_API_SECRET, COOLSMS_SENDER, SITE_URL)를 확인하세요.</p>
               </div>
             )}
 
@@ -531,18 +532,17 @@ export default function ReservationsManage() {
                 <button
                   onClick={() => setShowSmsModal(false)}
                   disabled={smsSending}
-                  className="flex-1 py-3 rounded-xl border border-gray-200 text-sm font-semibold text-gray-600 hover:bg-gray-50 disabled:opacity-50"
+                  className="flex-1 py-3 rounded-xl border border-outline-variant text-sm font-semibold text-on-surface-variant hover:bg-surface-container disabled:opacity-50"
                 >
                   취소
                 </button>
                 <button
                   onClick={handleSmsSend}
                   disabled={smsSending || smsTargets.length === 0}
-                  className="flex-1 py-3 rounded-xl text-white text-sm font-bold flex items-center justify-center gap-2 hover:opacity-90 disabled:opacity-50"
-                  style={{ backgroundColor: '#667EEA' }}
+                  className="flex-1 py-3 rounded-xl bg-primary text-on-primary text-sm font-bold flex items-center justify-center gap-2 hover:opacity-90 disabled:opacity-50"
                 >
                   {smsSending ? (
-                    <><div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" /> 발송 중...</>
+                    <><div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin" /> 발송 중...</>
                   ) : (
                     <><Send size={15} /> {smsTargets.length}건 발송</>
                   )}
@@ -552,8 +552,7 @@ export default function ReservationsManage() {
             {smsResult && (
               <button
                 onClick={() => setShowSmsModal(false)}
-                className="w-full py-3 rounded-xl text-sm font-bold text-white hover:opacity-90"
-                style={{ backgroundColor: '#667EEA' }}
+                className="w-full py-3 rounded-xl text-sm font-bold bg-primary text-on-primary hover:opacity-90"
               >
                 확인
               </button>

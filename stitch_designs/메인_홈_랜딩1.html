@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Move-In Fair | Premium Resident Management</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&amp;family=Inter:wght@300;400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              colors: {
+                "surface-dim": "#d8dadc",
+                "primary-container": "#0f4c81",
+                "primary-fixed-dim": "#a0c9ff",
+                "outline": "#727780",
+                "on-tertiary-fixed": "#2f1400",
+                "surface-container": "#eceef0",
+                "surface-tint": "#2d6197",
+                "surface-container-high": "#e6e8ea",
+                "on-primary-fixed-variant": "#07497d",
+                "inverse-surface": "#2d3133",
+                "on-tertiary": "#ffffff",
+                "primary": "#00355f",
+                "surface": "#f7f9fb",
+                "secondary-container": "#d5e3fc",
+                "surface-variant": "#e0e3e5",
+                "surface-container-low": "#f2f4f6",
+                "on-background": "#191c1e",
+                "on-surface": "#191c1e",
+                "error-container": "#ffdad6",
+                "secondary-fixed-dim": "#b9c7df",
+                "error": "#ba1a1a",
+                "secondary-fixed": "#d5e3fc",
+                "primary-fixed": "#d2e4ff",
+                "on-surface-variant": "#42474f",
+                "on-primary-fixed": "#001c37",
+                "secondary": "#515f74",
+                "surface-container-highest": "#e0e3e5",
+                "on-secondary-fixed-variant": "#3a485b",
+                "tertiary-fixed-dim": "#ffb780",
+                "tertiary-container": "#743b00",
+                "on-secondary": "#ffffff",
+                "on-secondary-fixed": "#0d1c2e",
+                "tertiary-fixed": "#ffdcc4",
+                "inverse-primary": "#a0c9ff",
+                "outline-variant": "#c2c7d1",
+                "on-tertiary-container": "#f9a767",
+                "on-error": "#ffffff",
+                "on-primary": "#ffffff",
+                "surface-bright": "#f7f9fb",
+                "on-error-container": "#93000a",
+                "on-tertiary-fixed-variant": "#6f3800",
+                "inverse-on-surface": "#eff1f3",
+                "background": "#f7f9fb",
+                "surface-container-lowest": "#ffffff",
+                "on-secondary-container": "#57657a",
+                "tertiary": "#532800",
+                "on-primary-container": "#8ebdf9"
+              },
+              fontFamily: {
+                "headline": ["Manrope"],
+                "body": ["Inter"],
+                "label": ["Inter"]
+              },
+              borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
+            },
+          },
+        }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; background-color: #f7f9fb; color: #191c1e; }
+        h1, h2, h3, h4 { font-family: 'Manrope', sans-serif; letter-spacing: -0.02em; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        .glass-nav { background: rgba(247, 249, 251, 0.8); backdrop-filter: blur(20px); }
+        .hero-gradient { background: linear-gradient(135deg, #00355f 0%, #0f4c81 100%); }
+    </style>
+</head>
+<body class="bg-surface text-on-surface">
+<!-- TopNavBar -->
+<nav class="fixed top-0 w-full z-50 glass-nav border-b border-outline-variant/15 h-20 flex items-center px-8 md:px-20 justify-between">
+<div class="flex items-center gap-12">
+<span class="text-primary font-headline font-800 text-2xl tracking-tight">Move-In Fair</span>
+<div class="hidden md:flex gap-8">
+<a class="text-on-surface-variant hover:text-primary transition-colors font-medium" href="#">Home</a>
+<a class="text-on-surface-variant hover:text-primary transition-colors font-medium" href="#">Reservation</a>
+<a class="text-on-surface-variant hover:text-primary transition-colors font-medium" href="#">Partners</a>
+<a class="text-on-surface-variant hover:text-primary transition-colors font-medium" href="#">Admin Login</a>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<button class="bg-primary text-on-primary px-6 py-2.5 rounded-md font-semibold text-sm hover:opacity-90 transition-all shadow-sm">Get Started</button>
+<div class="w-10 h-10 rounded-full bg-surface-container-high overflow-hidden">
+<img alt="User Profile" data-alt="User profile circular avatar image" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDHxyz8lbiV8Lnw7PkNARyNATz3YkVmLVvge-Zm4PaHiKU9f-K9lsZf9CVzB6dxEYxpaDzUQBx-mLMtirMB9PbubYP-T18nJFbdGbZNhUt59STbJcJKMWahu7PD8WmQVj3lLQAYcMQcyOdvPv7J5Gy1onuujIJHAGg3ZIlW3CTPicCEuHdYUkq_Gh2ZK4s_IKbIFryVfl0PNFpoTzaEYp0vNXT7KpFqWwB0WTTAcjh5IVrNvLYZDEQZcUtQBBCal0BbbKnFxEEhda-b"/>
+</div>
+</div>
+</nav>
+<!-- Main Content -->
+<main class="pt-20">
+<!-- Hero Section -->
+<section class="relative min-h-[85vh] flex items-center px-8 md:px-20 overflow-hidden">
+<div class="grid lg:grid-cols-2 gap-16 items-center w-full max-w-7xl mx-auto">
+<div class="z-10 py-20">
+<span class="inline-block px-4 py-1.5 bg-secondary-container text-on-secondary-container rounded-full text-xs font-bold tracking-widest mb-6">PREMIUM MOVE-IN EXPERIENCE</span>
+<h1 class="text-5xl lg:text-7xl font-headline font-800 text-primary leading-tight mb-8">
+                        The Curated Foundation <br/>
+<span class="text-primary-container font-light">for Your New Beginning.</span>
+</h1>
+<p class="text-lg text-on-surface-variant leading-relaxed max-w-lg mb-12">
+                        Experience an architectural approach to your move-in process. We coordinate premium services, exclusive interior partnerships, and administrative ease.
+                    </p>
+<div class="flex flex-wrap gap-4">
+<button class="hero-gradient text-on-primary px-8 py-4 rounded-xl font-bold flex items-center gap-3 hover:scale-[1.02] transition-transform">
+                            Make Reservation
+                            <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">arrow_forward</span>
+</button>
+<button class="bg-surface-container-lowest text-primary px-8 py-4 rounded-xl font-bold border border-outline-variant/20 hover:bg-surface-container transition-colors">
+                            View Event Schedule
+                        </button>
+</div>
+</div>
+<div class="relative hidden lg:block">
+<div class="aspect-[4/5] rounded-[2rem] overflow-hidden shadow-2xl relative">
+<img alt="Luxury Apartment Interior" class="w-full h-full object-cover" data-alt="Modern luxury apartment living room with large windows" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCIiMFm2XV8ch4m68axAqmmosewUPaAIGQC-zWjkauJO9OpyG-gFTOQi82eSg3U3mGQ-wKs4z-ehRCKAGrfcTidN_UQaoHDeAMFsXOvMUAw_Ye9skMuwF_Vx7l_IReARpEgsXoRAyG5Jnf_GQ5JIUfoWf2kdUItIUR0vRpnD5HEGdwsuyAoT-3Is0oPhOQsMUjhfcKzmt1cvvFA0CZ7PrFxsFbb-eTiSr5FMdt0_lmMqfe3jtgQDFS2apZZLGzGC4-NrgGnHVFbgukV"/>
+<div class="absolute inset-0 bg-gradient-to-t from-primary/40 to-transparent"></div>
+</div>
+<!-- Asymmetric accent cards -->
+<div class="absolute -bottom-8 -left-8 bg-surface-container-lowest p-6 rounded-2xl shadow-xl max-w-xs">
+<div class="flex items-center gap-4 mb-3">
+<span class="material-symbols-outlined text-primary-container text-3xl">verified</span>
+<span class="text-on-surface font-headline font-bold">Official Partner</span>
+</div>
+<p class="text-xs text-on-surface-variant">Vetted by 200+ residential complexes nationwide for absolute quality.</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Bento Grid Highlights -->
+<section class="py-24 bg-surface-container-low px-8 md:px-20">
+<div class="max-w-7xl mx-auto">
+<div class="mb-16">
+<h2 class="text-3xl font-headline font-800 text-primary mb-2">Resident Benefits</h2>
+<p class="text-on-surface-variant">Exclusive advantages curated for our distinguished members.</p>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-4 grid-rows-2 gap-6 h-auto md:h-[600px]">
+<!-- Large Card -->
+<div class="md:col-span-2 md:row-span-2 bg-surface-container-lowest p-10 rounded-3xl flex flex-col justify-between group cursor-pointer border border-transparent hover:border-primary-fixed-dim transition-all">
+<div>
+<div class="w-16 h-16 rounded-2xl bg-primary-fixed flex items-center justify-center mb-8">
+<span class="material-symbols-outlined text-primary text-3xl">home_max</span>
+</div>
+<h3 class="text-3xl font-headline font-700 text-primary mb-6">Full-Service Interior Coordination</h3>
+<p class="text-on-surface-variant leading-relaxed text-lg">Access to top-tier designers and premium finishing materials at wholesale prices exclusively for fair attendees.</p>
+</div>
+<div class="flex items-center text-primary font-bold gap-2">
+                            Explore Services <span class="material-symbols-outlined">north_east</span>
+</div>
+</div>
+<!-- Top Small Card -->
+<div class="md:col-span-2 bg-primary-container p-8 rounded-3xl text-on-primary flex items-center justify-between">
+<div class="max-w-xs">
+<h3 class="text-2xl font-headline font-700 mb-4">Financial Consulting</h3>
+<p class="text-on-primary/70 text-sm">Strategic mortgage and insurance planning for new homeowners.</p>
+</div>
+<span class="material-symbols-outlined text-6xl opacity-30">account_balance</span>
+</div>
+<!-- Bottom Small Cards -->
+<div class="bg-surface-container-high p-8 rounded-3xl flex flex-col justify-end">
+<span class="material-symbols-outlined text-primary text-4xl mb-4">security</span>
+<h4 class="font-headline font-bold text-primary">Advanced Security</h4>
+<p class="text-xs text-on-surface-variant">Smart home integration packages.</p>
+</div>
+<div class="bg-surface-container-high p-8 rounded-3xl flex flex-col justify-end">
+<span class="material-symbols-outlined text-primary text-4xl mb-4">local_shipping</span>
+<h4 class="font-headline font-bold text-primary">Priority Moving</h4>
+<p class="text-xs text-on-surface-variant">Concierge white-glove transport.</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Schedule & Location -->
+<section class="py-24 px-8 md:px-20 bg-surface">
+<div class="max-w-7xl mx-auto grid lg:grid-cols-2 gap-20">
+<!-- Event Schedule -->
+<div>
+<h2 class="text-4xl font-headline font-800 text-primary mb-12">Event Schedule</h2>
+<div class="space-y-6">
+<div class="bg-surface-container-lowest p-6 rounded-2xl flex items-center gap-8 group hover:bg-surface-container-high transition-colors">
+<div class="text-center min-w-[80px]">
+<span class="block text-2xl font-headline font-800 text-primary">OCT</span>
+<span class="block text-4xl font-headline font-800 text-outline">24</span>
+</div>
+<div class="flex-grow">
+<h4 class="font-headline font-bold text-lg mb-1">Grand Opening &amp; Interior Expo</h4>
+<p class="text-sm text-on-surface-variant flex items-center gap-2">
+<span class="material-symbols-outlined text-base">schedule</span> 10:00 AM - 06:00 PM
+                                </p>
+</div>
+</div>
+<div class="bg-surface-container-lowest p-6 rounded-2xl flex items-center gap-8 group hover:bg-surface-container-high transition-colors">
+<div class="text-center min-w-[80px]">
+<span class="block text-2xl font-headline font-800 text-primary">OCT</span>
+<span class="block text-4xl font-headline font-800 text-outline">25</span>
+</div>
+<div class="flex-grow">
+<h4 class="font-headline font-bold text-lg mb-1">Smart Home Tech &amp; Security Day</h4>
+<p class="text-sm text-on-surface-variant flex items-center gap-2">
+<span class="material-symbols-outlined text-base">schedule</span> 10:00 AM - 05:00 PM
+                                </p>
+</div>
+</div>
+<div class="bg-surface-container-lowest p-6 rounded-2xl flex items-center gap-8 group hover:bg-surface-container-high transition-colors">
+<div class="text-center min-w-[80px]">
+<span class="block text-2xl font-headline font-800 text-primary">OCT</span>
+<span class="block text-4xl font-headline font-800 text-outline">26</span>
+</div>
+<div class="flex-grow">
+<h4 class="font-headline font-bold text-lg mb-1">Moving &amp; Logistics Masterclass</h4>
+<p class="text-sm text-on-surface-variant flex items-center gap-2">
+<span class="material-symbols-outlined text-base">schedule</span> 11:00 AM - 04:00 PM
+                                </p>
+</div>
+</div>
+</div>
+</div>
+<!-- Location Map -->
+<div>
+<h2 class="text-4xl font-headline font-800 text-primary mb-12">Fair Location</h2>
+<div class="rounded-3xl overflow-hidden h-[400px] shadow-lg relative grayscale hover:grayscale-0 transition-all duration-700">
+<img alt="Event Venue Map" class="w-full h-full object-cover" data-alt="Abstract aerial map of an urban district with a marker on a convention center" data-location="Seoul, South Korea" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDf2u7lO_UuWCNEK8-UgUp7pDWhQujcN1PH5iSgKoGGRalYYmYXIHjsehsFibipDAWjWtYCdFBTL2kWSDJ5m8a-AbmeqDAbGrp3A81zWT6rh5wdk2rTDqm8D-V_Tkp3lVjf6v5OPTUuLNcYFzAoLt2Sk4O2hoKmLxlgNCYkBd6e_aCbk213xYJ2rFAw98ODRPxE-LnlprRyeUjVnIC5sFFRhHTfpf9zKu-FWs7LelkDRpWcALIHIvYHI8bXPKCoBVysIKqIysjkhQPN"/>
+<div class="absolute inset-0 bg-primary/10 flex items-center justify-center">
+<div class="bg-surface-container-lowest p-4 rounded-xl shadow-2xl flex items-center gap-4 border border-primary/20">
+<span class="material-symbols-outlined text-error text-3xl" style="font-variation-settings: 'FILL' 1;">location_on</span>
+<div>
+<span class="block font-bold text-primary">Grand Ballroom, COEX</span>
+<span class="block text-xs text-on-surface-variant">513, Yeongdong-daero, Seoul</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="bg-surface-container-highest py-20 px-8 md:px-20 border-t border-outline-variant/20">
+<div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-start gap-12">
+<div class="max-w-sm">
+<span class="text-primary font-headline font-800 text-xl tracking-tight mb-6 block">Move-In Fair</span>
+<p class="text-on-surface-variant text-sm leading-loose">
+                    Defining the standard for residential transitions. We curate the foundation of your future home with precision and authority.
+                </p>
+</div>
+<div class="grid grid-cols-2 md:grid-cols-3 gap-16">
+<div class="flex flex-col gap-4">
+<span class="font-bold text-primary">Navigate</span>
+<a class="text-sm text-on-surface-variant hover:text-primary transition-colors" href="#">Home</a>
+<a class="text-sm text-on-surface-variant hover:text-primary transition-colors" href="#">Reservation</a>
+<a class="text-sm text-on-surface-variant hover:text-primary transition-colors" href="#">Partners</a>
+</div>
+<div class="flex flex-col gap-4">
+<span class="font-bold text-primary">Support</span>
+<a class="text-sm text-on-surface-variant hover:text-primary transition-colors" href="#">Contact Us</a>
+<a class="text-sm text-on-surface-variant hover:text-primary transition-colors" href="#">Privacy Policy</a>
+<a class="text-sm text-on-surface-variant hover:text-primary transition-colors" href="#">Terms of Service</a>
+</div>
+<div class="flex flex-col gap-4 col-span-2 md:col-span-1">
+<span class="font-bold text-primary">Admin</span>
+<a class="text-sm text-on-surface-variant hover:text-primary transition-colors" href="#">Admin Login</a>
+<a class="text-sm text-on-surface-variant hover:text-primary transition-colors" href="#">Partner Portal</a>
+</div>
+</div>
+</div>
+<div class="max-w-7xl mx-auto mt-20 pt-8 border-t border-outline-variant/10 text-center md:text-left">
+<p class="text-xs text-on-surface-variant opacity-70">© 2024 Move-In Fair Management. All rights reserved.</p>
+</div>
+</footer>
+</body></html>

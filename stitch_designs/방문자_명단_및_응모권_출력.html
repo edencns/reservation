@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&amp;family=Inter:wght@100..900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "surface-dim": "#d8dadc",
+              "primary-container": "#0f4c81",
+              "primary-fixed-dim": "#a0c9ff",
+              "outline": "#727780",
+              "on-tertiary-fixed": "#2f1400",
+              "surface-container": "#eceef0",
+              "surface-tint": "#2d6197",
+              "surface-container-high": "#e6e8ea",
+              "on-primary-fixed-variant": "#07497d",
+              "inverse-surface": "#2d3133",
+              "on-tertiary": "#ffffff",
+              "primary": "#00355f",
+              "surface": "#f7f9fb",
+              "secondary-container": "#d5e3fc",
+              "surface-variant": "#e0e3e5",
+              "surface-container-low": "#f2f4f6",
+              "on-background": "#191c1e",
+              "on-surface": "#191c1e",
+              "error-container": "#ffdad6",
+              "secondary-fixed-dim": "#b9c7df",
+              "error": "#ba1a1a",
+              "secondary-fixed": "#d5e3fc",
+              "primary-fixed": "#d2e4ff",
+              "on-surface-variant": "#42474f",
+              "on-primary-fixed": "#001c37",
+              "secondary": "#515f74",
+              "surface-container-highest": "#e0e3e5",
+              "on-secondary-fixed-variant": "#3a485b",
+              "tertiary-fixed-dim": "#ffb780",
+              "tertiary-container": "#743b00",
+              "on-secondary": "#ffffff",
+              "on-secondary-fixed": "#0d1c2e",
+              "tertiary-fixed": "#ffdcc4",
+              "inverse-primary": "#a0c9ff",
+              "outline-variant": "#c2c7d1",
+              "on-tertiary-container": "#f9a767",
+              "on-error": "#ffffff",
+              "on-primary": "#ffffff",
+              "surface-bright": "#f7f9fb",
+              "on-error-container": "#93000a",
+              "on-tertiary-fixed-variant": "#6f3800",
+              "inverse-on-surface": "#eff1f3",
+              "background": "#f7f9fb",
+              "surface-container-lowest": "#ffffff",
+              "on-secondary-container": "#57657a",
+              "tertiary": "#532800",
+              "on-primary-container": "#8ebdf9"
+            },
+            fontFamily: {
+              "headline": ["Manrope"],
+              "body": ["Inter"],
+              "label": ["Inter"]
+            },
+            borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        body { font-family: 'Inter', sans-serif; }
+        h1, h2, h3, h4 { font-family: 'Manrope', sans-serif; }
+        .glass-panel {
+            background: rgba(247, 249, 251, 0.8);
+            backdrop-filter: blur(20px);
+        }
+        .ticket-gradient {
+            background: linear-gradient(135deg, #00355f 0%, #0f4c81 100%);
+        }
+    </style>
+</head>
+<body class="bg-surface text-on-background min-h-screen flex flex-col">
+<!-- TopNavBar -->
+<nav class="sticky top-0 z-50 glass-panel border-b border-outline-variant/15 px-8 py-4 flex items-center justify-between">
+<div class="flex items-center gap-4">
+<span class="text-primary font-headline font-bold text-xl tracking-tight">Move-In Fair</span>
+</div>
+<div class="hidden md:flex items-center gap-8">
+<a class="text-on-surface-variant font-medium text-sm" href="#">Home</a>
+<a class="text-on-surface-variant font-medium text-sm" href="#">Reservation</a>
+<a class="text-on-surface-variant font-medium text-sm" href="#">Partners</a>
+<a class="text-primary font-bold text-sm" href="#">Admin Login</a>
+</div>
+<div class="flex items-center gap-4">
+<button class="bg-primary text-on-primary px-6 py-2 rounded-md font-bold text-sm shadow-sm hover:bg-primary-container transition-colors">Get Started</button>
+<img alt="User Profile" class="w-10 h-10 rounded-full border border-outline-variant/30" data-alt="Close up portrait of an administrator" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA10_zeBZVW6eAFHMXZIv5yu1JGVChbBD3mSx-zivUZrafq-4BCTCByFJeHQDE3u0GA8eRPCwVFkRWRtSXpWIIfdWu-ZTUkh8kDmJJjaHwkhjNiZ8xDtjb6AmeghwbM2xIgcI36rN5FnSvInPSxuNpxU7Wgoq2NX-Ov2wbIWuGhl8cy5xF3QL4pEEUN39D7a8ZCIVv6t4ZLdMjuh1YSGFd__o-WUtCxIpKXFvdsgB8M_xwgXCa32d-ZpWjnLyhHNAvrayRsiVkDPqMH"/>
+</div>
+</nav>
+<div class="flex flex-1">
+<!-- SideNavBar -->
+<aside class="w-64 bg-surface-container-high border-r border-outline-variant/15 flex flex-col pt-8">
+<div class="px-6 mb-10 flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg bg-primary-container flex items-center justify-center text-on-primary">
+<span class="material-symbols-outlined">admin_panel_settings</span>
+</div>
+<div>
+<h3 class="font-headline font-bold text-sm text-on-surface">Admin Panel</h3>
+<p class="text-[10px] text-on-surface-variant">Management Suite</p>
+</div>
+</div>
+<nav class="flex-1 px-4 space-y-2">
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:bg-surface-container transition-colors" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="text-sm font-medium">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg bg-primary text-on-primary shadow-lg shadow-primary/20" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">groups</span>
+<span class="text-sm font-medium">Exhibitors</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:bg-surface-container transition-colors" href="#">
+<span class="material-symbols-outlined">map</span>
+<span class="text-sm font-medium">Floor Plan</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:bg-surface-container transition-colors" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="text-sm font-medium">Settings</span>
+</a>
+</nav>
+</aside>
+<!-- Main Content (Visitor List & Ticket Printing) -->
+<main class="flex-1 p-12 overflow-y-auto">
+<header class="mb-12">
+<h1 class="text-display-lg font-headline font-extrabold text-on-surface tracking-tighter mb-2 italic">Visitor Registry</h1>
+<p class="text-on-surface-variant text-lg">Manage attendee access and generate physical credentials for the fair.</p>
+</header>
+<!-- Search and Filter Bar -->
+<div class="bg-surface-container-low p-6 rounded-xl flex flex-wrap gap-4 items-center justify-between mb-8 border border-outline-variant/10">
+<div class="flex-1 min-w-[300px] relative">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
+<input class="w-full bg-surface-container-lowest border-none rounded-lg pl-12 pr-4 py-3 text-sm focus:ring-2 focus:ring-primary focus:bg-white transition-all" placeholder="Search by name, ID, or complex name..." type="text"/>
+</div>
+<div class="flex items-center gap-3">
+<button class="bg-surface-container-highest px-4 py-3 rounded-lg flex items-center gap-2 text-sm font-semibold text-on-surface-variant">
+<span class="material-symbols-outlined">filter_list</span>
+                        Filter By Date
+                    </button>
+<button class="bg-surface-container-highest px-4 py-3 rounded-lg flex items-center gap-2 text-sm font-semibold text-on-surface-variant">
+<span class="material-symbols-outlined">file_download</span>
+                        Export CSV
+                    </button>
+</div>
+</div>
+<!-- Bento Layout Content -->
+<div class="grid grid-cols-12 gap-8">
+<!-- Visitor Table Section -->
+<div class="col-span-12 lg:col-span-8 bg-surface-container-lowest rounded-xl shadow-sm overflow-hidden flex flex-col">
+<div class="px-8 py-6 border-b border-surface-container-low flex justify-between items-center">
+<h2 class="font-headline font-bold text-lg">Registered Visitors</h2>
+<span class="bg-secondary-container text-on-secondary-container px-3 py-1 rounded-full text-xs font-bold">1,284 Total</span>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left">
+<thead class="bg-surface text-on-surface-variant text-[10px] uppercase tracking-widest font-bold">
+<tr>
+<th class="px-8 py-4">Visitor Details</th>
+<th class="px-8 py-4">Registration ID</th>
+<th class="px-8 py-4">Apartment / Unit</th>
+<th class="px-8 py-4">Status</th>
+<th class="px-8 py-4 text-right">Action</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-surface-container">
+<!-- Row 1 -->
+<tr class="hover:bg-surface transition-colors">
+<td class="px-8 py-6">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-surface-dim flex items-center justify-center font-bold text-primary">JD</div>
+<div>
+<p class="font-bold text-sm text-on-surface">John Doe</p>
+<p class="text-xs text-on-surface-variant">j.doe@example.com</p>
+</div>
+</div>
+</td>
+<td class="px-8 py-6">
+<span class="font-mono text-xs text-on-surface-variant bg-surface-container-low px-2 py-1 rounded">MIF-2024-001</span>
+</td>
+<td class="px-8 py-6 text-sm text-on-surface">
+                                        Gwangmyeong Prugio / 102-1405
+                                    </td>
+<td class="px-8 py-6">
+<span class="flex items-center gap-1.5 text-xs font-bold text-green-600">
+<span class="w-1.5 h-1.5 rounded-full bg-green-500"></span> Confirmed
+                                        </span>
+</td>
+<td class="px-8 py-6 text-right">
+<button class="bg-primary-container/10 text-primary-container px-4 py-2 rounded-lg text-xs font-bold hover:bg-primary-container hover:text-white transition-all flex items-center gap-2 ml-auto">
+<span class="material-symbols-outlined text-sm">print</span>
+                                            Print Ticket
+                                        </button>
+</td>
+</tr>
+<!-- Row 2 -->
+<tr class="bg-surface-container-low/30 hover:bg-surface transition-colors">
+<td class="px-8 py-6">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-surface-dim flex items-center justify-center font-bold text-primary">SK</div>
+<div>
+<p class="font-bold text-sm text-on-surface">Sarah Kim</p>
+<p class="text-xs text-on-surface-variant">s.kim@webmail.kr</p>
+</div>
+</div>
+</td>
+<td class="px-8 py-6">
+<span class="font-mono text-xs text-on-surface-variant bg-surface-container-low px-2 py-1 rounded">MIF-2024-042</span>
+</td>
+<td class="px-8 py-6 text-sm text-on-surface">
+                                        Seoul Central Heights / 405-201
+                                    </td>
+<td class="px-8 py-6">
+<span class="flex items-center gap-1.5 text-xs font-bold text-green-600">
+<span class="w-1.5 h-1.5 rounded-full bg-green-500"></span> Confirmed
+                                        </span>
+</td>
+<td class="px-8 py-6 text-right">
+<button class="bg-primary-container/10 text-primary-container px-4 py-2 rounded-lg text-xs font-bold hover:bg-primary-container hover:text-white transition-all flex items-center gap-2 ml-auto">
+<span class="material-symbols-outlined text-sm">print</span>
+                                            Print Ticket
+                                        </button>
+</td>
+</tr>
+<!-- Row 3 -->
+<tr class="hover:bg-surface transition-colors">
+<td class="px-8 py-6">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-surface-dim flex items-center justify-center font-bold text-primary">ML</div>
+<div>
+<p class="font-bold text-sm text-on-surface">Michael Lee</p>
+<p class="text-xs text-on-surface-variant">m.lee@service.com</p>
+</div>
+</div>
+</td>
+<td class="px-8 py-6">
+<span class="font-mono text-xs text-on-surface-variant bg-surface-container-low px-2 py-1 rounded">MIF-2024-118</span>
+</td>
+<td class="px-8 py-6 text-sm text-on-surface">
+                                        Hillstate Gasan / 1102-703
+                                    </td>
+<td class="px-8 py-6">
+<span class="flex items-center gap-1.5 text-xs font-bold text-amber-600">
+<span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span> Pending
+                                        </span>
+</td>
+<td class="px-8 py-6 text-right">
+<button class="bg-primary-container/10 text-primary-container px-4 py-2 rounded-lg text-xs font-bold hover:bg-primary-container hover:text-white transition-all flex items-center gap-2 ml-auto">
+<span class="material-symbols-outlined text-sm">print</span>
+                                            Print Ticket
+                                        </button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="px-8 py-4 bg-surface-container-low border-t border-outline-variant/10 flex items-center justify-between">
+<p class="text-xs text-on-surface-variant">Showing 1-10 of 1,284 visitors</p>
+<div class="flex gap-2">
+<button class="p-2 rounded hover:bg-surface-container transition-colors"><span class="material-symbols-outlined">chevron_left</span></button>
+<button class="p-2 rounded hover:bg-surface-container transition-colors"><span class="material-symbols-outlined">chevron_right</span></button>
+</div>
+</div>
+</div>
+<!-- Ticket Preview Side Panel -->
+<div class="col-span-12 lg:col-span-4 flex flex-col gap-8">
+<div class="bg-surface-container-highest rounded-xl p-8 border border-outline-variant/20 relative overflow-hidden">
+<div class="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full -mr-16 -mt-16"></div>
+<h3 class="font-headline font-bold text-lg mb-6 flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">visibility</span>
+                            Live Ticket Preview
+                        </h3>
+<!-- Physical Ticket Mockup -->
+<div class="ticket-gradient text-white rounded-xl p-6 shadow-2xl relative">
+<!-- Punch hole effect -->
+<div class="absolute -left-3 top-1/2 -translate-y-1/2 w-6 h-6 bg-surface-container-highest rounded-full"></div>
+<div class="absolute -right-3 top-1/2 -translate-y-1/2 w-6 h-6 bg-surface-container-highest rounded-full"></div>
+<div class="flex justify-between items-start mb-10">
+<div>
+<p class="text-[10px] tracking-widest opacity-70 uppercase font-bold">Entry Ticket</p>
+<h4 class="font-headline text-xl font-extrabold leading-tight">Move-In Fair<br/>2024 Edition</h4>
+</div>
+<div class="bg-white/10 p-2 rounded-lg backdrop-blur-md">
+<span class="material-symbols-outlined text-3xl">qr_code_2</span>
+</div>
+</div>
+<div class="space-y-4 border-t border-white/20 pt-6">
+<div class="grid grid-cols-2 gap-4">
+<div>
+<p class="text-[8px] uppercase opacity-60 font-bold mb-1">Attendee</p>
+<p class="text-sm font-bold truncate">John Doe</p>
+</div>
+<div>
+<p class="text-[8px] uppercase opacity-60 font-bold mb-1">ID Number</p>
+<p class="text-sm font-bold font-mono">#MIF-2024-001</p>
+</div>
+</div>
+<div>
+<p class="text-[8px] uppercase opacity-60 font-bold mb-1">Location / Unit</p>
+<p class="text-sm font-bold">Gwangmyeong Prugio 102-1405</p>
+</div>
+</div>
+<div class="mt-8 pt-4 border-t border-dashed border-white/30 flex justify-between items-end">
+<div>
+<p class="text-[8px] uppercase opacity-60 font-bold">Raffle Entry</p>
+<p class="text-xs font-bold">VALID FOR GRAND PRIZE</p>
+</div>
+<div class="text-right">
+<p class="text-[10px] font-bold opacity-80">ADMITS ONE</p>
+</div>
+</div>
+</div>
+<div class="mt-8 space-y-4">
+<button class="w-full bg-primary text-white py-4 rounded-xl font-bold flex items-center justify-center gap-3 shadow-lg shadow-primary/30 active:scale-95 transition-transform">
+<span class="material-symbols-outlined">print</span>
+                                Print Selected Tickets
+                            </button>
+<p class="text-center text-xs text-on-surface-variant">Ticket will be printed on standard 10cm x 15cm thermal stock.</p>
+</div>
+</div>
+<!-- Statistics Small Card -->
+<div class="bg-surface-container-low rounded-xl p-6 border border-outline-variant/10">
+<h4 class="text-xs font-bold text-on-surface-variant uppercase tracking-widest mb-4">Print Queue Status</h4>
+<div class="flex items-center justify-between mb-2">
+<span class="text-sm font-medium">Daily Prints</span>
+<span class="text-sm font-bold">412 / 1000</span>
+</div>
+<div class="w-full h-2 bg-surface-container-highest rounded-full overflow-hidden">
+<div class="h-full bg-primary rounded-full w-[42%]"></div>
+</div>
+<p class="mt-4 text-[10px] text-on-surface-variant leading-relaxed">
+                            System is running optimally. Next maintenance scheduled for 14th Oct.
+                        </p>
+</div>
+</div>
+</div>
+</main>
+</div>
+<!-- Footer -->
+<footer class="bg-surface-container-high border-t border-outline-variant/15 px-8 py-10">
+<div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
+<p class="text-sm text-on-surface-variant font-medium">© 2024 Move-In Fair Management. All rights reserved.</p>
+<div class="flex gap-8">
+<a class="text-sm text-on-surface-variant hover:text-primary transition-colors" href="#">Contact Us</a>
+<a class="text-sm text-on-surface-variant hover:text-primary transition-colors" href="#">Privacy Policy</a>
+<a class="text-sm text-on-surface-variant hover:text-primary transition-colors" href="#">Terms of Service</a>
+</div>
+</div>
+</footer>
+</body></html>

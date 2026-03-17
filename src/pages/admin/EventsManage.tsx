@@ -53,18 +53,17 @@ export default function EventsManage() {
   return (
     <div className="space-y-5">
       <div className="flex items-center justify-between">
-        <h2 className="font-bold text-gray-800">행사 관리</h2>
+        <h2 className="font-bold text-on-surface">행사 관리</h2>
         <div className="flex gap-2">
           <button
             onClick={handleExport}
-            className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl font-semibold text-sm hover:opacity-90 border border-gray-200 text-gray-600 hover:bg-gray-50"
+            className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl font-semibold text-sm border border-outline-variant text-on-surface-variant hover:bg-surface-container"
           >
             <Download size={15} /> 엑셀
           </button>
           <button
             onClick={() => navigate('/admin/events/create')}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-white font-semibold text-sm hover:opacity-90 shadow-sm"
-            style={{ backgroundColor: '#667EEA' }}
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-primary text-on-primary font-semibold text-sm hover:opacity-90"
           >
             <Plus size={16} /> 새 행사 등록
           </button>
@@ -72,15 +71,15 @@ export default function EventsManage() {
       </div>
 
       {/* 필터 */}
-      <div className="bg-white rounded-2xl shadow-sm p-4 flex flex-col sm:flex-row gap-3">
+      <div className="bg-surface-container-lowest rounded-xl border border-outline-variant/10 p-4 flex flex-col sm:flex-row gap-3">
         <div className="relative flex-1">
-          <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+          <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-outline" />
           <input
             type="text"
             placeholder="행사명, 장소 검색"
             value={search}
             onChange={e => setSearch(e.target.value)}
-            className="w-full pl-9 pr-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#667EEA]"
+            className="w-full pl-9 pr-4 py-2.5 border border-outline-variant rounded-xl text-sm bg-surface-container-lowest focus:outline-none focus:ring-2 focus:ring-primary"
           />
         </div>
         <div className="flex gap-2">
@@ -89,9 +88,10 @@ export default function EventsManage() {
               key={f.value}
               onClick={() => setStatusFilter(f.value)}
               className={`px-3 py-2 rounded-xl text-sm font-semibold transition-all ${
-                statusFilter === f.value ? 'text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                statusFilter === f.value
+                  ? 'bg-primary text-on-primary'
+                  : 'bg-surface-container text-on-surface-variant hover:bg-surface-container-high'
               }`}
-              style={statusFilter === f.value ? { backgroundColor: '#667EEA' } : {}}
             >
               {f.label}
             </button>
@@ -99,43 +99,43 @@ export default function EventsManage() {
         </div>
       </div>
 
-      <p className="text-sm text-gray-500">총 {filtered.length}건</p>
+      <p className="text-sm text-on-surface-variant">총 {filtered.length}건</p>
 
       {/* Desktop table */}
-      <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
+      <div className="bg-surface-container-lowest rounded-xl border border-outline-variant/10 overflow-hidden">
         <div className="hidden md:block overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr style={{ backgroundColor: '#E0D6F9' }}>
+              <tr className="bg-surface-container-low">
                 {['행사명', '기간', '예약 수', '상태', '관리'].map(h => (
-                  <th key={h} className="px-4 py-3 text-left font-semibold text-gray-700 whitespace-nowrap">{h}</th>
+                  <th key={h} className="px-4 py-3 text-left text-on-surface-variant text-[10px] uppercase tracking-widest whitespace-nowrap">{h}</th>
                 ))}
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-50">
+            <tbody className="divide-y divide-outline-variant/10">
               {filtered.length === 0 ? (
-                <tr><td colSpan={5} className="text-center py-12 text-gray-400">등록된 행사가 없습니다</td></tr>
+                <tr><td colSpan={5} className="text-center py-12 text-on-surface-variant">등록된 행사가 없습니다</td></tr>
               ) : filtered.map(event => {
                 const confirmed = reservations.filter(r => r.eventId === event.id && r.status === 'confirmed').length;
                 return (
-                  <tr key={event.id} className="hover:bg-gray-50 transition-colors">
-                    <td className="px-4 py-3 font-medium text-gray-800 whitespace-nowrap">
+                  <tr key={event.id} className="hover:bg-surface-container-low transition-colors">
+                    <td className="px-4 py-3 font-medium text-on-surface whitespace-nowrap">
                       {event.title}
                     </td>
-                    <td className="px-4 py-3 text-gray-600 whitespace-nowrap">
+                    <td className="px-4 py-3 text-on-surface-variant whitespace-nowrap">
                       <p className="text-xs">{formatDate(event.dates[0])}</p>
                       {event.dates.length > 1 && (
-                        <p className="text-xs text-gray-400">~ {formatDate(event.dates[event.dates.length - 1])}</p>
+                        <p className="text-xs text-outline">~ {formatDate(event.dates[event.dates.length - 1])}</p>
                       )}
                     </td>
-                    <td className="px-4 py-3 font-semibold whitespace-nowrap" style={{ color: '#667EEA' }}>
+                    <td className="px-4 py-3 font-semibold text-primary whitespace-nowrap">
                       {confirmed}건
                     </td>
                     <td className="px-4 py-3 whitespace-nowrap">
                       <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${
-                        event.status === 'active' ? 'bg-green-100 text-green-600'
+                        event.status === 'active' ? 'bg-primary/10 text-primary'
                         : event.status === 'closed' ? 'bg-red-100 text-red-500'
-                        : 'bg-gray-100 text-gray-500'
+                        : 'bg-surface-container text-on-surface-variant'
                       }`}>
                         {event.status === 'active' ? '오픈' : event.status === 'closed' ? '마감' : '임시저장'}
                       </span>
@@ -143,23 +143,23 @@ export default function EventsManage() {
                     <td className="px-4 py-3">
                       <div className="flex gap-1 items-center">
                         <button onClick={() => navigate(`/e/${event.slug}`)}
-                          className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-500" title="행사 페이지">
+                          className="p-1.5 rounded-lg hover:bg-surface-container text-on-surface-variant" title="행사 페이지">
                           <ExternalLink size={15} />
                         </button>
                         <button onClick={() => navigate(`/admin/reservations?eventId=${event.id}`)}
-                          className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-500" title="예약 보기">
+                          className="p-1.5 rounded-lg hover:bg-surface-container text-on-surface-variant" title="예약 보기">
                           <ClipboardList size={15} />
                         </button>
                         <button onClick={() => window.open(`/kiosk/${event.id}`, '_blank')}
-                          className="p-1.5 rounded-lg hover:bg-purple-50 text-gray-500 hover:text-purple-600" title="키오스크 열기">
+                          className="p-1.5 rounded-lg hover:bg-primary/10 text-on-surface-variant hover:text-primary" title="키오스크 열기">
                           <Monitor size={15} />
                         </button>
                         <button onClick={() => navigate(`/admin/events/${event.id}/edit`)}
-                          className="p-1.5 rounded-lg hover:bg-blue-50 text-gray-500 hover:text-blue-600" title="수정">
+                          className="p-1.5 rounded-lg hover:bg-surface-container text-on-surface-variant hover:text-primary" title="수정">
                           <Edit2 size={15} />
                         </button>
                         <button onClick={() => handleDelete(event.id)}
-                          className="p-1.5 rounded-lg hover:bg-red-50 text-gray-500 hover:text-red-500" title="삭제">
+                          className="p-1.5 rounded-lg hover:bg-red-50 text-on-surface-variant hover:text-red-500" title="삭제">
                           <Trash2 size={15} />
                         </button>
                       </div>
@@ -172,32 +172,31 @@ export default function EventsManage() {
         </div>
 
         {/* Mobile cards */}
-        <div className="md:hidden divide-y divide-gray-100">
+        <div className="md:hidden divide-y divide-outline-variant/10">
           {filtered.length === 0 ? (
-            <p className="text-center py-10 text-gray-400 text-sm">등록된 행사가 없습니다</p>
+            <p className="text-center py-10 text-on-surface-variant text-sm">등록된 행사가 없습니다</p>
           ) : filtered.map(event => {
             const confirmed = reservations.filter(r => r.eventId === event.id && r.status === 'confirmed').length;
             return (
               <div key={event.id} className="p-4">
                 <div className="flex items-start justify-between mb-1.5">
-                  <p className="font-bold text-gray-800 flex-1 pr-2 truncate">{event.title}</p>
+                  <p className="font-bold text-on-surface flex-1 pr-2 truncate">{event.title}</p>
                   <span className={`shrink-0 px-2 py-0.5 rounded-full text-xs font-semibold ${
-                    event.status === 'active' ? 'bg-green-100 text-green-600' : 'bg-gray-100 text-gray-500'
+                    event.status === 'active' ? 'bg-primary/10 text-primary' : 'bg-surface-container text-on-surface-variant'
                   }`}>
                     {event.status === 'active' ? '오픈' : '마감'}
                   </span>
                 </div>
-                <p className="text-xs text-gray-500">{event.venue}</p>
-                <p className="text-xs text-gray-400 mt-0.5">{formatDate(event.dates[0])}</p>
-                <p className="text-xs font-semibold mt-1" style={{ color: '#667EEA' }}>예약 {confirmed}건</p>
+                <p className="text-xs text-on-surface-variant">{event.venue}</p>
+                <p className="text-xs text-outline mt-0.5">{formatDate(event.dates[0])}</p>
+                <p className="text-xs font-semibold mt-1 text-primary">예약 {confirmed}건</p>
                 <div className="flex gap-2 mt-3 flex-wrap">
                   <button onClick={() => navigate(`/admin/reservations?eventId=${event.id}`)}
-                    className="flex-1 py-2 text-xs rounded-lg bg-gray-100 text-gray-600 font-medium">예약 보기</button>
+                    className="flex-1 py-2 text-xs rounded-lg bg-surface-container text-on-surface-variant font-medium">예약 보기</button>
                   <button onClick={() => window.open(`/kiosk/${event.id}`, '_blank')}
-                    className="flex-1 py-2 text-xs rounded-lg font-medium text-white"
-                    style={{ backgroundColor: '#667EEA' }}>🖥️ 키오스크</button>
+                    className="flex-1 py-2 text-xs rounded-lg font-medium bg-primary text-on-primary">키오스크</button>
                   <button onClick={() => navigate(`/admin/events/${event.id}/edit`)}
-                    className="flex-1 py-2 text-xs rounded-lg bg-blue-50 text-blue-600 font-medium">수정</button>
+                    className="flex-1 py-2 text-xs rounded-lg bg-primary/10 text-primary font-medium">수정</button>
                   <button onClick={() => handleDelete(event.id)}
                     className="flex-1 py-2 text-xs rounded-lg bg-red-50 text-red-500 font-medium">삭제</button>
                 </div>

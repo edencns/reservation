@@ -28,7 +28,7 @@ export default function AdminLayout() {
   };
 
   return (
-    <div className="min-h-screen flex bg-gray-100">
+    <div className="min-h-screen flex bg-surface">
       {/* Mobile overlay */}
       {sidebarOpen && (
         <div className="fixed inset-0 z-20 bg-black/40 md:hidden" onClick={() => setSidebarOpen(false)} />
@@ -36,17 +36,20 @@ export default function AdminLayout() {
 
       {/* Sidebar */}
       <aside
-        className={`fixed md:static inset-y-0 left-0 z-30 w-60 flex flex-col shadow-xl transition-transform duration-200 ${
+        className={`fixed md:static inset-y-0 left-0 z-30 w-60 bg-surface-container-high border-r border-outline-variant/15 flex flex-col h-screen sticky top-0 transition-transform duration-200 ${
           sidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
         }`}
-        style={{ backgroundColor: '#667EEA' }}
       >
-        <div className="p-5 border-b border-white/20">
+        <div className="p-6 border-b border-outline-variant/15">
           <div className="flex items-center gap-2">
-            <Ticket size={22} className="text-white" />
-            <span className="font-extrabold text-white text-lg">관리자 패널</span>
+            <div className="w-10 h-10 rounded-xl bg-primary-container flex items-center justify-center text-on-primary">
+              <Ticket size={20} />
+            </div>
+            <div>
+              <span className="font-headline font-bold text-on-surface text-lg block leading-tight">관리자 패널</span>
+              <p className="text-on-surface-variant text-xs">ReserveTicket Admin</p>
+            </div>
           </div>
-          <p className="text-blue-100 text-xs mt-1">ReserveTicket Admin</p>
         </div>
 
         <nav className="flex-1 p-3 space-y-1">
@@ -59,8 +62,8 @@ export default function AdminLayout() {
                 onClick={() => setSidebarOpen(false)}
                 className={`flex items-center gap-3 px-4 py-3 rounded-xl font-medium text-sm transition-all ${
                   isActive
-                    ? 'bg-white text-[#667EEA] shadow-sm'
-                    : 'text-white hover:bg-white/20'
+                    ? 'bg-surface-container-lowest text-primary shadow-sm'
+                    : 'text-on-surface-variant hover:bg-surface-container rounded-xl'
                 }`}
               >
                 {item.icon}
@@ -73,7 +76,7 @@ export default function AdminLayout() {
         <div className="p-3">
           <button
             onClick={handleLogout}
-            className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-white hover:bg-white/20 font-medium text-sm transition-all"
+            className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-on-surface-variant hover:bg-surface-container font-medium text-sm transition-all"
           >
             <LogOut size={18} />
             로그아웃
@@ -84,17 +87,17 @@ export default function AdminLayout() {
       {/* Main */}
       <div className="flex-1 flex flex-col min-w-0">
         {/* Top bar */}
-        <div className="bg-white border-b px-4 md:px-6 py-3 flex items-center gap-3 sticky top-0 z-10 shadow-sm">
+        <div className="bg-surface-container-lowest border-b border-outline-variant/15 px-4 md:px-6 py-3 flex items-center gap-3 sticky top-0 z-10">
           <button
-            className="md:hidden p-1.5 rounded-lg hover:bg-gray-100"
+            className="md:hidden p-1.5 rounded-lg hover:bg-surface-container"
             onClick={() => setSidebarOpen(!sidebarOpen)}
           >
             {sidebarOpen ? <X size={22} /> : <Menu size={22} />}
           </button>
-          <h1 className="font-bold text-gray-800">
+          <h1 className="font-headline font-bold text-on-surface">
             {navItems.find(n => n.to === location.pathname)?.label ?? '관리자'}
           </h1>
-          <Link to="/" className="ml-auto text-xs text-gray-400 hover:text-gray-600">사이트 보기 →</Link>
+          <Link to="/" className="ml-auto text-xs text-on-surface-variant hover:text-on-surface">사이트 보기 →</Link>
         </div>
 
         {/* Content */}

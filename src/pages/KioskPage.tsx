@@ -187,7 +187,7 @@ function ReprintNumpad({
             onClick={() => append(key)}
             className="rounded-xl font-bold transition-all active:scale-95"
             style={{
-              backgroundColor: (key === '동' || key === '호') ? '#667EEA' : '#2a2a4a',
+              backgroundColor: (key === '동' || key === '호') ? '#0f4c81' : '#2a2a4a',
               color: 'white', height: 58, border: 'none', cursor: 'pointer',
               fontSize: (key === '동' || key === '호') ? 17 : 24,
             }}
@@ -398,7 +398,7 @@ export default function KioskPage() {
     <div className="min-h-screen flex flex-col" style={{ backgroundColor: '#1a1a2e', userSelect: 'none' }}>
 
       {/* 헤더 */}
-      <div className="flex items-center justify-between px-8 py-4" style={{ backgroundColor: '#667EEA' }}>
+      <div className="flex items-center justify-between px-8 py-4" style={{ backgroundColor: '#0f4c81' }}>
         <p className="text-white text-sm font-semibold tracking-widest uppercase opacity-90">입장권 발급 키오스크</p>
         {(phase === 'result' || phase === 'notfound' || phase === 'alreadyprinted') && (
           <p className="text-white text-sm opacity-75">{autoResetSecs}초 후 자동 초기화</p>
@@ -434,7 +434,7 @@ export default function KioskPage() {
                       onClick={() => handleKey(key)}
                       className="rounded-xl font-bold transition-all active:scale-95"
                       style={{
-                        backgroundColor: (key === '동' || key === '호') ? '#667EEA' : '#2a2a4a',
+                        backgroundColor: (key === '동' || key === '호') ? '#0f4c81' : '#2a2a4a',
                         color: 'white', height: 72, border: 'none', cursor: 'pointer',
                         fontSize: (key === '동' || key === '호') ? 20 : 28,
                       }}
@@ -483,7 +483,7 @@ export default function KioskPage() {
                   <div className="flex items-center gap-2 mb-1">
                     {r.checkedIn
                       ? <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-semibold">이미 입장완료</span>
-                      : <span className="text-xs text-white px-2 py-0.5 rounded-full font-semibold" style={{ backgroundColor: '#667EEA' }}>예약확정</span>
+                      : <span className="text-xs text-white px-2 py-0.5 rounded-full font-semibold" style={{ backgroundColor: '#0f4c81' }}>예약확정</span>
                     }
                   </div>
                   <p className="font-bold text-gray-800">{formatDate(r.date)}{r.time && r.time !== '시간 미지정' ? ` ${r.time}` : ''}</p>
@@ -503,7 +503,7 @@ export default function KioskPage() {
               </button>
               <button onClick={() => doPrint(found.filter(r => !r.checkedIn), true)} disabled={printing}
                 className="rounded-xl font-bold text-lg transition-all active:scale-95"
-                style={{ backgroundColor: printing ? '#4a5a8a' : '#667EEA', color: 'white', height: 72, border: 'none', cursor: printing ? 'not-allowed' : 'pointer' }}>
+                style={{ backgroundColor: printing ? '#4a5a8a' : '#0f4c81', color: 'white', height: 72, border: 'none', cursor: printing ? 'not-allowed' : 'pointer' }}>
                 {printing ? '출력 준비 중...' : '🖨️ 입장권 출력'}
               </button>
             </div>
@@ -520,7 +520,7 @@ export default function KioskPage() {
             <p className="text-gray-500 text-sm mb-8">재출력이 필요하면 안내데스크에 문의하세요</p>
             <button onClick={reset}
               className="rounded-xl font-bold text-xl w-full transition-all active:scale-95"
-              style={{ backgroundColor: '#667EEA', color: 'white', height: 72, border: 'none', cursor: 'pointer' }}>
+              style={{ backgroundColor: '#0f4c81', color: 'white', height: 72, border: 'none', cursor: 'pointer' }}>
               처음으로
             </button>
             <p className="text-gray-500 text-sm mt-4">{autoResetSecs}초 후 자동으로 처음 화면으로 돌아갑니다</p>
@@ -542,7 +542,7 @@ export default function KioskPage() {
             )}
             <button onClick={reset}
               className="rounded-xl font-bold text-xl w-full transition-all active:scale-95"
-              style={{ backgroundColor: '#667EEA', color: 'white', height: 72, border: 'none', cursor: 'pointer' }}>
+              style={{ backgroundColor: '#0f4c81', color: 'white', height: 72, border: 'none', cursor: 'pointer' }}>
               다시 입력
             </button>
             <p className="text-gray-500 text-sm mt-4">{autoResetSecs}초 후 자동으로 처음 화면으로 돌아갑니다</p>
@@ -563,7 +563,7 @@ export default function KioskPage() {
             )}
             <button onClick={reset}
               className="rounded-xl font-bold text-xl w-full transition-all active:scale-95"
-              style={{ backgroundColor: '#667EEA', color: 'white', height: 72, border: 'none', cursor: 'pointer' }}>
+              style={{ backgroundColor: '#0f4c81', color: 'white', height: 72, border: 'none', cursor: 'pointer' }}>
               다시 시도
             </button>
           </div>
@@ -578,7 +578,7 @@ export default function KioskPage() {
             style={{ backgroundColor: '#1e1e3a' }}>
 
             {/* 팝업 헤더 */}
-            <div className="px-6 py-4 flex items-center justify-between" style={{ backgroundColor: '#667EEA' }}>
+            <div className="px-6 py-4 flex items-center justify-between" style={{ backgroundColor: '#0f4c81' }}>
               <div>
                 <p className="text-white text-xs opacity-75 tracking-widest">재출력</p>
                 <p className="text-white font-bold">동호수 입력</p>
@@ -634,7 +634,7 @@ export default function KioskPage() {
                       onClick={() => doPrint(reprintFound, false)}
                       disabled={printing}
                       className="rounded-xl font-bold transition-all active:scale-95"
-                      style={{ backgroundColor: printing ? '#4a5a8a' : '#667EEA', color: 'white', height: 56, border: 'none', cursor: printing ? 'not-allowed' : 'pointer' }}>
+                      style={{ backgroundColor: printing ? '#4a5a8a' : '#0f4c81', color: 'white', height: 56, border: 'none', cursor: printing ? 'not-allowed' : 'pointer' }}>
                       {printing ? '출력 중...' : '🖨️ 재출력'}
                     </button>
                   </div>
@@ -650,7 +650,7 @@ export default function KioskPage() {
                   <button
                     onClick={() => { setReprintPhase('input'); setReprintInput(''); }}
                     className="w-full rounded-xl font-bold transition-all active:scale-95"
-                    style={{ backgroundColor: '#667EEA', color: 'white', height: 56, border: 'none', cursor: 'pointer' }}>
+                    style={{ backgroundColor: '#0f4c81', color: 'white', height: 56, border: 'none', cursor: 'pointer' }}>
                     다시 입력
                   </button>
                 </>
