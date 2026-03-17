@@ -1,34 +1,7 @@
-import { ArrowRight, Building, ShieldCheck, Truck, HandCoins, MapPin, Clock } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 import { formatDate } from '../utils/helpers';
-
-const services = [
-  {
-    icon: <Building size={32} className="text-blue-600" />,
-    title: '인테리어 코디네이션',
-    description: '프리미엄 마감재와 최고의 디자이너를 박람회 특가로 만나보세요. 입주민 전용 특별 할인 혜택을 제공합니다.',
-    highlight: false,
-  },
-  {
-    icon: <HandCoins size={32} className="text-white" />,
-    title: '금융 컨설팅',
-    description: '신규 분양 입주를 위한 전략적 모기지 및 보험 설계. 최적의 금융 플랜을 제안해 드립니다.',
-    highlight: true,
-  },
-  {
-    icon: <ShieldCheck size={32} className="text-blue-600" />,
-    title: '스마트 보안·홈네트워크',
-    description: '스마트홈 통합 솔루션으로 안전하고 편리한 생활환경을 구성하세요.',
-    highlight: false,
-  },
-  {
-    icon: <Truck size={32} className="text-blue-600" />,
-    title: '이사 서비스',
-    description: '전문 이사 업체와 연계한 원스톱 이삿짐 운반 서비스를 제공합니다.',
-    highlight: false,
-  },
-];
+import { ArrowRight, MapPin, Clock, Building } from 'lucide-react';
 
 export default function Home() {
   const navigate = useNavigate();
@@ -42,162 +15,256 @@ export default function Home() {
       return `${event.startTime ?? ''} ~ ${event.endTime ?? ''}`.trim();
     }
     const slots = event.timeSlots ?? [];
-    if (slots.length === 0) return '시간 미지정';
+    if (slots.length === 0) return '';
     const first = slots[0]?.time;
     const last = slots[slots.length - 1]?.time;
-    if (!first || first === '시간 미지정') return '시간 미지정';
+    if (!first || first === '시간 미지정') return '';
     return first === last ? first : `${first} ~ ${last}`;
   };
 
   return (
-    <div className="bg-white text-gray-800">
+    <div style={{ background: 'var(--surface)', color: 'var(--on-surface)' }}>
 
       {/* ── Hero ── */}
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-24">
-        <div className="grid md:grid-cols-2 gap-12 items-center">
-          <div className="text-center md:text-left">
-            <span className="text-sm font-semibold text-blue-600 bg-blue-100 px-3 py-1 rounded-full">
+      <section className="relative min-h-screen flex items-center px-6 md:px-10 overflow-hidden pt-20">
+        <div className="grid lg:grid-cols-2 gap-16 items-center w-full max-w-7xl mx-auto py-20">
+          {/* Left */}
+          <div className="z-10">
+            <span
+              className="inline-block px-4 py-1.5 rounded-full text-xs font-bold tracking-widest mb-6"
+              style={{ background: 'var(--secondary-container)', color: 'var(--on-secondary-container)' }}
+            >
               프리미엄 입주 박람회
             </span>
-            <h1 className="text-4xl md:text-5xl font-bold mt-4 leading-tight text-gray-900">
-              새로운 시작을 위한<br />특별한 입주 경험
+            <h1
+              className="text-5xl lg:text-7xl font-extrabold leading-tight mb-8"
+              style={{ color: 'var(--primary)' }}
+            >
+              새로운 시작을 위한<br />
+              <span className="font-light" style={{ color: 'var(--primary-container)' }}>특별한 입주 경험.</span>
             </h1>
-            <p className="mt-5 text-lg text-gray-600 leading-relaxed">
+            <p className="text-lg leading-relaxed max-w-lg mb-12" style={{ color: 'var(--on-surface-variant)' }}>
               인테리어, 금융, 보안, 이사까지 — 입주에 필요한 모든 것을 한 곳에서.
               전문 업체와의 독점 파트너십으로 최상의 조건을 제공합니다.
             </p>
-            <div className="mt-8 flex flex-wrap justify-center md:justify-start gap-4">
+            <div className="flex flex-wrap gap-4">
               <button
                 onClick={() => navigate('/events')}
-                className="px-8 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-colors flex items-center gap-2"
+                className="hero-gradient text-white px-8 py-4 rounded-xl font-bold flex items-center gap-3 hover:opacity-90 transition-opacity shadow-md"
               >
                 박람회 예약하기 <ArrowRight size={18} />
               </button>
               <button
                 onClick={() => navigate('/my-tickets')}
-                className="px-8 py-3 bg-white text-gray-700 rounded-lg font-semibold border border-gray-300 hover:bg-gray-50 transition-colors"
+                className="px-8 py-4 rounded-xl font-bold border transition-colors"
+                style={{
+                  background: 'var(--surface-container-lowest)',
+                  color: 'var(--primary)',
+                  borderColor: 'var(--outline-variant)',
+                }}
               >
                 내 예약 확인
               </button>
             </div>
           </div>
 
-          {/* Hero image / event card */}
-          <div className="relative">
-            {heroEvent?.imageUrl ? (
-              <img
-                src={heroEvent.imageUrl}
-                alt={heroEvent.title}
-                className="rounded-2xl shadow-2xl w-full object-cover aspect-video"
-              />
-            ) : (
-              <div className="rounded-2xl shadow-2xl w-full aspect-video bg-gradient-to-br from-blue-100 to-blue-50 flex items-center justify-center">
-                <Building size={80} className="text-blue-300" />
-              </div>
-            )}
+          {/* Right – hero image */}
+          <div className="relative hidden lg:block">
+            <div className="rounded-3xl overflow-hidden shadow-2xl relative" style={{ aspectRatio: '4/5' }}>
+              {heroEvent?.imageUrl ? (
+                <img
+                  src={heroEvent.imageUrl}
+                  alt={heroEvent.title}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <div
+                  className="w-full h-full flex items-center justify-center"
+                  style={{ background: 'linear-gradient(135deg, var(--primary-fixed) 0%, var(--secondary-container) 100%)' }}
+                >
+                  <Building size={80} style={{ color: 'var(--primary-fixed-dim)' }} />
+                </div>
+              )}
+              <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, rgba(0,53,95,0.35) 0%, transparent 60%)' }} />
+            </div>
+            {/* Floating info card */}
             {heroEvent && (
-              <div className="absolute bottom-4 left-4 right-4 bg-white/90 backdrop-blur-sm p-4 rounded-xl shadow-lg">
-                <p className="font-bold text-gray-900 text-sm truncate">{heroEvent.title}</p>
-                <div className="flex items-center gap-1 mt-1 text-xs text-gray-500">
-                  <MapPin size={11} />
+              <div
+                className="absolute -bottom-8 -left-8 p-6 rounded-2xl shadow-xl max-w-xs"
+                style={{ background: 'var(--surface-container-lowest)', border: '1px solid var(--outline-variant)' }}
+              >
+                <p className="font-bold text-sm mb-1" style={{ color: 'var(--on-surface)' }}>{heroEvent.title}</p>
+                <div className="flex items-center gap-1.5 text-xs" style={{ color: 'var(--on-surface-variant)' }}>
+                  <MapPin size={12} />
                   <span className="truncate">{heroEvent.address}</span>
                 </div>
               </div>
             )}
           </div>
         </div>
-      </div>
+      </section>
 
-      {/* ── 서비스 혜택 ── */}
-      <div className="bg-gray-50 py-16 md:py-24">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-3xl font-bold text-center text-gray-900">입주민 혜택</h2>
-          <p className="text-center mt-2 text-gray-500">박람회 참가자만을 위한 독점 서비스를 경험해 보세요.</p>
-          <div className="mt-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {services.map((service) => (
-              <div
-                key={service.title}
-                className={`p-7 rounded-2xl shadow-md transition-shadow hover:shadow-xl flex flex-col items-start ${
-                  service.highlight ? 'bg-blue-600 text-white' : 'bg-white'
-                }`}
-              >
-                <div className={`p-3 rounded-xl mb-4 ${service.highlight ? 'bg-blue-500' : 'bg-blue-50'}`}>
-                  {service.icon}
+      {/* ── 서비스 혜택 (Bento Grid) ── */}
+      <section className="py-24 px-6 md:px-10" style={{ background: 'var(--surface-container-low)' }}>
+        <div className="max-w-7xl mx-auto">
+          <div className="mb-16">
+            <h2 className="text-3xl font-extrabold mb-2" style={{ color: 'var(--primary)' }}>입주민 혜택</h2>
+            <p style={{ color: 'var(--on-surface-variant)' }}>박람회 참가자만을 위한 독점 서비스를 경험해 보세요.</p>
+          </div>
+
+          {/* Bento: 4-col 2-row */}
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 md:h-[580px]">
+            {/* Large card – Interior (col-span-2, row-span-2) */}
+            <div
+              className="md:col-span-2 md:row-span-2 p-10 rounded-3xl flex flex-col justify-between cursor-pointer transition-all group"
+              style={{ background: 'var(--surface-container-lowest)', border: '1px solid transparent' }}
+              onMouseEnter={e => (e.currentTarget.style.borderColor = 'var(--primary-fixed-dim)')}
+              onMouseLeave={e => (e.currentTarget.style.borderColor = 'transparent')}
+              onClick={() => navigate('/events')}
+            >
+              <div>
+                <div
+                  className="w-16 h-16 rounded-2xl flex items-center justify-center mb-8"
+                  style={{ background: 'var(--primary-fixed)' }}
+                >
+                  <span className="material-symbols-outlined text-3xl" style={{ color: 'var(--primary)', fontFamily: 'Material Symbols Outlined' }}>home_max</span>
                 </div>
-                <h3 className={`text-lg font-bold ${service.highlight ? 'text-white' : 'text-gray-900'}`}>
-                  {service.title}
-                </h3>
-                <p className={`mt-2 text-sm leading-relaxed flex-grow ${service.highlight ? 'text-blue-100' : 'text-gray-500'}`}>
-                  {service.description}
+                <h3 className="text-3xl font-extrabold mb-6" style={{ color: 'var(--primary)' }}>인테리어<br />코디네이션</h3>
+                <p className="text-lg leading-relaxed" style={{ color: 'var(--on-surface-variant)' }}>
+                  프리미엄 마감재와 최고의 디자이너를 박람회 특가로 만나보세요. 입주민 전용 특별 할인 혜택을 제공합니다.
                 </p>
-                <button
-                  onClick={() => navigate('/events')}
-                  className={`mt-5 text-sm font-semibold flex items-center gap-1.5 ${
-                    service.highlight ? 'text-white hover:text-blue-200' : 'text-blue-600 hover:text-blue-800'
-                  } transition-colors`}
-                >
-                  자세히 보기 <ArrowRight size={14} />
-                </button>
               </div>
-            ))}
+              <div className="flex items-center gap-2 font-bold" style={{ color: 'var(--primary)' }}>
+                자세히 보기 <ArrowRight size={16} />
+              </div>
+            </div>
+
+            {/* Financial – dark (col-span-2) */}
+            <div
+              className="md:col-span-2 p-8 rounded-3xl flex items-center justify-between cursor-pointer hover:opacity-90 transition-opacity"
+              style={{ background: 'var(--primary-container)' }}
+              onClick={() => navigate('/events')}
+            >
+              <div className="max-w-xs">
+                <h3 className="text-2xl font-extrabold mb-3 text-white">금융 컨설팅</h3>
+                <p className="text-sm" style={{ color: 'rgba(255,255,255,0.7)' }}>
+                  신규 분양 입주를 위한 전략적 모기지 및 보험 설계. 최적의 금융 플랜을 제안해 드립니다.
+                </p>
+              </div>
+              <span className="material-symbols-outlined opacity-30 text-white" style={{ fontSize: '4rem', fontFamily: 'Material Symbols Outlined' }}>account_balance</span>
+            </div>
+
+            {/* Security */}
+            <div
+              className="p-8 rounded-3xl flex flex-col justify-end cursor-pointer hover:opacity-90 transition-opacity"
+              style={{ background: 'var(--surface-container-high)' }}
+              onClick={() => navigate('/events')}
+            >
+              <span className="material-symbols-outlined text-4xl mb-4" style={{ color: 'var(--primary)', fontFamily: 'Material Symbols Outlined' }}>security</span>
+              <h4 className="font-extrabold mb-1" style={{ color: 'var(--primary)' }}>스마트 보안</h4>
+              <p className="text-xs" style={{ color: 'var(--on-surface-variant)' }}>스마트홈 통합 솔루션 구성.</p>
+            </div>
+
+            {/* Moving */}
+            <div
+              className="p-8 rounded-3xl flex flex-col justify-end cursor-pointer hover:opacity-90 transition-opacity"
+              style={{ background: 'var(--surface-container-high)' }}
+              onClick={() => navigate('/events')}
+            >
+              <span className="material-symbols-outlined text-4xl mb-4" style={{ color: 'var(--primary)', fontFamily: 'Material Symbols Outlined' }}>local_shipping</span>
+              <h4 className="font-extrabold mb-1" style={{ color: 'var(--primary)' }}>이사 서비스</h4>
+              <p className="text-xs" style={{ color: 'var(--on-surface-variant)' }}>전문 업체 원스톱 연계 서비스.</p>
+            </div>
           </div>
         </div>
-      </div>
+      </section>
 
-      {/* ── 박람회 일정 ── */}
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-24">
-        <h2 className="text-3xl font-bold text-gray-900 mb-8">진행 중인 박람회</h2>
+      {/* ── 진행 중인 박람회 ── */}
+      <section className="py-24 px-6 md:px-10" style={{ background: 'var(--surface)' }}>
+        <div className="max-w-7xl mx-auto">
+          <h2 className="text-4xl font-extrabold mb-12" style={{ color: 'var(--primary)' }}>진행 중인 박람회</h2>
 
-        {activeEvents.length === 0 ? (
-          <div className="text-center py-16 text-gray-400 bg-gray-50 rounded-2xl">
-            <p className="text-4xl mb-3">🏢</p>
-            <p className="font-medium">현재 진행 중인 박람회가 없습니다</p>
-          </div>
-        ) : (
-          <div className="space-y-4">
-            {activeEvents.map((event) => {
-              const startDate = event.dates[0] ? formatDate(event.dates[0]) : '';
-              const endDate = event.dates.length > 1 ? formatDate(event.dates[event.dates.length - 1]) : '';
-              const timeRange = getTimeRange(event);
-              return (
-                <button
-                  key={event.id}
-                  onClick={() => navigate(`/e/${event.slug}`)}
-                  className="w-full flex items-center gap-5 bg-gray-50 hover:bg-blue-50 p-6 rounded-xl transition-colors text-left group"
-                >
-                  {event.imageUrl && (
-                    <img
-                      src={event.imageUrl}
-                      alt={event.title}
-                      className="w-16 h-16 rounded-lg object-cover flex-shrink-0 hidden sm:block"
-                    />
-                  )}
-                  <div className="flex-1 min-w-0">
-                    <p className="font-semibold text-gray-900 text-lg truncate">{event.title}</p>
-                    <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-1 text-sm text-gray-500">
-                      <span className="flex items-center gap-1"><MapPin size={13} />{event.address}</span>
-                      {timeRange !== '시간 미지정' && (
-                        <span className="flex items-center gap-1"><Clock size={13} />{timeRange}</span>
+          {activeEvents.length === 0 ? (
+            <div className="text-center py-20 rounded-3xl" style={{ background: 'var(--surface-container-low)', color: 'var(--on-surface-variant)' }}>
+              <p className="text-4xl mb-3">🏢</p>
+              <p className="font-medium">현재 진행 중인 박람회가 없습니다</p>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {activeEvents.map((event) => {
+                const startDate = event.dates[0] ? formatDate(event.dates[0]) : '';
+                const endDate = event.dates.length > 1 ? formatDate(event.dates[event.dates.length - 1]) : '';
+                const timeRange = getTimeRange(event);
+                const dateObj = event.dates[0] ? new Date(event.dates[0]) : null;
+                const month = dateObj
+                  ? dateObj.toLocaleDateString('ko-KR', { month: 'short' }).replace('월', 'M')
+                  : '';
+                const day = dateObj ? dateObj.getDate() : '';
+
+                return (
+                  <div
+                    key={event.id}
+                    className="p-6 rounded-2xl flex items-center gap-8 cursor-pointer transition-colors group"
+                    style={{ background: 'var(--surface-container-lowest)' }}
+                    onMouseEnter={e => (e.currentTarget.style.background = 'var(--surface-container)')}
+                    onMouseLeave={e => (e.currentTarget.style.background = 'var(--surface-container-lowest)')}
+                    onClick={() => navigate(`/e/${event.slug}`)}
+                  >
+                    {/* Date block */}
+                    {dateObj && (
+                      <div className="text-center min-w-[72px] hidden sm:block flex-shrink-0">
+                        <span className="block text-xl font-extrabold" style={{ color: 'var(--primary)' }}>{month}</span>
+                        <span className="block text-4xl font-extrabold leading-none" style={{ color: 'var(--outline)' }}>{day}</span>
+                      </div>
+                    )}
+
+                    {/* Thumbnail */}
+                    {event.imageUrl && (
+                      <img
+                        src={event.imageUrl}
+                        alt={event.title}
+                        className="w-16 h-16 rounded-xl object-cover flex-shrink-0 hidden sm:block"
+                      />
+                    )}
+
+                    {/* Info */}
+                    <div className="flex-1 min-w-0">
+                      <h4 className="font-extrabold text-lg truncate mb-1" style={{ color: 'var(--on-surface)' }}>
+                        {event.title}
+                      </h4>
+                      <p className="text-sm flex items-center gap-1.5 mb-0.5" style={{ color: 'var(--on-surface-variant)' }}>
+                        <MapPin size={13} />{event.address}
+                      </p>
+                      {timeRange && (
+                        <p className="text-sm flex items-center gap-1.5" style={{ color: 'var(--on-surface-variant)' }}>
+                          <Clock size={13} />{timeRange}
+                        </p>
                       )}
+                      <p className="text-xs mt-1" style={{ color: 'var(--outline)' }}>
+                        {startDate}{endDate && ` ~ ${endDate}`}
+                      </p>
                     </div>
-                    <p className="text-xs text-gray-400 mt-1">{startDate}{endDate && ` ~ ${endDate}`}</p>
-                  </div>
-                  <ArrowRight size={20} className="text-gray-300 group-hover:text-blue-500 flex-shrink-0 transition-colors" />
-                </button>
-              );
-            })}
-          </div>
-        )}
 
-        <div className="mt-8 text-center">
-          <button
-            onClick={() => navigate('/events')}
-            className="px-8 py-3 border-2 border-blue-600 text-blue-600 rounded-lg font-semibold hover:bg-blue-50 transition-colors"
-          >
-            전체 박람회 보기
-          </button>
+                    <ArrowRight size={20} className="flex-shrink-0 transition-colors" style={{ color: 'var(--outline-variant)' }} />
+                  </div>
+                );
+              })}
+            </div>
+          )}
+
+          <div className="mt-10 text-center">
+            <button
+              onClick={() => navigate('/events')}
+              className="px-8 py-3.5 rounded-xl font-bold border-2 transition-colors"
+              style={{ color: 'var(--primary)', borderColor: 'var(--primary)' }}
+              onMouseEnter={e => { e.currentTarget.style.background = 'var(--primary-fixed)'; }}
+              onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; }}
+            >
+              전체 박람회 보기
+            </button>
+          </div>
         </div>
-      </div>
+      </section>
     </div>
   );
 }

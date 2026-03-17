@@ -1,32 +1,71 @@
-@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&family=Inter:wght@300;400;500;600&display=swap');
+
+:root {
+  --primary: #00355f;
+  --primary-container: #0f4c81;
+  --primary-fixed: #d2e4ff;
+  --primary-fixed-dim: #a0c9ff;
+  --on-primary: #ffffff;
+  --on-primary-container: #8ebdf9;
+  --surface: #f7f9fb;
+  --surface-dim: #d8dadc;
+  --surface-bright: #f7f9fb;
+  --surface-container-lowest: #ffffff;
+  --surface-container-low: #f2f4f6;
+  --surface-container: #eceef0;
+  --surface-container-high: #e6e8ea;
+  --surface-container-highest: #e0e3e5;
+  --on-surface: #191c1e;
+  --on-surface-variant: #42474f;
+  --secondary-container: #d5e3fc;
+  --on-secondary-container: #57657a;
+  --outline: #727780;
+  --outline-variant: #c2c7d1;
+  --error: #ba1a1a;
+}
 
 body {
   margin: 0;
-  font-family: 'Noto Sans KR', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-color: #FDF6E8;
+  background-color: var(--surface);
+  color: var(--on-surface);
+}
+
+h1, h2, h3, h4, h5 {
+  font-family: 'Manrope', sans-serif;
+  letter-spacing: -0.02em;
 }
 
 * {
   box-sizing: border-box;
 }
 
+.glass-nav {
+  background: rgba(247, 249, 251, 0.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+.hero-gradient {
+  background: linear-gradient(135deg, #00355f 0%, #0f4c81 100%);
+}
+
 .carousel-indicators .mantine-Carousel-indicator {
-  background-color: #A5B4FC !important;
+  background-color: var(--primary-fixed-dim) !important;
   width: 10px;
   height: 10px;
   transition: width 250ms ease;
 }
 
 .carousel-indicators .mantine-Carousel-indicator[data-active] {
-  background-color: #3B82F6 !important;
+  background-color: var(--primary) !important;
   width: 30px;
 }
 
 ::-webkit-scrollbar {
   width: 6px;
-  height: 12px;
 }
 
 ::-webkit-scrollbar-track {
@@ -35,6 +74,6 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #3B82F6; /* 포인트 컬러로 변경 */
+  background: var(--primary-fixed-dim);
   border-radius: 6px;
 }

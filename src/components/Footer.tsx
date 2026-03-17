@@ -14,66 +14,70 @@ export default function Footer() {
   const [modalContent, setModalContent] = useState<{ title: string; body: string } | null>(null);
 
   return (
-    <footer className="bg-gray-800 text-white">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8">
+    <footer style={{ background: 'var(--surface-container-highest)', borderTop: '1px solid rgba(194,199,209,0.2)' }}>
+      <div className="max-w-7xl mx-auto px-6 md:px-10 py-20">
+        <div className="flex flex-col md:flex-row justify-between items-start gap-12">
 
-          <div className="sm:col-span-2 md:col-span-1">
-            <h3 className="text-lg font-bold mb-3">ReserveTicket</h3>
-            <p className="text-gray-400 text-sm leading-relaxed">
-              성공적인 입주 박람회를 위한 최고의 선택, ReserveTicket과 함께하세요.
+          {/* Brand */}
+          <div className="max-w-sm">
+            <span className="block text-xl font-extrabold mb-4" style={{ color: 'var(--primary)', fontFamily: 'Manrope, sans-serif' }}>
+              ReserveTicket
+            </span>
+            <p className="text-sm leading-loose" style={{ color: 'var(--on-surface-variant)' }}>
+              성공적인 입주 박람회를 위한 최고의 선택.<br />
+              {companyInfo.name || '이든씨엔에스 주식회사'}
+            </p>
+            <p className="text-xs mt-3" style={{ color: 'var(--outline)' }}>
+              {companyInfo.address || '경기도 수원시 영통구'}<br />
+              {companyInfo.email || 'edencns1999@naver.com'}
             </p>
           </div>
 
-          <div>
-            <h4 className="font-semibold mb-3">바로가기</h4>
-            <ul className="space-y-2">
-              <li><Link to="/" className="text-gray-400 hover:text-white text-sm transition-colors">홈</Link></li>
-              <li><Link to="/events" className="text-gray-400 hover:text-white text-sm transition-colors">박람회 목록</Link></li>
-              <li><Link to="/my-tickets" className="text-gray-400 hover:text-white text-sm transition-colors">내 예약 확인</Link></li>
-            </ul>
-          </div>
+          {/* Links */}
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-12">
+            <div className="flex flex-col gap-3">
+              <span className="font-bold text-sm" style={{ color: 'var(--primary)' }}>바로가기</span>
+              <Link to="/" className="text-sm transition-colors" style={{ color: 'var(--on-surface-variant)' }}
+                onMouseEnter={e => (e.currentTarget.style.color = 'var(--primary)')}
+                onMouseLeave={e => (e.currentTarget.style.color = 'var(--on-surface-variant)')}>홈</Link>
+              <Link to="/events" className="text-sm transition-colors" style={{ color: 'var(--on-surface-variant)' }}
+                onMouseEnter={e => (e.currentTarget.style.color = 'var(--primary)')}
+                onMouseLeave={e => (e.currentTarget.style.color = 'var(--on-surface-variant)')}>박람회 목록</Link>
+              <Link to="/my-tickets" className="text-sm transition-colors" style={{ color: 'var(--on-surface-variant)' }}
+                onMouseEnter={e => (e.currentTarget.style.color = 'var(--primary)')}
+                onMouseLeave={e => (e.currentTarget.style.color = 'var(--on-surface-variant)')}>내 예약 확인</Link>
+            </div>
 
-          <div>
-            <h4 className="font-semibold mb-3">회사정보</h4>
-            <ul className="space-y-1">
-              <li className="text-gray-400 text-sm">{companyInfo.name || '이든씨엔에스 주식회사'}</li>
-              <li className="text-gray-400 text-sm">{companyInfo.address || '경기도 수원시 영통구'}</li>
-              <li className="text-gray-400 text-sm">{companyInfo.email || 'edencns1999@naver.com'}</li>
-            </ul>
-          </div>
+            <div className="flex flex-col gap-3">
+              <span className="font-bold text-sm" style={{ color: 'var(--primary)' }}>법적 고지</span>
+              <button
+                onClick={() => setModalContent({ title: '이용약관', body: TERMS_CONTENT })}
+                className="text-sm text-left transition-colors"
+                style={{ color: 'var(--on-surface-variant)' }}
+                onMouseEnter={e => (e.currentTarget.style.color = 'var(--primary)')}
+                onMouseLeave={e => (e.currentTarget.style.color = 'var(--on-surface-variant)')}
+              >이용약관</button>
+              <button
+                onClick={() => setModalContent({ title: '개인정보처리방침', body: PRIVACY_CONTENT })}
+                className="text-sm text-left transition-colors"
+                style={{ color: 'var(--on-surface-variant)' }}
+                onMouseEnter={e => (e.currentTarget.style.color = 'var(--primary)')}
+                onMouseLeave={e => (e.currentTarget.style.color = 'var(--on-surface-variant)')}
+              >개인정보처리방침</button>
+            </div>
 
-          <div>
-            <h4 className="font-semibold mb-3">법적 고지</h4>
-            <ul className="space-y-2">
-              <li>
-                <button
-                  onClick={() => setModalContent({ title: '이용약관', body: TERMS_CONTENT })}
-                  className="text-gray-400 hover:text-white text-sm transition-colors"
-                >
-                  이용약관
-                </button>
-              </li>
-              <li>
-                <button
-                  onClick={() => setModalContent({ title: '개인정보처리방침', body: PRIVACY_CONTENT })}
-                  className="text-gray-400 hover:text-white text-sm transition-colors"
-                >
-                  개인정보처리방침
-                </button>
-              </li>
-              <li>
-                <Link to="/admin" className="text-gray-400 hover:text-white text-sm transition-colors">
-                  관리자 로그인
-                </Link>
-              </li>
-            </ul>
+            <div className="flex flex-col gap-3">
+              <span className="font-bold text-sm" style={{ color: 'var(--primary)' }}>관리자</span>
+              <Link to="/admin" className="text-sm transition-colors" style={{ color: 'var(--on-surface-variant)' }}
+                onMouseEnter={e => (e.currentTarget.style.color = 'var(--primary)')}
+                onMouseLeave={e => (e.currentTarget.style.color = 'var(--on-surface-variant)')}>관리자 로그인</Link>
+            </div>
           </div>
         </div>
 
-        <div className="mt-10 pt-8 border-t border-gray-700 text-center">
-          <p className="text-gray-400 text-sm">
-            &copy; {new Date().getFullYear()} ReserveTicket. All rights reserved.
+        <div className="mt-16 pt-8 border-t text-center md:text-left" style={{ borderColor: 'rgba(194,199,209,0.15)' }}>
+          <p className="text-xs opacity-60" style={{ color: 'var(--on-surface-variant)' }}>
+            © {new Date().getFullYear()} ReserveTicket. All rights reserved.
           </p>
         </div>
       </div>
@@ -85,10 +89,11 @@ export default function Footer() {
         size="lg"
         centered
       >
-        <p className="text-sm text-gray-500 whitespace-pre-wrap">{modalContent?.body}</p>
+        <p className="text-sm whitespace-pre-wrap" style={{ color: 'var(--on-surface-variant)' }}>{modalContent?.body}</p>
         <button
           onClick={() => setModalContent(null)}
-          className="w-full mt-6 py-3 rounded-xl text-white font-medium hover:opacity-90 transition-opacity bg-blue-600"
+          className="w-full mt-6 py-3 rounded-xl text-white font-semibold hover:opacity-90 transition-opacity"
+          style={{ background: 'var(--primary)' }}
         >
           확인
         </button>
