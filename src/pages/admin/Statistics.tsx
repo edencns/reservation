@@ -102,58 +102,57 @@ export default function Statistics() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h2 className="font-bold text-gray-800">통계</h2>
+        <h2 className="font-bold text-on-surface">통계</h2>
         <div className="flex items-center gap-2">
           <select
             value={eventFilter}
             onChange={e => setEventFilter(e.target.value)}
-            className="px-3 py-2 border border-gray-200 rounded-xl text-sm text-gray-700 bg-white focus:outline-none focus:ring-2 focus:ring-[#667EEA]"
+            className="px-3 py-2 border border-outline-variant rounded-xl text-sm text-on-surface bg-surface-container-lowest focus:outline-none focus:ring-2 focus:ring-primary"
           >
             <option value="all">전체 행사</option>
             {events.map(e => <option key={e.id} value={e.id}>{e.title}</option>)}
           </select>
-          <button onClick={handleExport} className="flex items-center gap-1.5 px-4 py-2 rounded-xl font-semibold text-sm border border-gray-200 text-gray-600 hover:bg-gray-50">
+          <button onClick={handleExport} className="flex items-center gap-1.5 px-4 py-2 rounded-xl font-semibold text-sm border border-outline-variant text-on-surface-variant hover:bg-surface-container">
             <Download size={15} /> 엑셀
           </button>
         </div>
       </div>
 
       {/* 월별 예약 건수 */}
-      <div className="bg-white rounded-2xl shadow-sm p-5">
-        <h3 className="font-bold text-gray-700 mb-5">월별 예약 건수</h3>
+      <div className="bg-surface-container-lowest rounded-xl border border-outline-variant/10 p-5">
+        <h3 className="font-bold text-on-surface mb-5">월별 예약 건수</h3>
         <div className="flex items-end gap-3 h-40">
           {monthlyData.map(m => (
             <div key={m.shortLabel} className="flex-1 flex flex-col items-center gap-1">
-              <p className="text-xs font-bold text-gray-600">{m.count}</p>
+              <p className="text-xs font-bold text-on-surface-variant">{m.count}</p>
               <button
-                className="w-full rounded-t-lg transition-opacity hover:opacity-75"
-                style={{ height: `${Math.max((m.count / maxCount) * 120, m.count > 0 ? 4 : 0)}px`, backgroundColor: '#667EEA' }}
+                className="w-full rounded-t-lg transition-opacity hover:opacity-75 bg-primary"
+                style={{ height: `${Math.max((m.count / maxCount) * 120, m.count > 0 ? 4 : 0)}px` }}
                 onClick={() => m.count > 0 && openDetail(`${m.label} 예약 목록`, m.rows)}
                 title={m.count > 0 ? '클릭하여 상세 보기' : ''}
               />
-              <p className="text-xs text-gray-500">{m.shortLabel}</p>
+              <p className="text-xs text-on-surface-variant">{m.shortLabel}</p>
             </div>
           ))}
         </div>
       </div>
 
       {/* 월별 방문 인원 */}
-      <div className="bg-white rounded-2xl shadow-sm p-5">
-        <h3 className="font-bold text-gray-700 mb-5">월별 방문 인원</h3>
+      <div className="bg-surface-container-lowest rounded-xl border border-outline-variant/10 p-5">
+        <h3 className="font-bold text-on-surface mb-5">월별 방문 인원</h3>
         <div className="flex items-end gap-3 h-40">
           {monthlyData.map(m => (
             <div key={m.shortLabel} className="flex-1 flex flex-col items-center gap-1">
-              <p className="text-xs font-bold text-gray-600">{m.visitors}</p>
+              <p className="text-xs font-bold text-on-surface-variant">{m.visitors}</p>
               <button
-                className="w-full rounded-t-lg border-2 transition-opacity hover:opacity-75"
+                className="w-full rounded-t-lg border-2 transition-opacity hover:opacity-75 bg-primary-container border-primary/20"
                 style={{
                   height: `${Math.max((m.visitors / maxVisitors) * 120, m.visitors > 0 ? 4 : 0)}px`,
-                  backgroundColor: '#E0D6F9', borderColor: '#d6c4f4',
                 }}
                 onClick={() => m.visitors > 0 && openDetail(`${m.label} 방문 목록`, m.checkedInRows)}
                 title={m.visitors > 0 ? '클릭하여 상세 보기' : ''}
               />
-              <p className="text-xs text-gray-500">{m.shortLabel}</p>
+              <p className="text-xs text-on-surface-variant">{m.shortLabel}</p>
             </div>
           ))}
         </div>
@@ -161,11 +160,11 @@ export default function Statistics() {
 
       <div className="grid md:grid-cols-2 gap-5">
         {/* 행사별 방문 현황 */}
-        <div className="bg-white rounded-2xl shadow-sm p-5">
-          <h3 className="font-bold text-gray-700 mb-1">행사별 방문 현황</h3>
-          <p className="text-xs text-gray-400 mb-4">행사명을 클릭하면 방문자 목록을 볼 수 있습니다</p>
+        <div className="bg-surface-container-lowest rounded-xl border border-outline-variant/10 p-5">
+          <h3 className="font-bold text-on-surface mb-1">행사별 방문 현황</h3>
+          <p className="text-xs text-outline mb-4">행사명을 클릭하면 방문자 목록을 볼 수 있습니다</p>
           {eventStats.length === 0 ? (
-            <p className="text-sm text-gray-400 text-center py-8">데이터 없음</p>
+            <p className="text-sm text-on-surface-variant text-center py-8">데이터 없음</p>
           ) : (
             <div className="space-y-5">
               {eventStats.map((e, i) => {
@@ -178,9 +177,9 @@ export default function Statistics() {
                 return (
                   <div key={i}>
                     <div className="flex items-center gap-2 mb-1.5">
-                      <span className="text-xs font-bold text-gray-400 w-4 shrink-0">{i + 1}</span>
+                      <span className="text-xs font-bold text-outline w-4 shrink-0">{i + 1}</span>
                       <button
-                        className="text-sm font-semibold text-gray-700 truncate text-left hover:text-[#667EEA] transition-colors flex-1"
+                        className="text-sm font-semibold text-on-surface truncate text-left hover:text-primary transition-colors flex-1"
                         onClick={() => e.count > 0 && openDetail(`${e.title} — 전체 목록`, e.rows)}
                       >
                         {e.title}
@@ -192,18 +191,18 @@ export default function Statistics() {
                         placeholder="총 가구수"
                         value={h || ''}
                         onChange={ev => setHouseholds(prev => ({ ...prev, [e.id]: Number(ev.target.value) }))}
-                        className="w-24 px-2 py-1 text-xs border border-gray-200 rounded-lg text-right focus:outline-none focus:ring-1 focus:ring-[#667EEA]"
+                        className="w-24 px-2 py-1 text-xs border border-outline-variant rounded-lg text-right focus:outline-none focus:ring-1 focus:ring-primary"
                         onClick={ev => ev.stopPropagation()}
                       />
                     </div>
                     {/* 막대: 회색 배경 위에 초록(예약) → 파란(방문) 겹침 */}
-                    <div className="ml-6 relative h-3 rounded-full overflow-hidden bg-gray-200">
+                    <div className="ml-6 relative h-3 rounded-full overflow-hidden bg-surface-container">
                       {/* 초록: 예약 비율 */}
                       <div className="absolute left-0 top-0 h-full rounded-full transition-all"
                         style={{ width: `${reserveBarW}%`, backgroundColor: '#4ade80' }} />
                       {/* 파란: 방문 비율 */}
-                      <button className="absolute left-0 top-0 h-full rounded-full transition-all hover:opacity-80"
-                        style={{ width: `${visitBarW}%`, backgroundColor: '#667EEA' }}
+                      <button className="absolute left-0 top-0 h-full rounded-full transition-all hover:opacity-80 bg-primary"
+                        style={{ width: `${visitBarW}%` }}
                         onClick={() => e.visitedCount > 0 && openDetail(`${e.title} — 방문자 목록`, e.checkedInRows)}
                         title="방문자 목록 보기"
                       />
@@ -211,27 +210,27 @@ export default function Statistics() {
                     {/* 수치 */}
                     <div className="ml-6 mt-1.5 grid grid-cols-5 gap-1 text-xs text-center">
                       <div>
-                        <p className="font-bold text-gray-700">{h > 0 ? h.toLocaleString() : '-'}</p>
-                        <p className="text-gray-400">총 가구수</p>
+                        <p className="font-bold text-on-surface">{h > 0 ? h.toLocaleString() : '-'}</p>
+                        <p className="text-outline">총 가구수</p>
                       </div>
                       <div>
                         <p className="font-bold text-green-600">{e.count}</p>
-                        <p className="text-gray-400">예약건수</p>
+                        <p className="text-outline">예약건수</p>
                       </div>
                       <div>
                         <p className="font-bold text-green-600">{h > 0 ? `${reservePct}%` : '-'}</p>
-                        <p className="text-gray-400">예약%</p>
+                        <p className="text-outline">예약%</p>
                       </div>
                       <div>
-                        <button className="font-bold hover:opacity-70 transition-opacity" style={{ color: '#667EEA' }}
+                        <button className="font-bold text-primary hover:opacity-70 transition-opacity"
                           onClick={() => e.visitedCount > 0 && openDetail(`${e.title} — 방문자 목록`, e.checkedInRows)}>
                           {e.visitedCount}
                         </button>
-                        <p className="text-gray-400">방문건수</p>
+                        <p className="text-outline">방문건수</p>
                       </div>
                       <div>
-                        <p className="font-bold" style={{ color: '#667EEA' }}>{h > 0 ? `${visitPct}%` : `${e.rate}%`}</p>
-                        <p className="text-gray-400">방문%</p>
+                        <p className="font-bold text-primary">{h > 0 ? `${visitPct}%` : `${e.rate}%`}</p>
+                        <p className="text-outline">방문%</p>
                       </div>
                     </div>
                   </div>
@@ -242,26 +241,26 @@ export default function Statistics() {
         </div>
 
         {/* 시간대별 방문 인원 */}
-        <div className="bg-white rounded-2xl shadow-sm p-5">
-          <h3 className="font-bold text-gray-700 mb-1">시간대별 방문 인원</h3>
-          <p className="text-xs text-gray-400 mb-4">시간대를 클릭하면 방문자 목록을 볼 수 있습니다</p>
+        <div className="bg-surface-container-lowest rounded-xl border border-outline-variant/10 p-5">
+          <h3 className="font-bold text-on-surface mb-1">시간대별 방문 인원</h3>
+          <p className="text-xs text-outline mb-4">시간대를 클릭하면 방문자 목록을 볼 수 있습니다</p>
           {timeEntries.length === 0 ? (
-            <p className="text-sm text-gray-400 text-center py-8">데이터 없음</p>
+            <p className="text-sm text-on-surface-variant text-center py-8">데이터 없음</p>
           ) : (
             <div className="space-y-3">
               {timeEntries.map(t => (
                 <button
                   key={t.time}
-                  className="w-full flex items-center gap-3 hover:bg-gray-50 rounded-xl px-2 py-1 -mx-2 transition-colors"
+                  className="w-full flex items-center gap-3 hover:bg-surface-container-low rounded-xl px-2 py-1 -mx-2 transition-colors"
                   onClick={() => openDetail(`${t.time} 시간대 방문자 목록`, t.rows)}
                 >
-                  <span className="text-sm font-bold w-12 shrink-0 text-left" style={{ color: '#667EEA' }}>{t.time}</span>
-                  <div className="flex-1 bg-gray-100 rounded-full h-3">
-                    <div className="h-3 rounded-full" style={{ width: `${(t.visitors / maxTimeVisitors) * 100}%`, backgroundColor: '#E0D6F9', border: '1.5px solid #d6c4f4' }} />
+                  <span className="text-sm font-bold w-12 shrink-0 text-left text-primary">{t.time}</span>
+                  <div className="flex-1 bg-surface-container rounded-full h-3">
+                    <div className="h-3 rounded-full bg-primary-container border border-primary/20" style={{ width: `${(t.visitors / maxTimeVisitors) * 100}%` }} />
                   </div>
                   <div className="text-right shrink-0">
-                    <span className="text-sm font-bold text-gray-700">{t.visitors}명</span>
-                    <span className="text-xs text-gray-400 ml-1">({t.count}건)</span>
+                    <span className="text-sm font-bold text-on-surface">{t.visitors}명</span>
+                    <span className="text-xs text-on-surface-variant ml-1">({t.count}건)</span>
                   </div>
                 </button>
               ))}
@@ -274,42 +273,42 @@ export default function Statistics() {
       {detail && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4"
           style={{ backgroundColor: 'rgba(0,0,0,0.5)' }} onClick={() => setDetail(null)}>
-          <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg flex flex-col max-h-[85vh]" onClick={e => e.stopPropagation()}>
+          <div className="bg-surface-container-lowest rounded-2xl shadow-xl w-full max-w-lg flex flex-col max-h-[85vh]" onClick={e => e.stopPropagation()}>
             {/* 헤더 */}
-            <div className="flex items-center justify-between px-5 pt-5 pb-3 border-b border-gray-100 shrink-0">
+            <div className="flex items-center justify-between px-5 pt-5 pb-3 border-b border-outline-variant/15 shrink-0">
               <div>
-                <h3 className="font-bold text-gray-800 text-sm">{detail.label}</h3>
-                <p className="text-xs text-gray-400 mt-0.5">총 {detail.rows.length}건 · {detail.rows.reduce((s, r) => s + r.attendeeCount, 0)}명</p>
+                <h3 className="font-bold text-on-surface text-sm">{detail.label}</h3>
+                <p className="text-xs text-on-surface-variant mt-0.5">총 {detail.rows.length}건 · {detail.rows.reduce((s, r) => s + r.attendeeCount, 0)}명</p>
               </div>
-              <button onClick={() => setDetail(null)} className="p-1 rounded-lg hover:bg-gray-100">
-                <X size={18} className="text-gray-400" />
+              <button onClick={() => setDetail(null)} className="p-1 rounded-lg hover:bg-surface-container">
+                <X size={18} className="text-on-surface-variant" />
               </button>
             </div>
             {/* 목록 */}
             <div className="overflow-y-auto flex-1">
               {detail.rows.length === 0 ? (
-                <p className="text-center py-10 text-sm text-gray-400">내역이 없습니다</p>
+                <p className="text-center py-10 text-sm text-on-surface-variant">내역이 없습니다</p>
               ) : (
                 <table className="w-full text-sm">
                   <thead>
-                    <tr style={{ backgroundColor: '#E0D6F9' }}>
+                    <tr className="bg-surface-container-low">
                       {['예약자', '연락처', '방문일', '시간', '인원', '체크인'].map(h => (
-                        <th key={h} className="px-3 py-2.5 text-left font-semibold text-gray-700 text-xs whitespace-nowrap">{h}</th>
+                        <th key={h} className="px-3 py-2.5 text-left text-on-surface-variant text-[10px] uppercase tracking-widest whitespace-nowrap">{h}</th>
                       ))}
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-gray-50">
+                  <tbody className="divide-y divide-outline-variant/10">
                     {detail.rows.map(r => (
-                      <tr key={r.id} className="hover:bg-gray-50">
-                        <td className="px-3 py-2.5 font-medium text-gray-800 text-xs">{r.customer.name || r.extraFields['name'] || '-'}</td>
-                        <td className="px-3 py-2.5 text-gray-500 text-xs">{r.customer.phone || r.extraFields['phone'] || '-'}</td>
-                        <td className="px-3 py-2.5 text-gray-600 text-xs whitespace-nowrap">{formatDate(r.date)}</td>
-                        <td className="px-3 py-2.5 text-gray-500 text-xs whitespace-nowrap">{r.time !== '시간 미지정' ? r.time : '-'}</td>
-                        <td className="px-3 py-2.5 text-center font-semibold text-xs" style={{ color: '#667EEA' }}>{r.attendeeCount}명</td>
+                      <tr key={r.id} className="hover:bg-surface-container-low">
+                        <td className="px-3 py-2.5 font-medium text-on-surface text-xs">{r.customer.name || r.extraFields['name'] || '-'}</td>
+                        <td className="px-3 py-2.5 text-on-surface-variant text-xs">{r.customer.phone || r.extraFields['phone'] || '-'}</td>
+                        <td className="px-3 py-2.5 text-on-surface-variant text-xs whitespace-nowrap">{formatDate(r.date)}</td>
+                        <td className="px-3 py-2.5 text-on-surface-variant text-xs whitespace-nowrap">{r.time !== '시간 미지정' ? r.time : '-'}</td>
+                        <td className="px-3 py-2.5 text-center font-semibold text-xs text-primary">{r.attendeeCount}명</td>
                         <td className="px-3 py-2.5 text-xs">
                           {r.checkedIn
                             ? <span className="text-green-600 font-semibold">✓ 입장</span>
-                            : <span className="text-gray-300">-</span>}
+                            : <span className="text-outline">-</span>}
                         </td>
                       </tr>
                     ))}
@@ -317,8 +316,8 @@ export default function Statistics() {
                 </table>
               )}
             </div>
-            <div className="px-5 pb-4 pt-3 border-t border-gray-100 shrink-0">
-              <button onClick={() => setDetail(null)} className="w-full py-2.5 rounded-xl text-sm font-semibold text-white hover:opacity-90" style={{ backgroundColor: '#667EEA' }}>
+            <div className="px-5 pb-4 pt-3 border-t border-outline-variant/15 shrink-0">
+              <button onClick={() => setDetail(null)} className="w-full py-2.5 rounded-xl text-sm font-semibold bg-primary text-on-primary hover:opacity-90">
                 닫기
               </button>
             </div>
