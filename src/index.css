@@ -58,6 +58,12 @@
   --font-headline: 'Manrope', sans-serif;
   --font-body: 'Inter', sans-serif;
   --font-label: 'Inter', sans-serif;
+
+  /* border-radius — HTML Stitch 디자인과 동일하게 맞춤 */
+  --radius: 0.125rem;    /* rounded      = 2px  */
+  --radius-lg: 0.25rem;  /* rounded-lg   = 4px  */
+  --radius-xl: 0.5rem;   /* rounded-xl   = 8px  */
+  --radius-full: 0.75rem; /* rounded-full = 12px */
 }
 
 :root {
@@ -89,8 +95,8 @@ body {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-color: #f5f7fa;
-  color: #0d2754;
+  background-color: #f7f9fb;
+  color: #191c1e;
 }
 
 h1, h2, h3, h4, h5 {
@@ -103,7 +109,7 @@ h1, h2, h3, h4, h5 {
 }
 
 .glass-nav {
-  background: rgba(247, 249, 251, 0.85);
+  background: rgba(247, 249, 251, 0.8);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
 }
