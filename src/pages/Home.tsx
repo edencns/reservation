@@ -149,11 +149,10 @@ export default function Home() {
                       <div className="flex-grow">
                         <h4 className="font-headline font-bold text-lg mb-1">{event.title}</h4>
                         <p className="text-sm text-on-surface-variant flex items-center gap-2">
-                          <span className="material-symbols-outlined text-base">location_on</span>
+                          <span className="material-symbols-outlined text-base">schedule</span>
                           {event.address}
                         </p>
                       </div>
-                      <span className="material-symbols-outlined text-outline-variant hidden md:block group-hover:text-primary transition-colors">east</span>
                     </div>
                   );
                 })

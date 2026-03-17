@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 
 const navLinks = [
   { href: '/', label: '홈' },
@@ -11,17 +11,25 @@ const navLinks = [
 export default function Header() {
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
+  const { pathname } = useLocation();
+
+  const isActive = (href: string) =>
+    href === '/' ? pathname === '/' : pathname.startsWith(href);
 
   return (
     <nav className="fixed top-0 w-full z-50 glass-nav border-b border-outline-variant/15 h-20 flex items-center px-8 md:px-20 justify-between">
       <div className="flex items-center gap-12">
-        <span className="text-primary font-headline font-extrabold text-2xl tracking-tight">Move-In Fair</span>
+        <Link to="/" className="text-primary font-headline font-extrabold text-2xl tracking-tight">Move-In Fair</Link>
         <div className="hidden md:flex gap-8">
           {navLinks.map((l) => (
             <Link
               key={l.label}
               to={l.href}
-              className="text-on-surface-variant hover:text-primary transition-colors font-medium"
+              className={`font-medium transition-colors pb-1 ${
+                isActive(l.href)
+                  ? 'text-primary border-b-2 border-primary'
+                  : 'text-on-surface-variant hover:text-primary'
+              }`}
             >
               {l.label}
             </Link>
@@ -50,7 +58,11 @@ export default function Header() {
               key={l.label}
               to={l.href}
               onClick={() => setOpen(false)}
-              className="block rounded-lg px-4 py-2.5 text-sm text-on-surface transition hover:bg-surface-container-low"
+              className={`block rounded-lg px-4 py-2.5 text-sm transition ${
+                isActive(l.href)
+                  ? 'text-primary font-semibold bg-surface-container-low'
+                  : 'text-on-surface hover:bg-surface-container-low'
+              }`}
             >
               {l.label}
             </Link>
