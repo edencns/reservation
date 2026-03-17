@@ -4,6 +4,7 @@ import {
   Container, Title, Text, Button, Group, Paper, Grid, RingProgress, Modal, Center, Box, Stack
 } from '@mantine/core';
 import { Carousel } from '@mantine/carousel';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { EventCard } from '../components/EventCard';
 
@@ -63,15 +64,26 @@ export default function Home() {
                 emblaOptions={{ align: 'start', loop: true }}
                 withControls
                 withIndicators
+                previousControlIcon={<ChevronLeft size={36} strokeWidth={2.5} color="#3B82F6" />}
+                nextControlIcon={<ChevronRight size={36} strokeWidth={2.5} color="#3B82F6" />}
                 classNames={{ indicators: 'carousel-indicators' }}
                 styles={{
                   control: {
-                    background: '#3B82F6',
+                    background: 'transparent',
                     border: 'none',
-                    color: '#fff',
-                    width: 44,
-                    height: 44,
-                    boxShadow: '0 2px 10px rgba(59,130,246,0.5)',
+                    boxShadow: 'none',
+                    width: 48,
+                    height: 48,
+                    '&:hover': { background: 'rgba(59,130,246,0.08)' },
+                  },
+                  controls: {
+                    padding: '0 2px',
+                  },
+                  root: {
+                    paddingBottom: '2rem',
+                  },
+                  indicators: {
+                    bottom: 0,
                   },
                 }}
               >
