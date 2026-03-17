@@ -16,22 +16,17 @@ export default function StepIndicator({ steps, currentStep }: Props) {
               <div
                 className={`w-9 h-9 rounded-full flex items-center justify-center text-sm font-bold border-2 transition-all ${
                   isCompleted
-                    ? 'text-white border-transparent'
+                    ? 'text-white border-primary bg-primary'
                     : isActive
-                    ? 'text-white border-transparent'
-                    : 'text-gray-400 border-gray-300 bg-white'
+                    ? 'text-white border-primary bg-primary'
+                    : 'text-outline border-outline-variant bg-surface-container-lowest'
                 }`}
-                style={
-                  isCompleted || isActive
-                    ? { backgroundColor: '#667EEA', borderColor: '#667EEA' }
-                    : {}
-                }
               >
                 {isCompleted ? '✓' : step}
               </div>
               <span
                 className={`text-xs mt-1 font-medium hidden sm:block ${
-                  isActive ? 'text-[#667EEA]' : isCompleted ? 'text-gray-500' : 'text-gray-400'
+                  isActive ? 'text-primary' : isCompleted ? 'text-on-surface-variant' : 'text-outline'
                 }`}
               >
                 {label}
@@ -39,8 +34,9 @@ export default function StepIndicator({ steps, currentStep }: Props) {
             </div>
             {idx < steps.length - 1 && (
               <div
-                className="w-12 sm:w-20 h-0.5 mx-1 transition-all"
-                style={{ backgroundColor: isCompleted ? '#667EEA' : '#e5e7eb' }}
+                className={`w-12 sm:w-20 h-0.5 mx-1 transition-all ${
+                  isCompleted ? 'bg-primary' : 'bg-outline-variant'
+                }`}
               />
             )}
           </div>

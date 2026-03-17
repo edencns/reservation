@@ -15,45 +15,45 @@ export default function Events() {
   });
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="py-10 text-center" style={{ backgroundColor: '#667EEA' }}>
+    <div className="min-h-screen bg-surface">
+      <div className="py-12 px-6 text-center bg-gradient-to-r from-primary to-primary-container">
         <h1 className="text-3xl font-extrabold text-white mb-2">방문 예약</h1>
-        <p className="text-blue-100 text-sm">원하는 행사를 선택하고 방문 일시를 예약하세요</p>
+        <p className="text-primary-fixed-dim text-sm">원하는 행사를 선택하고 방문 일시를 예약하세요</p>
       </div>
 
       <div className="max-w-5xl mx-auto px-4 py-8">
         {/* Search */}
-        <div className="bg-white rounded-2xl shadow-sm p-4 mb-6 flex flex-col sm:flex-row gap-3 items-stretch sm:items-center">
+        <div className="bg-surface-container-lowest rounded-xl shadow-sm p-4 mb-6 flex flex-col sm:flex-row gap-3 items-stretch sm:items-center">
           <div className="relative flex-1">
-            <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+            <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-outline" />
             <input
               type="text"
               placeholder="행사명, 장소, 주소 검색..."
               value={search}
               onChange={e => setSearch(e.target.value)}
-              className="w-full pl-9 pr-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#667EEA]"
+              className="w-full pl-9 pr-4 py-2.5 border border-outline-variant rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary"
             />
           </div>
-          <label className="flex items-center gap-2 text-sm text-gray-600 cursor-pointer whitespace-nowrap">
+          <label className="flex items-center gap-2 text-sm text-on-surface-variant cursor-pointer whitespace-nowrap">
             <input
               type="checkbox"
               checked={showActive}
               onChange={e => setShowActive(e.target.checked)}
-              className="rounded accent-[#667EEA]"
+              className="rounded accent-primary"
             />
             예약 가능한 행사만 보기
           </label>
         </div>
 
         {filtered.length === 0 ? (
-          <div className="text-center py-20 text-gray-400">
+          <div className="text-center py-20 text-outline">
             <p className="text-4xl mb-4">🏢</p>
             <p className="text-lg font-medium">검색 결과가 없습니다</p>
             <p className="text-sm mt-1">다른 키워드로 검색해보세요</p>
           </div>
         ) : (
           <>
-            <p className="text-sm text-gray-500 mb-4">총 {filtered.length}개의 행사</p>
+            <p className="text-sm text-on-surface-variant mb-4">총 {filtered.length}개의 행사</p>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
               {filtered.map(event => (
                 <EventCard key={event.id} event={event} />

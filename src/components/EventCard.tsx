@@ -22,13 +22,12 @@ export function EventCard({ event, plain }: EventCardProps) {
           className="w-full h-full object-cover"
         />
       </div>
-      <p className="font-bold text-lg mb-1 truncate text-gray-900">{event.title}</p>
-      <p className="text-sm text-gray-500 mb-1">장소: {event.address}</p>
-      <p className="text-sm text-gray-500 mb-5">일시: {startDate} ~ {endDate}</p>
+      <p className="font-bold text-lg mb-1 truncate text-on-surface">{event.title}</p>
+      <p className="text-sm text-on-surface-variant mb-1">장소: {event.address}</p>
+      <p className="text-sm text-on-surface-variant mb-5">일시: {startDate} ~ {endDate}</p>
       <button
         onClick={() => navigate(`/e/${event.slug}`)}
-        className="w-full py-3 rounded-xl text-white font-bold text-sm hover:opacity-90 transition-opacity"
-        style={{ background: '#3B82F6' }}
+        className="w-full py-3 rounded-xl bg-primary text-on-primary font-bold text-sm hover:opacity-90 transition-opacity"
       >
         예약하기
       </button>
@@ -38,7 +37,7 @@ export function EventCard({ event, plain }: EventCardProps) {
   if (plain) return content;
 
   return (
-    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 hover:shadow-md transition-shadow">
+    <div className="bg-surface-container-lowest rounded-xl border border-outline-variant/10 shadow-sm p-5 hover:shadow-md transition-shadow">
       {content}
     </div>
   );
