@@ -66,7 +66,7 @@ function AppRoutes() {
 
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
-      <VirtualKeyboardFAB />
+      {isKiosk && <VirtualKeyboardFAB />}
     </>
   );
 }

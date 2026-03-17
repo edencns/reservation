@@ -60,8 +60,17 @@ export default function Home() {
             <Carousel
               slideSize="100%"
               emblaOptions={{ align: 'start', loop: true }}
+              withControls
               withIndicators
               classNames={{ indicators: 'carousel-indicators' }}
+              styles={{
+                control: {
+                  background: '#3B82F6',
+                  border: 'none',
+                  color: '#fff',
+                  boxShadow: '0 2px 8px rgba(59,130,246,0.4)',
+                },
+              }}
             >
               {activeEvents.map(event => (
                 <Carousel.Slide key={event.id}>
