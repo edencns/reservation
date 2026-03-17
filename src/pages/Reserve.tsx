@@ -146,7 +146,7 @@ export default function Reserve() {
             </div>
             <div className="col-span-12 lg:col-span-5">
               <div className="sticky top-28 flex flex-col gap-8">
-                <div className="p-10 rounded-xl text-on-primary shadow-xl" style={{background: 'linear-gradient(135deg, #00355f 0%, #0f4c81 100%)'}}>
+                <div className="hero-gradient p-10 rounded-xl text-on-primary shadow-xl">
                   <h3 className="text-2xl font-bold mb-8">예약 요약</h3>
                   <div className="space-y-6">
                     <div className="flex gap-4">
@@ -381,7 +381,7 @@ export default function Reserve() {
           <div className="col-span-12 lg:col-span-5">
             <div className="sticky top-28 flex flex-col gap-8">
               {/* Reservation Summary Card */}
-              <div className="p-10 rounded-xl text-on-primary shadow-xl" style={{background: 'linear-gradient(135deg, #00355f 0%, #0f4c81 100%)'}}>
+              <div className="hero-gradient p-10 rounded-xl text-on-primary shadow-xl">
                 <h3 className="text-2xl font-bold mb-8">예약 요약</h3>
                 <div className="space-y-6">
                   <div className="flex gap-4">

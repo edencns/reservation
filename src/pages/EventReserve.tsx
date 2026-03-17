@@ -245,6 +245,10 @@ export default function EventReserve() {
                         <div className="bg-surface-container-low p-4 rounded-lg">
                           <div className="flex items-center justify-between mb-4">
                             <span className="font-bold">{calendar.year}년 {calendar.month + 1}월</span>
+                            <div className="flex gap-2">
+                              <span className="material-symbols-outlined text-on-surface-variant cursor-pointer">chevron_left</span>
+                              <span className="material-symbols-outlined text-on-surface-variant cursor-pointer">chevron_right</span>
+                            </div>
                           </div>
                           <div className="grid grid-cols-7 text-center text-xs font-bold text-on-surface-variant mb-2">
                             {dayNames.map(d => <span key={d}>{d}</span>)}

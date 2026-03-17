@@ -159,7 +159,7 @@ export default function VirtualKeyboardFAB() {
                   className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${
                     mode === m ? 'text-white' : 'bg-white text-gray-500 border border-gray-200 hover:bg-gray-100'
                   }`}
-                  style={mode === m ? { backgroundColor: '#667EEA' } : {}}
+                  style={mode === m ? { backgroundColor: '#00355f' } : {}}
                 >
                   {m === 'korean' ? '한글' : m === 'english' ? 'ENG' : '123'}
                 </button>
@@ -198,7 +198,7 @@ export default function VirtualKeyboardFAB() {
             <button
               onClick={() => { setOpen(prev => !prev); setMenuOpen(false); }}
               className="w-12 h-12 rounded-full shadow-lg flex items-center justify-center transition-all hover:scale-105 active:scale-95"
-              style={{ backgroundColor: open ? '#4F46E5' : '#667EEA' }}
+              style={{ backgroundColor: open ? '#0f4c81' : '#00355f' }}
             >
               <Keyboard size={20} color="white" />
             </button>
@@ -230,7 +230,7 @@ export default function VirtualKeyboardFAB() {
       <button
         onClick={() => { setMenuOpen(prev => !prev); if (menuOpen) setOpen(false); }}
         className="fixed bottom-6 right-6 z-[9999] w-14 h-14 rounded-full shadow-lg flex items-center justify-center transition-all hover:scale-105 active:scale-95"
-        style={{ backgroundColor: menuOpen ? '#374151' : '#667EEA' }}
+        style={{ backgroundColor: menuOpen ? '#2d3133' : '#00355f' }}
         title="메뉴"
       >
         {menuOpen ? <X size={22} color="white" /> : <Keyboard size={22} color="white" />}
