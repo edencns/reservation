@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 import CustomFieldInput from '../components/CustomFieldInput';
 import { formatDate, generateId, normalizeUnitNumber, isValidEmail, isValidKoreanName, isValidPhone010 } from '../utils/helpers';
@@ -117,39 +117,40 @@ export default function EventReserve() {
     setStep(s => s + 1);
   };
 
+  /* ── Calendar helper for Step 1 ── */
+  const buildCalendar = () => {
+    if (!event.dates[0]) return null;
+    const firstDate = new Date(event.dates[0] + 'T00:00:00');
+    const year = firstDate.getFullYear();
+    const month = firstDate.getMonth();
+    const firstDayOfMonth = new Date(year, month, 1).getDay();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const cells: (number | null)[] = [];
+    for (let i = 0; i < firstDayOfMonth; i++) cells.push(null);
+    for (let d = 1; d <= daysInMonth; d++) cells.push(d);
+    return { year, month, cells };
+  };
+  const calendar = buildCalendar();
+  const dayNames = ['일', '월', '화', '수', '목', '금', '토'];
+
   return (
     <div className="min-h-screen bg-surface text-on-surface antialiased">
-
-      {/* ─── Top Navigation ─── */}
-      <nav className="glass-nav sticky top-0 z-50 px-8 md:px-16 py-4 flex items-center justify-between border-b border-outline-variant/15">
-        <div className="flex items-center gap-6">
-          <button
-            onClick={() => step > 1 && step < 3 ? setStep(s => s - 1) : navigate(`/e/${slug}`)}
-            className="flex items-center justify-center w-10 h-10 rounded-lg hover:bg-surface-container transition-colors text-on-surface-variant"
-          >
-            <span className="material-symbols-outlined">arrow_back</span>
-          </button>
-          <span className="text-primary font-headline font-extrabold text-xl truncate max-w-xs">{event.title}</span>
-        </div>
-        <div className="hidden lg:flex items-center gap-10">
-          <Link to="/" className="text-sm font-medium text-on-surface hover:text-primary transition-colors">홈</Link>
-          <Link to="/events" className="text-sm font-medium text-primary border-b-2 border-primary pb-1">예약</Link>
-          <Link to="/admin" className="text-sm font-medium text-on-surface hover:text-primary transition-colors">관리자</Link>
-        </div>
-        <button
-          className="hidden md:flex bg-gradient-to-r from-primary to-primary-container text-on-primary px-6 py-2.5 rounded-md font-medium shadow-md text-sm"
-        >
-          예약하기
-        </button>
-      </nav>
 
       <main className="max-w-7xl mx-auto px-8 md:px-16 py-20">
 
         {/* ─── Page Header ─── */}
         <div className="mb-16">
-          <p className="text-primary font-bold tracking-widest uppercase text-xs mb-4">
-            {step === 1 ? 'Step 1: 날짜 선택' : step === 2 ? 'Step 2: 예약 정보 입력' : '예약 완료'}
-          </p>
+          <div className="flex items-center gap-3 mb-4">
+            <button
+              onClick={() => step > 1 && step < 3 ? setStep(s => s - 1) : navigate(`/e/${slug}`)}
+              className="flex items-center justify-center w-8 h-8 rounded-lg hover:bg-surface-container transition-colors text-on-surface-variant"
+            >
+              <span className="material-symbols-outlined">arrow_back</span>
+            </button>
+            <p className="text-primary font-bold tracking-widest uppercase text-xs">
+              {step === 1 ? 'Step 1: 날짜 선택' : step === 2 ? 'Step 2: 예약 정보 입력' : '예약 완료'}
+            </p>
+          </div>
           <h1 className="text-5xl font-headline font-extrabold text-on-background max-w-2xl leading-tight">
             {step === 1 && <>방문 날짜를<br />선택하세요</>}
             {step === 2 && <>나만의 프리미엄<br />컨설팅 공간 확보</>}
@@ -236,32 +237,70 @@ export default function EventReserve() {
                     <span className="material-symbols-outlined text-primary" style={{ fontVariationSettings: "'FILL' 1" }}>calendar_month</span>
                     <h2 className="text-xl font-bold">방문 날짜 선택</h2>
                   </div>
-                  <p className="text-sm font-semibold text-on-surface-variant mb-4">날짜를 선택하세요</p>
-                  <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
-                    {event.dates.map(date => {
-                      const d = new Date(date + 'T00:00:00');
-                      const dayNames = ['일', '월', '화', '수', '목', '금', '토'];
-                      const day = d.getDay();
-                      const isSelected = selectedDate === date;
-                      return (
-                        <button
-                          key={date}
-                          onClick={() => setSelectedDate(date)}
-                          className={`p-3 rounded-xl border-2 text-center transition-all ${
-                            isSelected
-                              ? 'bg-primary-container text-on-primary border-transparent shadow-md'
-                              : 'border-outline-variant/30 bg-surface-container-low hover:border-primary-container'
-                          }`}
-                        >
-                          <p className={`text-xs font-medium ${isSelected ? 'text-on-primary' : 'text-on-surface'}`}>
-                            {d.getMonth() + 1}/{d.getDate()}
-                          </p>
-                          <p className={`text-[11px] font-semibold ${
-                            isSelected ? 'text-on-primary/80' : day === 0 ? 'text-error' : day === 6 ? 'text-primary' : 'text-on-surface-variant'
-                          }`}>{dayNames[day]}</p>
-                        </button>
-                      );
-                    })}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+                    {/* Calendar View */}
+                    <div>
+                      <p className="text-sm font-semibold text-on-surface-variant mb-4">날짜를 선택하세요</p>
+                      {calendar && (
+                        <div className="bg-surface-container-low p-4 rounded-lg">
+                          <div className="flex items-center justify-between mb-4">
+                            <span className="font-bold">{calendar.year}년 {calendar.month + 1}월</span>
+                          </div>
+                          <div className="grid grid-cols-7 text-center text-xs font-bold text-on-surface-variant mb-2">
+                            {dayNames.map(d => <span key={d}>{d}</span>)}
+                          </div>
+                          <div className="grid grid-cols-7 text-center gap-y-2">
+                            {calendar.cells.map((day, i) => {
+                              if (!day) return <span key={i} className="p-2" />;
+                              const dateStr = `${calendar.year}-${String(calendar.month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                              const isAvailable = event.dates.includes(dateStr);
+                              const isSelected = selectedDate === dateStr;
+                              return (
+                                <span
+                                  key={i}
+                                  onClick={() => isAvailable && setSelectedDate(dateStr)}
+                                  className={`p-2 rounded-full text-sm transition-all ${
+                                    isSelected
+                                      ? 'bg-primary text-on-primary'
+                                      : isAvailable
+                                      ? 'hover:bg-primary-fixed text-on-surface cursor-pointer font-medium'
+                                      : 'text-surface-dim'
+                                  }`}
+                                >
+                                  {day}
+                                </span>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Date Slot Buttons */}
+                    <div>
+                      <p className="text-sm font-semibold text-on-surface-variant mb-4">방문 가능 날짜</p>
+                      <div className="flex flex-col gap-3">
+                        {event.dates.map(date => {
+                          const isSelected = selectedDate === date;
+                          return (
+                            <button
+                              key={date}
+                              onClick={() => setSelectedDate(date)}
+                              className={`w-full text-left p-3 rounded-lg flex items-center justify-between transition-all ${
+                                isSelected
+                                  ? 'bg-primary-container text-on-primary shadow-md'
+                                  : 'bg-surface-container-low border border-transparent hover:border-primary-container'
+                              }`}
+                            >
+                              <span className="font-medium">{formatDate(date)}</span>
+                              {isSelected && (
+                                <span className="material-symbols-outlined text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>check_circle</span>
+                              )}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
                   </div>
                 </section>
               )}
@@ -274,15 +313,23 @@ export default function EventReserve() {
                       <span className="material-symbols-outlined text-primary" style={{ fontVariationSettings: "'FILL' 1" }}>person</span>
                       <h2 className="text-xl font-bold">개인 정보</h2>
                     </div>
-                    <div className="space-y-5">
+                    <div className="grid grid-cols-2 gap-6">
                       {event.customFields.map(field => (
-                        <CustomFieldInput
+                        <div
                           key={field.id}
-                          field={field}
-                          value={fieldValues[field.key] ?? ''}
-                          onChange={handleFieldChange}
-                          error={getFieldError(field.key)}
-                        />
+                          className={
+                            field.type === 'multiselect' || field.type === 'select'
+                              ? 'col-span-2'
+                              : 'col-span-2 sm:col-span-1'
+                          }
+                        >
+                          <CustomFieldInput
+                            field={field}
+                            value={fieldValues[field.key] ?? ''}
+                            onChange={handleFieldChange}
+                            error={getFieldError(field.key)}
+                          />
+                        </div>
                       ))}
 
                       {/* 관심 서비스 */}
@@ -291,7 +338,7 @@ export default function EventReserve() {
                         const selected = (fieldValues['interestedServices'] ?? '')
                           .split(',').map(s => s.trim()).filter(Boolean);
                         return (
-                          <div className="pt-1">
+                          <div className="col-span-2 pt-1">
                             <div className="flex items-baseline gap-2 mb-3">
                               <label className="block text-sm font-semibold text-on-surface-variant">관심 서비스</label>
                               <span className="text-xs text-on-surface-variant">최대 {MAX}개 선택</span>
@@ -333,7 +380,7 @@ export default function EventReserve() {
                       })()}
 
                       {/* Privacy consent */}
-                      <label className="flex items-start gap-2.5 cursor-pointer pt-2">
+                      <label className="col-span-2 flex items-start gap-2.5 cursor-pointer pt-2">
                         <input
                           type="checkbox"
                           checked={agree}
@@ -457,21 +504,6 @@ export default function EventReserve() {
           </div>
         )}
       </main>
-
-      {/* ─── Footer ─── */}
-      <footer className="bg-surface-container-high border-t border-outline-variant/15 px-8 md:px-16 py-12">
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-8">
-          <div className="flex flex-col gap-2">
-            <span className="text-primary font-headline font-extrabold text-xl">Move-In Fair</span>
-            <p className="text-on-surface-variant text-sm">© 2024 Move-In Fair Management. All rights reserved.</p>
-          </div>
-          <div className="flex gap-10">
-            <Link to="#" className="text-sm font-semibold text-on-surface-variant hover:text-primary transition-colors">문의하기</Link>
-            <Link to="#" className="text-sm font-semibold text-on-surface-variant hover:text-primary transition-colors">개인정보처리방침</Link>
-            <Link to="#" className="text-sm font-semibold text-on-surface-variant hover:text-primary transition-colors">이용약관</Link>
-          </div>
-        </div>
-      </footer>
     </div>
   );
 }

@@ -33,9 +33,9 @@ function Layout({ children }: { children: React.ReactNode }) {
   if (isKiosk) return <>{children}</>;
 
   return (
-    <div className="flex flex-col min-h-screen bg-[#f5f7fa]">
+    <div className="flex flex-col min-h-screen bg-surface">
       <Header />
-      <main className="flex-1">{children}</main>
+      <main className="flex-1 pt-20">{children}</main>
       <Footer />
     </div>
   );
