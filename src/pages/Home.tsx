@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 import { formatDate } from '../utils/helpers';
-import { ArrowRight, MapPin, Clock, Building, ShieldCheck, Truck, BadgeCheck } from 'lucide-react';
+import { ArrowRight, MapPin, Clock, Tag, Palette, ShieldCheck, ChevronRight } from 'lucide-react';
 
 const HERO_FALLBACK =
   'https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=1200&q=80';
@@ -27,69 +27,61 @@ export default function Home() {
   };
 
   return (
-    <div className="bg-[#f5f7fa] text-[#0d2754]">
+    <div className="bg-surface text-on-background selection:bg-primary-fixed">
 
       {/* ─── Hero ─── */}
-      <section className="mx-auto grid w-full max-w-[1280px] gap-12 px-6 py-12 lg:grid-cols-[1.1fr_0.9fr] lg:px-10 lg:py-20">
+      <section className="px-6 lg:px-40 py-16 lg:py-24 bg-surface-container-low">
+        <div className="grid lg:grid-cols-2 gap-12 items-center max-w-[1280px] mx-auto">
 
-        {/* Left */}
-        <div className="flex flex-col justify-center">
-          <span className="mb-8 inline-flex w-fit rounded-full bg-[#dbe5f7] px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-[#5c76a8]">
-            프리미엄 입주 박람회
-          </span>
-
-          <h1 className="max-w-[540px] text-[48px] font-light leading-[1.02] tracking-[-0.05em] text-[#0c2a5e] md:text-[64px] lg:text-[72px]">
-            새로운 시작을<br />
-            위한 특별한<br />
-            <span className="text-[#3a6db5]">입주 경험.</span>
-          </h1>
-
-          <p className="mt-8 max-w-[480px] text-[17px] leading-[1.85] text-[#5f7089]">
-            인테리어, 금융, 보안, 이사까지 — 입주에 필요한 모든 것을 한 곳에서.
-            전문 업체와의 독점 파트너십으로 최상의 조건을 제공합니다.
-          </p>
-
-          <div className="mt-10 flex flex-wrap gap-4">
-            <button
-              onClick={() => navigate('/events')}
-              className="inline-flex items-center gap-3 rounded-xl bg-[#0a4b8e] px-7 py-4 text-[15px] font-medium text-white shadow-[0_8px_24px_rgba(10,75,142,0.28)] transition hover:opacity-90 active:scale-[0.98]"
-            >
-              박람회 예약하기 <ArrowRight size={16} />
-            </button>
-            <button
-              onClick={() => navigate('/my-tickets')}
-              className="rounded-xl border border-[#d8e2ef] bg-white px-7 py-4 text-[15px] font-medium text-[#1c345c] shadow-sm transition hover:bg-[#f0f4fb]"
-            >
-              내 예약 확인
-            </button>
-          </div>
-        </div>
-
-        {/* Right – image + floating card */}
-        <div className="relative hidden min-h-[500px] lg:block">
-          <div className="absolute right-0 top-0 h-[460px] w-full max-w-[580px] overflow-hidden rounded-[36px] shadow-[0_30px_70px_rgba(13,39,84,0.14)]">
-            <img
-              src={heroEvent?.imageUrl || HERO_FALLBACK}
-              alt="박람회 이미지"
-              className="h-full w-full object-cover"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-[#0c2a5e]/30 to-transparent" />
+          {/* Left */}
+          <div className="flex flex-col gap-8 order-2 lg:order-1">
+            <div className="flex flex-col gap-4">
+              <span className="text-primary font-bold tracking-widest text-xs uppercase bg-primary-fixed/30 w-fit px-3 py-1 rounded-full">
+                프리미엄 입주 박람회
+              </span>
+              <h1 className="font-headline text-on-background text-5xl lg:text-7xl font-extrabold leading-[1.1] tracking-[-0.03em]">
+                새로운 시작을,<br />
+                <span className="text-primary-container">완벽하게 준비.</span>
+              </h1>
+              <p className="font-body text-on-surface-variant text-lg lg:text-xl leading-relaxed max-w-lg">
+                인테리어, 금융, 보안, 이사까지 — 입주에 필요한 모든 것을 한 곳에서.
+                전문 업체와의 독점 파트너십으로 최상의 조건을 제공합니다.
+              </p>
+            </div>
+            <div className="flex flex-col sm:flex-row gap-4">
+              <button
+                onClick={() => navigate('/events')}
+                className="flex min-w-[200px] cursor-pointer items-center justify-center rounded-lg h-14 px-8 bg-gradient-to-r from-primary to-primary-container text-on-primary text-base font-bold shadow-xl hover:scale-[1.02] transition-transform"
+              >
+                박람회 예약하기
+              </button>
+              <button
+                onClick={() => navigate('/my-tickets')}
+                className="flex min-w-[180px] cursor-pointer items-center justify-center rounded-lg h-14 px-8 bg-surface-container-lowest border border-outline-variant/30 text-primary text-base font-bold hover:bg-surface-container transition-all"
+              >
+                내 예약 확인
+              </button>
+            </div>
           </div>
 
-          <div className="absolute bottom-8 left-0 max-w-[320px] rounded-[24px] bg-white px-6 py-5 shadow-[0_20px_50px_rgba(13,39,84,0.14)]">
-            <div className="flex items-start gap-4">
-              <div className="mt-0.5 flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-[#eaf1fb]">
-                <BadgeCheck size={18} className="text-[#0a4b8e]" />
-              </div>
-              <div>
-                <p className="font-semibold text-[#172e57]">
-                  {heroEvent ? heroEvent.title : '공식 파트너'}
-                </p>
-                <p className="mt-1 text-sm leading-6 text-[#6e7a8e]">
-                  {heroEvent
-                    ? heroEvent.address
-                    : '전국 200여 개 주거단지에서 검증된 최고의 파트너십.'}
-                </p>
+          {/* Right – image + floating card */}
+          <div className="relative order-1 lg:order-2">
+            <div className="aspect-[4/5] rounded-xl overflow-hidden bg-surface-container-high shadow-[0_40px_60px_-20px_rgba(25,28,30,0.1)]">
+              <img
+                src={heroEvent?.imageUrl || HERO_FALLBACK}
+                alt="박람회 이미지"
+                className="w-full h-full object-cover"
+              />
+            </div>
+            <div className="absolute -bottom-6 -left-6 bg-surface-container-lowest p-6 rounded-lg shadow-[0_40px_60px_-20px_rgba(25,28,30,0.08)] hidden md:block">
+              <div className="flex items-center gap-4">
+                <div className="size-12 rounded-full bg-primary-fixed flex items-center justify-center text-primary">
+                  <MapPin size={20} />
+                </div>
+                <div>
+                  <p className="text-on-surface font-bold text-lg">150+ 파트너사</p>
+                  <p className="text-on-surface-variant text-sm">공식 인증 업체</p>
+                </div>
               </div>
             </div>
           </div>
@@ -97,162 +89,160 @@ export default function Home() {
       </section>
 
       {/* ─── Benefits ─── */}
-      <section className="mx-auto w-full max-w-[1280px] px-6 py-12 lg:px-10 lg:py-20">
-        <h2 className="text-[36px] font-light tracking-[-0.04em] text-[#12305f]">입주민 혜택</h2>
-        <p className="mt-3 text-[16px] text-[#718096]">
-          박람회 참가자만을 위한 독점 서비스를 경험해 보세요.
-        </p>
-
-        <div className="mt-12 grid gap-5 lg:grid-cols-2">
-
-          {/* Large card – Interior */}
-          <div className="flex flex-col rounded-[30px] bg-white p-8 shadow-[0_16px_40px_rgba(13,39,84,0.07)]">
-            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#dceafe]">
-              <Building size={22} className="text-[#0a4b8e]" />
+      <section className="px-6 lg:px-40 py-24 bg-surface">
+        <div className="max-w-[1280px] mx-auto">
+          <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6">
+            <div className="max-w-xl">
+              <h2 className="font-headline text-on-background text-3xl lg:text-4xl font-bold tracking-tight mb-4">입주민 혜택</h2>
+              <p className="font-body text-on-surface-variant text-base lg:text-lg">
+                박람회 참가자만을 위한 독점 서비스를 경험하세요. 모든 혜택이 한 곳에서.
+              </p>
             </div>
-            <h3 className="mt-10 max-w-[300px] text-[32px] font-light leading-[1.1] tracking-[-0.04em] text-[#12305f]">
-              인테리어<br />코디네이션
-            </h3>
-            <p className="mt-5 max-w-[380px] flex-grow text-[16px] leading-[1.9] text-[#6e7b90]">
-              프리미엄 마감재와 최고의 디자이너를 박람회 특가로 만나보세요.
-              입주민 전용 특별 할인 혜택을 제공합니다.
-            </p>
-            <button
-              onClick={() => navigate('/events')}
-              className="mt-12 inline-flex items-center gap-2 text-sm font-medium text-[#12305f] transition hover:opacity-60"
-            >
-              자세히 보기 <ArrowRight size={14} />
-            </button>
           </div>
-
-          {/* Right column */}
-          <div className="flex flex-col gap-5">
-
-            {/* Financial – dark */}
-            <div className="flex flex-col justify-between rounded-[30px] bg-[#0b4a8a] p-8 text-white shadow-[0_16px_40px_rgba(13,39,84,0.18)]" style={{ minHeight: '200px' }}>
-              <div>
-                <h3 className="text-[30px] font-light leading-tight tracking-[-0.04em]">금융 컨설팅</h3>
-                <p className="mt-4 max-w-[300px] text-[15px] leading-7 text-white/70">
-                  신규 분양 입주를 위한 전략적 모기지 및 보험 설계. 최적의 금융 플랜을 제안해 드립니다.
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="flex flex-col gap-6 p-8 rounded-xl bg-surface-container-low transition-all hover:bg-surface-container-lowest border border-transparent hover:border-outline-variant/10 hover:shadow-[0_40px_60px_-20px_rgba(25,28,30,0.06)]">
+              <div className="size-14 rounded-lg bg-primary-container flex items-center justify-center text-on-primary">
+                <Tag size={26} />
+              </div>
+              <div className="flex flex-col gap-2">
+                <h3 className="font-headline text-on-surface text-xl font-bold">독점 특가</h3>
+                <p className="font-body text-on-surface-variant leading-relaxed">
+                  주요 가구 브랜드, 스마트 가전, 바닥재 솔루션 최대 40% 그룹 할인.
                 </p>
               </div>
-              <div className="self-end text-white/20">
-                <svg width="52" height="52" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z" />
-                </svg>
+            </div>
+            <div className="flex flex-col gap-6 p-8 rounded-xl bg-surface-container-low transition-all hover:bg-surface-container-lowest border border-transparent hover:border-outline-variant/10 hover:shadow-[0_40px_60px_-20px_rgba(25,28,30,0.06)]">
+              <div className="size-14 rounded-lg bg-secondary-container flex items-center justify-center text-primary">
+                <Palette size={26} />
+              </div>
+              <div className="flex flex-col gap-2">
+                <h3 className="font-headline text-on-surface text-xl font-bold">인테리어 상담</h3>
+                <p className="font-body text-on-surface-variant leading-relaxed">
+                  전문 인테리어 디자이너와 1:1 무료 상담으로 완벽한 공간을 계획하세요.
+                </p>
               </div>
             </div>
-
-            {/* Security + Moving */}
-            <div className="grid grid-cols-2 gap-5">
-              <div className="flex flex-col rounded-[24px] bg-white p-7 shadow-[0_16px_40px_rgba(13,39,84,0.07)]">
-                <ShieldCheck size={28} className="text-[#0a4b8e]" />
-                <h4 className="mt-10 text-[17px] font-medium text-[#17315d]">스마트 보안</h4>
-                <p className="mt-2 text-sm leading-6 text-[#7a879a]">스마트홈 통합 솔루션 구성.</p>
+            <div className="flex flex-col gap-6 p-8 rounded-xl bg-surface-container-low transition-all hover:bg-surface-container-lowest border border-transparent hover:border-outline-variant/10 hover:shadow-[0_40px_60px_-20px_rgba(25,28,30,0.06)]">
+              <div className="size-14 rounded-lg bg-tertiary-fixed flex items-center justify-center text-on-tertiary-fixed-variant">
+                <ShieldCheck size={26} />
               </div>
-              <div className="flex flex-col rounded-[24px] bg-white p-7 shadow-[0_16px_40px_rgba(13,39,84,0.07)]">
-                <Truck size={28} className="text-[#0a4b8e]" />
-                <h4 className="mt-10 text-[17px] font-medium text-[#17315d]">이사 서비스</h4>
-                <p className="mt-2 text-sm leading-6 text-[#7a879a]">전문 업체 원스톱 연계.</p>
+              <div className="flex flex-col gap-2">
+                <h3 className="font-headline text-on-surface text-xl font-bold">검증된 파트너</h3>
+                <p className="font-body text-on-surface-variant leading-relaxed">
+                  품질, 애프터서비스, 전문 시공 인증을 완료한 검증된 업체들만 참가합니다.
+                </p>
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* ─── Schedule + Location ─── */}
-      <section className="bg-[#edf1f7]">
-        <div className="mx-auto grid w-full max-w-[1280px] gap-10 px-6 py-14 lg:grid-cols-2 lg:px-10 lg:py-20">
+      {/* ─── Active Events ─── */}
+      <section className="px-6 lg:px-40 py-24 bg-surface-container-low">
+        <div className="max-w-[1280px] mx-auto">
+          <h2 className="font-headline text-on-background text-3xl lg:text-4xl font-bold tracking-tight mb-12">
+            진행 중인 박람회
+          </h2>
 
-          {/* Schedule */}
-          <div>
-            <h2 className="text-[36px] font-light tracking-[-0.04em] text-[#12305f]">진행 중인 박람회</h2>
+          {activeEvents.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-20 rounded-xl bg-surface-container-lowest border border-outline-variant/10">
+              <p className="text-4xl mb-4">🏢</p>
+              <p className="text-on-surface-variant">현재 진행 중인 박람회가 없습니다</p>
+            </div>
+          ) : (
+            <div className="flex flex-col gap-4">
+              {activeEvents.map((event) => {
+                const startDate = event.dates[0] ? formatDate(event.dates[0]) : '';
+                const endDate =
+                  event.dates.length > 1 ? formatDate(event.dates[event.dates.length - 1]) : '';
+                const timeRange = getTimeRange(event);
+                const dateObj = event.dates[0] ? new Date(event.dates[0]) : null;
+                const month = dateObj ? `${dateObj.getMonth() + 1}월` : '';
+                const day = dateObj ? dateObj.getDate() : '';
 
-            {activeEvents.length === 0 ? (
-              <div className="mt-10 rounded-[24px] bg-white py-16 text-center shadow-[0_12px_30px_rgba(13,39,84,0.06)]">
-                <p className="text-3xl mb-3">🏢</p>
-                <p className="text-sm text-[#718096]">현재 진행 중인 박람회가 없습니다</p>
-              </div>
-            ) : (
-              <div className="mt-10 space-y-4">
-                {activeEvents.map((event) => {
-                  const startDate = event.dates[0] ? formatDate(event.dates[0]) : '';
-                  const endDate =
-                    event.dates.length > 1 ? formatDate(event.dates[event.dates.length - 1]) : '';
-                  const timeRange = getTimeRange(event);
-                  const dateObj = event.dates[0] ? new Date(event.dates[0]) : null;
-                  const month = dateObj ? `${dateObj.getMonth() + 1}월` : '';
-                  const day = dateObj ? dateObj.getDate() : '';
-
-                  return (
-                    <div
-                      key={event.id}
-                      onClick={() => navigate(`/e/${event.slug}`)}
-                      className="flex cursor-pointer items-center gap-6 rounded-[24px] bg-white px-7 py-6 shadow-[0_12px_30px_rgba(13,39,84,0.07)] transition hover:shadow-[0_16px_40px_rgba(13,39,84,0.12)] hover:-translate-y-0.5"
-                    >
-                      {dateObj && (
-                        <div className="min-w-[60px] flex-shrink-0 text-center">
-                          <span className="block text-xs tracking-[0.1em] text-[#637594]">{month}</span>
-                          <span className="block text-[42px] font-light leading-none tracking-[-0.05em] text-[#12305f]">
-                            {day}
-                          </span>
-                        </div>
-                      )}
-                      <div className="flex-1 min-w-0">
-                        <p className="truncate text-[17px] font-medium text-[#17315d]">{event.title}</p>
-                        <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1">
-                          <span className="flex items-center gap-1 text-sm text-[#6f7d90]">
-                            <MapPin size={12} /> {event.address}
-                          </span>
-                          {timeRange && (
-                            <span className="flex items-center gap-1 text-sm text-[#6f7d90]">
-                              <Clock size={12} /> {timeRange}
-                            </span>
-                          )}
-                        </div>
-                        {(startDate || endDate) && (
-                          <p className="mt-1 text-xs text-[#9aa5b4]">
-                            {startDate}{endDate && ` ~ ${endDate}`}
-                          </p>
-                        )}
+                return (
+                  <div
+                    key={event.id}
+                    onClick={() => navigate(`/e/${event.slug}`)}
+                    className="group flex flex-col md:flex-row gap-6 p-6 lg:p-10 rounded-xl bg-surface-container-lowest border border-outline-variant/10 items-start md:items-center cursor-pointer hover:border-primary/20 hover:shadow-[0_40px_60px_-20px_rgba(25,28,30,0.06)] transition-all"
+                  >
+                    {dateObj && (
+                      <div className="min-w-[120px]">
+                        <span className="text-primary font-bold text-xl block">{month} {day}일</span>
+                        <span className="text-on-surface-variant text-sm font-medium uppercase tracking-widest">예약 진행중</span>
                       </div>
-                      <ArrowRight size={16} className="flex-shrink-0 text-[#b0bece]" />
+                    )}
+                    <div className="h-px md:h-12 w-full md:w-px bg-outline-variant/30" />
+                    <div className="flex-1 min-w-0">
+                      <h4 className="font-headline text-on-surface text-xl font-bold mb-1 truncate">{event.title}</h4>
+                      <p className="font-body text-on-surface-variant flex items-center gap-2 flex-wrap">
+                        <MapPin size={14} /> {event.address}
+                        {timeRange && (
+                          <>
+                            <Clock size={14} className="ml-3" /> {timeRange}
+                          </>
+                        )}
+                      </p>
+                      {(startDate || endDate) && (
+                        <p className="text-xs text-on-surface-variant/60 mt-1">
+                          {startDate}{endDate && ` ~ ${endDate}`}
+                        </p>
+                      )}
                     </div>
-                  );
-                })}
-              </div>
-            )}
+                    <ArrowRight size={20} className="text-outline-variant hidden md:block flex-shrink-0" />
+                  </div>
+                );
+              })}
+            </div>
+          )}
 
-            <button
-              onClick={() => navigate('/events')}
-              className="mt-8 inline-flex items-center gap-2 text-sm font-medium text-[#12305f] transition hover:opacity-60"
-            >
-              전체 박람회 보기 <ArrowRight size={14} />
-            </button>
-          </div>
+          <button
+            onClick={() => navigate('/events')}
+            className="mt-8 inline-flex items-center gap-2 text-sm font-bold text-primary transition hover:opacity-70"
+          >
+            전체 박람회 보기 <ChevronRight size={16} />
+          </button>
+        </div>
+      </section>
 
-          {/* Location */}
-          <div>
-            <h2 className="text-[36px] font-light tracking-[-0.04em] text-[#12305f]">박람회 장소</h2>
-            <div className="mt-10 rounded-[30px] bg-white p-5 shadow-[0_16px_40px_rgba(13,39,84,0.08)]">
-              <div className="relative overflow-hidden rounded-[22px] bg-[#dde1e7]" style={{ height: '360px' }}>
-                <img
-                  src={heroEvent?.imageUrl || MAP_FALLBACK}
-                  alt="박람회 장소"
-                  className="h-full w-full object-cover opacity-70"
-                />
-                <div className="absolute inset-0 bg-gradient-to-b from-transparent to-[#0c2a5e]/20" />
-                <div className="absolute left-6 top-6 rounded-2xl bg-white px-5 py-4 shadow-[0_12px_25px_rgba(13,39,84,0.14)]">
-                  <p className="text-sm font-semibold text-[#17315d]">
-                    {heroEvent?.title ?? '박람회 장소 안내'}
-                  </p>
-                  <p className="mt-1 flex items-center gap-1 text-xs text-[#718096]">
-                    <MapPin size={11} />
-                    {heroEvent?.address ?? '장소 정보가 없습니다'}
-                  </p>
+      {/* ─── Location ─── */}
+      <section className="px-6 lg:px-40 py-24 bg-surface">
+        <div className="max-w-[1280px] mx-auto grid lg:grid-cols-5 gap-16 items-start">
+          <div className="lg:col-span-2 flex flex-col gap-8">
+            <div>
+              <h2 className="font-headline text-on-background text-3xl lg:text-4xl font-bold tracking-tight mb-4">박람회 장소</h2>
+              <p className="font-body text-on-surface-variant text-lg">
+                {heroEvent?.address ?? '행사 장소는 박람회별로 확인하세요.'}
+              </p>
+            </div>
+            {heroEvent && (
+              <div className="flex flex-col gap-6">
+                <div className="flex items-start gap-4">
+                  <MapPin className="text-primary mt-1 shrink-0" size={20} />
+                  <div>
+                    <p className="font-bold text-on-surface">{heroEvent.title}</p>
+                    <p className="text-on-surface-variant">{heroEvent.address}</p>
+                  </div>
                 </div>
               </div>
+            )}
+            <div className="p-8 rounded-xl bg-primary-container text-on-primary shadow-[0_40px_60px_-20px_rgba(25,28,30,0.1)]">
+              <h4 className="font-headline text-lg font-bold mb-2">지금 바로 예약하세요</h4>
+              <p className="opacity-80 text-sm mb-6">전문 컨설턴트와 함께 나만의 입주 플랜을 만들어보세요.</p>
+              <button
+                onClick={() => navigate('/events')}
+                className="w-full h-12 rounded-lg bg-surface text-primary font-bold hover:bg-primary-fixed transition-colors"
+              >
+                박람회 예약하기
+              </button>
             </div>
+          </div>
+          <div className="lg:col-span-3 rounded-xl overflow-hidden bg-surface-container-high h-[500px] border border-outline-variant/10 shadow-[0_40px_60px_-20px_rgba(25,28,30,0.08)]">
+            <img
+              src={heroEvent?.imageUrl || MAP_FALLBACK}
+              alt="박람회 장소"
+              className="w-full h-full object-cover opacity-80"
+            />
           </div>
         </div>
       </section>
