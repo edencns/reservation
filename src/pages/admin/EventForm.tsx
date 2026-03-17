@@ -34,7 +34,7 @@ function TimePicker({ value, onChange }: { value: string; onChange: (v: string) 
   };
 
   const parsed = parse(value);
-  const selCls = "border border-gray-200 rounded-lg px-2 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#667EEA] bg-white cursor-pointer";
+  const selCls = "border border-outline-variant rounded-lg px-2 py-2 text-sm bg-surface-container-lowest focus:outline-none focus:ring-2 focus:ring-primary cursor-pointer";
 
   const handleHour = (hStr: string) => {
     if (!hStr) { onChange(''); return; }
@@ -56,7 +56,7 @@ function TimePicker({ value, onChange }: { value: string; onChange: (v: string) 
           <option key={h} value={h}>{String(h).padStart(2, '0')}</option>
         ))}
       </select>
-      <span className="text-gray-400 font-bold">:</span>
+      <span className="text-on-surface-variant font-bold">:</span>
       <select value={parsed?.minute ?? ''} onChange={e => handleMinute(e.target.value)} className={selCls}>
         <option value="" disabled hidden>분</option>
         {Array.from({ length: 60 }, (_, i) => i).map(m => (
@@ -297,22 +297,22 @@ export default function EventForm() {
     navigate('/admin/events');
   };
 
-  const inputCls = "w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#667EEA]";
-  const labelCls = "block text-sm font-semibold text-gray-700 mb-1.5";
+  const inputCls = "w-full px-3 py-2.5 border border-outline-variant rounded-xl text-sm bg-surface-container-lowest focus:outline-none focus:ring-2 focus:ring-primary";
+  const labelCls = "block text-sm font-semibold text-on-surface mb-1.5";
 
   return (
     <div className="max-w-2xl">
       <div className="flex items-center gap-3 mb-6">
-        <button onClick={() => navigate('/admin/events')} className="p-1.5 rounded-lg hover:bg-gray-100">
-          <ChevronLeft size={22} className="text-gray-600" />
+        <button onClick={() => navigate('/admin/events')} className="p-1.5 rounded-lg hover:bg-surface-container">
+          <ChevronLeft size={22} className="text-on-surface-variant" />
         </button>
-        <h2 className="font-bold text-gray-800 text-lg">{isEdit ? '행사 수정' : '새 행사 등록'}</h2>
+        <h2 className="font-bold text-on-surface text-lg">{isEdit ? '행사 수정' : '새 행사 등록'}</h2>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-5">
         {/* 기본 정보 */}
-        <div className="bg-white rounded-2xl shadow-sm p-5 space-y-4">
-          <h3 className="font-bold text-gray-700 text-sm border-b pb-2">기본 정보</h3>
+        <div className="bg-surface-container-lowest rounded-xl border border-outline-variant/10 p-5 space-y-4">
+          <h3 className="font-bold text-on-surface text-sm border-b border-outline-variant/15 pb-2">기본 정보</h3>
 
           <div>
             <label className={labelCls}>행사명 <span className="text-red-400">*</span></label>
@@ -325,12 +325,12 @@ export default function EventForm() {
             <input className={inputCls} value={imageUrl} onChange={e => setImageUrl(e.target.value)}
               placeholder="예) https://example.com/banner.jpg" type="url" />
             {imageUrl.trim() && (
-              <div className="relative mt-2 h-28 rounded-xl overflow-hidden border border-gray-100 flex items-center justify-center bg-black">
+              <div className="relative mt-2 h-28 rounded-xl overflow-hidden border border-outline-variant/15 flex items-center justify-center bg-black">
                 <img src={imageUrl.trim()} alt="" aria-hidden className="absolute inset-0 w-full h-full object-cover scale-110 blur-xl opacity-50 pointer-events-none" />
                 <img src={imageUrl.trim()} alt="미리보기" className="relative max-w-full max-h-full object-contain" style={{ maxHeight: '7rem' }} />
               </div>
             )}
-            <p className="text-xs text-gray-400 mt-1">행사 페이지 상단에 표시될 이미지 URL을 입력하세요. 비워두면 기본 이미지가 표시됩니다.</p>
+            <p className="text-xs text-outline mt-1">행사 페이지 상단에 표시될 이미지 URL을 입력하세요. 비워두면 기본 이미지가 표시됩니다.</p>
           </div>
 
           <div>
@@ -356,12 +356,12 @@ export default function EventForm() {
             <label className={labelCls}>행사 진행 시간</label>
             <div className="flex items-center gap-3 flex-wrap">
               <div className="flex items-center gap-2">
-                <span className="text-xs text-gray-500 shrink-0">시작</span>
+                <span className="text-xs text-on-surface-variant shrink-0">시작</span>
                 <TimePicker value={startTime} onChange={setStartTime} />
               </div>
-              <span className="text-gray-300">~</span>
+              <span className="text-outline">~</span>
               <div className="flex items-center gap-2">
-                <span className="text-xs text-gray-500 shrink-0">종료</span>
+                <span className="text-xs text-on-surface-variant shrink-0">종료</span>
                 <TimePicker value={endTime} onChange={setEndTime} />
               </div>
             </div>
@@ -384,27 +384,26 @@ export default function EventForm() {
                 href={shareUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex-1 px-3 py-2.5 border border-gray-200 rounded-xl bg-gray-50 text-sm font-mono text-gray-600 break-all hover:bg-gray-100 transition-colors"
+                className="flex-1 px-3 py-2.5 border border-outline-variant rounded-xl bg-surface-container-low text-sm font-mono text-on-surface-variant break-all hover:bg-surface-container transition-colors"
               >
                 {shareUrl}
               </a>
               <button
                 type="button"
                 onClick={copyUrl}
-                className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-sm font-semibold text-white hover:opacity-90 shrink-0 self-start"
-                style={{ backgroundColor: urlCopied ? '#22c55e' : '#667EEA' }}
+                className={`flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-sm font-semibold text-on-primary hover:opacity-90 shrink-0 self-start ${urlCopied ? 'bg-green-500' : 'bg-primary'}`}
               >
                 <Copy size={14} />
                 {urlCopied ? '복사됨!' : 'URL 복사'}
               </button>
             </div>
-            <p className="text-xs text-gray-400 mt-1.5">링크를 클릭하면 예약 페이지로 이동합니다</p>
+            <p className="text-xs text-outline mt-1.5">링크를 클릭하면 예약 페이지로 이동합니다</p>
           </div>
         </div>
 
         {/* 날짜 */}
-        <div className="bg-white rounded-2xl shadow-sm p-5 space-y-4">
-          <h3 className="font-bold text-gray-700 text-sm border-b pb-2">예약 기간</h3>
+        <div className="bg-surface-container-lowest rounded-xl border border-outline-variant/10 p-5 space-y-4">
+          <h3 className="font-bold text-on-surface text-sm border-b border-outline-variant/15 pb-2">예약 기간</h3>
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className={labelCls}>시작일 <span className="text-red-400">*</span></label>
@@ -418,25 +417,24 @@ export default function EventForm() {
             </div>
           </div>
           {startDate && endDate && (
-            <p className="text-xs text-gray-400">
+            <p className="text-xs text-outline">
               총 {generateDateRange(startDate, endDate).length}일간 예약 운영
             </p>
           )}
         </div>
 
         {/* 예약 정보 필드 */}
-        <div className="bg-white rounded-2xl shadow-sm p-5 space-y-4">
-          <div className="flex items-center justify-between border-b pb-2">
+        <div className="bg-surface-container-lowest rounded-xl border border-outline-variant/10 p-5 space-y-4">
+          <div className="flex items-center justify-between border-b border-outline-variant/15 pb-2">
             <div>
-              <h3 className="font-bold text-gray-700 text-sm">예약 정보 필드</h3>
-              <p className="text-xs text-gray-400 mt-0.5">방문자에게 수집할 정보를 설정하세요</p>
+              <h3 className="font-bold text-on-surface text-sm">예약 정보 필드</h3>
+              <p className="text-xs text-outline mt-0.5">방문자에게 수집할 정보를 설정하세요</p>
             </div>
             {!showAddField && (
               <button
                 type="button"
                 onClick={() => setShowAddField(true)}
-                className="flex items-center gap-1 text-xs px-3 py-1.5 rounded-lg text-white font-semibold"
-                style={{ backgroundColor: '#667EEA' }}
+                className="flex items-center gap-1 text-xs px-3 py-1.5 rounded-lg bg-primary text-on-primary font-semibold"
               >
                 <Plus size={13} /> 필드 추가
               </button>
@@ -446,31 +444,32 @@ export default function EventForm() {
           {/* 현재 필드 목록 */}
           <div className="space-y-2">
             {customFields.map((f) => (
-              <div key={f.id} className="flex items-center gap-2 p-3 bg-gray-50 rounded-xl">
-                <GripVertical size={14} className="text-gray-300 shrink-0" />
+              <div key={f.id} className="flex items-center gap-2 p-3 bg-surface-container-low rounded-xl">
+                <GripVertical size={14} className="text-outline shrink-0" />
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <span className="font-semibold text-sm text-gray-800">{f.label}</span>
+                    <span className="font-semibold text-sm text-on-surface">{f.label}</span>
                     {(f.type === 'select' || f.type === 'multiselect') ? (
                       <button
                         type="button"
                         onClick={() => toggleSelectType(f.id)}
                         title="클릭하여 단일/복수 선택 전환"
-                        className="text-xs px-1.5 py-0.5 rounded border font-medium transition-colors"
-                        style={f.type === 'multiselect'
-                          ? { backgroundColor: '#E0D6F9', color: '#667EEA', borderColor: '#667EEA' }
-                          : { backgroundColor: 'white', color: '#888', borderColor: '#e5e7eb' }}
+                        className={`text-xs px-1.5 py-0.5 rounded border font-medium transition-colors ${
+                          f.type === 'multiselect'
+                            ? 'bg-primary-container text-primary border-primary'
+                            : 'bg-surface-container-lowest text-on-surface-variant border-outline-variant'
+                        }`}
                       >
                         {FIELD_TYPE_LABELS[f.type]}
                       </button>
                     ) : (
-                      <span className="text-xs text-gray-400 bg-white px-1.5 py-0.5 rounded border border-gray-200">
+                      <span className="text-xs text-outline bg-surface-container-lowest px-1.5 py-0.5 rounded border border-outline-variant">
                         {FIELD_TYPE_LABELS[f.type]}
                       </span>
                     )}
                   </div>
                   {f.options && f.options.length > 0 && (
-                    <p className="text-xs text-gray-400 mt-0.5 truncate">
+                    <p className="text-xs text-outline mt-0.5 truncate">
                       선택지: {f.options.join(', ')}
                     </p>
                   )}
@@ -483,13 +482,13 @@ export default function EventForm() {
                     </span>
                   ) : (
                     <div
-                      className="flex rounded-full overflow-hidden border border-gray-200 text-xs font-semibold cursor-pointer"
+                      className="flex rounded-full overflow-hidden border border-outline-variant text-xs font-semibold cursor-pointer"
                       onClick={() => toggleRequired(f.id)}
                     >
-                      <span className={`px-2.5 py-0.5 transition-colors ${!f.required ? 'bg-gray-200 text-gray-700' : 'text-gray-300'}`}>
+                      <span className={`px-2.5 py-0.5 transition-colors ${!f.required ? 'bg-surface-container text-on-surface' : 'text-outline'}`}>
                         선택
                       </span>
-                      <span className={`px-2.5 py-0.5 transition-colors ${f.required ? 'bg-red-400 text-white' : 'text-gray-300'}`}>
+                      <span className={`px-2.5 py-0.5 transition-colors ${f.required ? 'bg-red-400 text-white' : 'text-outline'}`}>
                         필수
                       </span>
                     </div>
@@ -499,7 +498,7 @@ export default function EventForm() {
                     <button
                       type="button"
                       onClick={() => removeField(f.id)}
-                      className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                      className="p-1.5 text-on-surface-variant hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
                     >
                       <Trash2 size={13} />
                     </button>
@@ -508,31 +507,31 @@ export default function EventForm() {
               </div>
             ))}
             {customFields.length === 0 && (
-              <p className="text-sm text-gray-400 text-center py-4">필드를 추가해주세요</p>
+              <p className="text-sm text-on-surface-variant text-center py-4">필드를 추가해주세요</p>
             )}
           </div>
 
           {/* 새 필드 추가 폼 */}
           {showAddField && (
-            <div className="p-4 bg-blue-50 rounded-xl border border-blue-100 space-y-3">
-              <p className="text-xs font-bold text-gray-600">새 필드 추가</p>
+            <div className="p-4 bg-primary-fixed/20 rounded-xl border border-primary/15 space-y-3">
+              <p className="text-xs font-bold text-on-surface-variant">새 필드 추가</p>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="text-xs text-gray-500 mb-1 block">필드 이름 *</label>
+                  <label className="text-xs text-on-surface-variant mb-1 block">필드 이름 *</label>
                   <input
                     type="text"
                     placeholder="예) 동호수, 차량번호"
                     value={newField.label}
                     onChange={e => setNewField(p => ({ ...p, label: e.target.value }))}
-                    className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#667EEA]"
+                    className="w-full px-3 py-2 border border-outline-variant rounded-lg text-sm bg-surface-container-lowest focus:outline-none focus:ring-2 focus:ring-primary"
                   />
                 </div>
                 <div>
-                  <label className="text-xs text-gray-500 mb-1 block">유형</label>
+                  <label className="text-xs text-on-surface-variant mb-1 block">유형</label>
                   <select
                     value={newField.type}
                     onChange={e => setNewField(p => ({ ...p, type: e.target.value as CustomFieldType }))}
-                    className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#667EEA]"
+                    className="w-full px-3 py-2 border border-outline-variant rounded-lg text-sm bg-surface-container-lowest focus:outline-none focus:ring-2 focus:ring-primary"
                   >
                     {(Object.entries(FIELD_TYPE_LABELS) as [CustomFieldType, string][]).map(([val, lbl]) => (
                       <option key={val} value={val}>{lbl}</option>
@@ -541,24 +540,24 @@ export default function EventForm() {
                 </div>
               </div>
               <div>
-                <label className="text-xs text-gray-500 mb-1 block">안내 문구 (placeholder)</label>
+                <label className="text-xs text-on-surface-variant mb-1 block">안내 문구 (placeholder)</label>
                 <input
                   type="text"
                   placeholder="예) 101동 501호"
                   value={newField.placeholder}
                   onChange={e => setNewField(p => ({ ...p, placeholder: e.target.value }))}
-                  className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#667EEA]"
+                  className="w-full px-3 py-2 border border-outline-variant rounded-lg text-sm bg-surface-container-lowest focus:outline-none focus:ring-2 focus:ring-primary"
                 />
               </div>
               {(newField.type === 'select' || newField.type === 'multiselect') && (
                 <div>
-                  <label className="text-xs text-gray-500 mb-1 block">선택지 (쉼표로 구분)</label>
+                  <label className="text-xs text-on-surface-variant mb-1 block">선택지 (쉼표로 구분)</label>
                   <input
                     type="text"
                     placeholder="예) 30평형, 40평형, 50평형"
                     value={newField.options}
                     onChange={e => setNewField(p => ({ ...p, options: e.target.value }))}
-                    className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#667EEA]"
+                    className="w-full px-3 py-2 border border-outline-variant rounded-lg text-sm bg-surface-container-lowest focus:outline-none focus:ring-2 focus:ring-primary"
                   />
                 </div>
               )}
@@ -567,15 +566,15 @@ export default function EventForm() {
                   type="checkbox"
                   checked={newField.required}
                   onChange={e => setNewField(p => ({ ...p, required: e.target.checked }))}
-                  className="accent-[#667EEA]"
+                  className="accent-primary"
                 />
-                <span className="text-sm text-gray-600">필수 입력</span>
+                <span className="text-sm text-on-surface">필수 입력</span>
               </label>
               <div className="flex gap-2">
                 <button
                   type="button"
                   onClick={() => { setShowAddField(false); setNewField({ label: '', type: 'text', required: false, placeholder: '', options: '' }); }}
-                  className="flex-1 py-2 text-sm rounded-lg bg-white border border-gray-200 text-gray-600 font-medium"
+                  className="flex-1 py-2 text-sm rounded-lg bg-surface-container-lowest border border-outline-variant text-on-surface-variant font-medium"
                 >
                   취소
                 </button>
@@ -583,8 +582,7 @@ export default function EventForm() {
                   type="button"
                   onClick={addCustomField}
                   disabled={!newField.label.trim()}
-                  className="flex-1 py-2 text-sm rounded-lg text-white font-semibold disabled:opacity-50"
-                  style={{ backgroundColor: '#667EEA' }}
+                  className="flex-1 py-2 text-sm rounded-lg bg-primary text-on-primary font-semibold disabled:opacity-50"
                 >
                   추가
                 </button>
@@ -594,25 +592,24 @@ export default function EventForm() {
         </div>
 
         {/* 입점 업체 관리 */}
-        <div className="bg-white rounded-2xl shadow-sm p-5 space-y-4">
-          <div className="flex items-center justify-between border-b pb-2">
+        <div className="bg-surface-container-lowest rounded-xl border border-outline-variant/10 p-5 space-y-4">
+          <div className="flex items-center justify-between border-b border-outline-variant/15 pb-2">
             <div>
-              <h3 className="font-bold text-gray-700 text-sm">입점 업체 관리</h3>
-              <p className="text-xs text-gray-400 mt-0.5">카테고리를 먼저 추가하면 예약 시 관심 서비스로 표시됩니다</p>
+              <h3 className="font-bold text-on-surface text-sm">입점 업체 관리</h3>
+              <p className="text-xs text-outline mt-0.5">카테고리를 먼저 추가하면 예약 시 관심 서비스로 표시됩니다</p>
             </div>
             <div className="flex gap-2">
               <button
                 type="button"
                 onClick={() => { setShowCategoryPanel(v => !v); setShowVendorSelector(false); }}
-                className="flex items-center gap-1 text-xs px-3 py-1.5 rounded-lg font-semibold border border-gray-200 text-gray-600 hover:bg-gray-50"
+                className="flex items-center gap-1 text-xs px-3 py-1.5 rounded-lg font-semibold border border-outline-variant text-on-surface-variant hover:bg-surface-container"
               >
                 <Tag size={13} /> 카테고리 추가
               </button>
               <button
                 type="button"
                 onClick={() => { setShowVendorSelector(v => !v); setShowCategoryPanel(false); }}
-                className="flex items-center gap-1 text-xs px-3 py-1.5 rounded-lg text-white font-semibold"
-                style={{ backgroundColor: '#667EEA' }}
+                className="flex items-center gap-1 text-xs px-3 py-1.5 rounded-lg bg-primary text-on-primary font-semibold"
               >
                 <Plus size={13} /> 업체 추가
               </button>
@@ -621,8 +618,8 @@ export default function EventForm() {
 
           {/* 카테고리 추가 패널 */}
           {showCategoryPanel && (
-            <div className="bg-purple-50 border border-purple-100 rounded-xl p-3 space-y-3">
-              <p className="text-xs font-bold text-gray-600">카테고리 선택</p>
+            <div className="bg-primary-container/30 border border-primary/15 rounded-xl p-3 space-y-3">
+              <p className="text-xs font-bold text-on-surface-variant">카테고리 선택</p>
               <div className="flex flex-wrap gap-2">
                 {presetCategories.map(name => {
                   const already = vendorCategories.some(c => c.name === name);
@@ -634,8 +631,8 @@ export default function EventForm() {
                       onClick={() => addCategory(name)}
                       className={`px-3 py-1.5 rounded-full text-xs font-semibold border transition-all ${
                         already
-                          ? 'bg-gray-100 text-gray-400 border-gray-200 cursor-default'
-                          : 'bg-white text-gray-700 border-gray-300 hover:border-indigo-400 hover:text-indigo-600'
+                          ? 'bg-surface-container text-outline border-outline-variant cursor-default'
+                          : 'bg-surface-container-lowest text-on-surface border-outline-variant hover:border-primary hover:text-primary'
                       }`}
                     >
                       {already ? '✓ ' : '+ '}{name}
@@ -649,15 +646,14 @@ export default function EventForm() {
                   value={categoryInput}
                   onChange={e => setCategoryInput(e.target.value)}
                   placeholder="직접 입력 (예: 인테리어)"
-                  className="flex-1 px-3 py-2 border border-gray-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#667EEA]"
+                  className="flex-1 px-3 py-2 border border-outline-variant rounded-lg text-sm bg-surface-container-lowest focus:outline-none focus:ring-2 focus:ring-primary"
                   onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addCategoryCustom(); } }}
                 />
                 <button
                   type="button"
                   onClick={addCategoryCustom}
                   disabled={!categoryInput.trim()}
-                  className="px-4 py-2 rounded-lg text-white text-sm font-semibold disabled:opacity-50"
-                  style={{ backgroundColor: '#667EEA' }}
+                  className="px-4 py-2 rounded-lg bg-primary text-on-primary text-sm font-semibold disabled:opacity-50"
                 >
                   추가
                 </button>
@@ -665,7 +661,7 @@ export default function EventForm() {
               <button
                 type="button"
                 onClick={() => setShowCategoryPanel(false)}
-                className="w-full py-1.5 text-sm rounded-lg bg-white border border-gray-200 text-gray-600 font-semibold"
+                className="w-full py-1.5 text-sm rounded-lg bg-surface-container-lowest border border-outline-variant text-on-surface-variant font-semibold"
               >
                 닫기
               </button>
@@ -674,34 +670,32 @@ export default function EventForm() {
 
           {/* 업체 선택 패널 */}
           {showVendorSelector && (
-            <div className="bg-blue-50 border border-blue-100 rounded-xl p-3 space-y-2">
-              <p className="text-xs font-bold text-gray-600 mb-2">업체 선택</p>
+            <div className="bg-primary-fixed/20 border border-primary/15 rounded-xl p-3 space-y-2">
+              <p className="text-xs font-bold text-on-surface-variant mb-2">업체 선택</p>
               {/* 카테고리 필터 */}
               {vendorCategories.length > 0 && (
                 <div className="flex gap-1.5 overflow-x-auto pb-1">
                   <button
                     type="button"
                     onClick={() => setVendorCategoryFilter(null)}
-                    className={`shrink-0 px-2.5 py-1 rounded-full text-xs font-semibold transition-all ${vendorCategoryFilter === null ? 'text-white' : 'bg-white text-gray-500'}`}
-                    style={vendorCategoryFilter === null ? { backgroundColor: '#667EEA' } : {}}
+                    className={`shrink-0 px-2.5 py-1 rounded-full text-xs font-semibold transition-all ${vendorCategoryFilter === null ? 'bg-primary text-on-primary' : 'bg-surface-container-lowest text-on-surface-variant'}`}
                   >전체</button>
                   {vendorCategories.map(cat => (
                     <button
                       key={cat.id}
                       type="button"
                       onClick={() => setVendorCategoryFilter(cat.name)}
-                      className={`shrink-0 px-2.5 py-1 rounded-full text-xs font-semibold transition-all ${vendorCategoryFilter === cat.name ? 'text-white' : 'bg-white text-gray-500'}`}
-                      style={vendorCategoryFilter === cat.name ? { backgroundColor: '#667EEA' } : {}}
+                      className={`shrink-0 px-2.5 py-1 rounded-full text-xs font-semibold transition-all ${vendorCategoryFilter === cat.name ? 'bg-primary text-on-primary' : 'bg-surface-container-lowest text-on-surface-variant'}`}
                     >{cat.name}</button>
                   ))}
                 </div>
               )}
               {managedVendors.length === 0 ? (
-                <p className="text-sm text-gray-400 text-center py-3">
+                <p className="text-sm text-on-surface-variant text-center py-3">
                   먼저 <span className="font-semibold">입점 업체 관리</span> 탭에서 업체를 등록해주세요
                 </p>
               ) : filteredAvailableVendors.length === 0 ? (
-                <p className="text-sm text-gray-400 text-center py-3">
+                <p className="text-sm text-on-surface-variant text-center py-3">
                   {vendorCategoryFilter
                     ? `'${vendorCategoryFilter}' 카테고리에 해당하는 업체가 없습니다`
                     : '모든 업체가 이미 추가되었습니다'}
@@ -713,18 +707,18 @@ export default function EventForm() {
                       key={mv.id}
                       type="button"
                       onClick={() => addManagedVendorToEvent(mv)}
-                      className="w-full flex items-center gap-3 px-3 py-2 bg-white rounded-lg hover:bg-gray-50 border border-gray-100 text-left transition-colors"
+                      className="w-full flex items-center gap-3 px-3 py-2 bg-surface-container-lowest rounded-lg hover:bg-surface-container border border-outline-variant/15 text-left transition-colors"
                     >
                       {mv.imageUrl ? (
-                        <img src={mv.imageUrl} alt={mv.name} className="w-8 h-8 object-contain rounded-lg bg-gray-50 border border-gray-100 shrink-0" />
+                        <img src={mv.imageUrl} alt={mv.name} className="w-8 h-8 object-contain rounded-lg bg-surface-container-low border border-outline-variant/15 shrink-0" />
                       ) : (
-                        <div className="w-8 h-8 rounded-lg bg-gray-100 shrink-0" />
+                        <div className="w-8 h-8 rounded-lg bg-surface-container shrink-0" />
                       )}
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-semibold text-gray-800 truncate">{mv.name}</p>
-                        {mv.category && <p className="text-xs text-gray-400">{mv.category}</p>}
+                        <p className="text-sm font-semibold text-on-surface truncate">{mv.name}</p>
+                        {mv.category && <p className="text-xs text-on-surface-variant">{mv.category}</p>}
                       </div>
-                      <Plus size={14} className="text-gray-400 shrink-0" />
+                      <Plus size={14} className="text-on-surface-variant shrink-0" />
                     </button>
                   ))}
                 </div>
@@ -732,7 +726,7 @@ export default function EventForm() {
               <button
                 type="button"
                 onClick={() => setShowVendorSelector(false)}
-                className="w-full py-1.5 text-sm rounded-lg bg-white border border-gray-200 text-gray-600 font-semibold mt-1"
+                className="w-full py-1.5 text-sm rounded-lg bg-surface-container-lowest border border-outline-variant text-on-surface-variant font-semibold mt-1"
               >
                 닫기
               </button>
@@ -741,22 +735,22 @@ export default function EventForm() {
 
           {/* 카테고리별 업체 목록 */}
           {sortedCategories.length === 0 ? (
-            <p className="text-sm text-gray-400 text-center py-4">카테고리를 먼저 추가해주세요</p>
+            <p className="text-sm text-on-surface-variant text-center py-4">카테고리를 먼저 추가해주세요</p>
           ) : (
             <div className="space-y-4">
               {sortedCategories.map(cat => {
                 const catVendors = vendors.filter(v => v.categoryId === cat.id);
                 return (
-                  <div key={cat.id} className="border border-gray-100 rounded-xl p-4 space-y-3">
+                  <div key={cat.id} className="border border-outline-variant/15 rounded-xl p-4 space-y-3">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
-                        <span className="font-bold text-sm text-gray-800">{cat.name}</span>
+                        <span className="font-bold text-sm text-on-surface">{cat.name}</span>
                         {catVendors.length === 0 && (
-                          <span className="text-xs text-purple-500 bg-purple-50 px-2 py-0.5 rounded-full">관심 서비스만</span>
+                          <span className="text-xs text-primary bg-primary/10 px-2 py-0.5 rounded-full">관심 서비스만</span>
                         )}
                       </div>
                       <button type="button" onClick={() => removeCategory(cat.id)}
-                        className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors">
+                        className="p-1.5 text-on-surface-variant hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors">
                         <Trash2 size={13} />
                       </button>
                     </div>
@@ -768,15 +762,15 @@ export default function EventForm() {
                             : undefined;
                           const img = vendor.imageUrl || mvImage;
                           return (
-                            <div key={vendor.id} className="flex items-center gap-2 bg-gray-50 rounded-xl p-2">
+                            <div key={vendor.id} className="flex items-center gap-2 bg-surface-container-low rounded-xl p-2">
                               {img ? (
-                                <img src={img} alt={vendor.name} className="w-10 h-10 object-contain rounded-lg bg-white border border-gray-100 shrink-0" />
+                                <img src={img} alt={vendor.name} className="w-10 h-10 object-contain rounded-lg bg-surface-container-lowest border border-outline-variant/15 shrink-0" />
                               ) : (
-                                <div className="w-10 h-10 rounded-lg bg-gray-200 shrink-0" />
+                                <div className="w-10 h-10 rounded-lg bg-surface-container shrink-0" />
                               )}
-                              <span className="flex-1 text-sm font-medium text-gray-700 truncate">{vendor.name}</span>
+                              <span className="flex-1 text-sm font-medium text-on-surface truncate">{vendor.name}</span>
                               <button type="button" onClick={() => removeVendor(vendor.id)}
-                                className="p-1 text-gray-400 hover:text-red-500 shrink-0">
+                                className="p-1 text-on-surface-variant hover:text-red-500 shrink-0">
                                 <Trash2 size={12} />
                               </button>
                             </div>
@@ -793,12 +787,11 @@ export default function EventForm() {
 
         <div className="flex gap-3 pb-8">
           <button type="button" onClick={() => navigate('/admin/events')}
-            className="flex-1 py-3 rounded-xl font-bold bg-gray-100 text-gray-700 hover:bg-gray-200">
+            className="flex-1 py-3 rounded-xl font-bold bg-surface-container text-on-surface hover:bg-surface-container-high">
             취소
           </button>
           <button type="submit"
-            className="flex-1 py-3 rounded-xl font-bold text-white hover:opacity-90"
-            style={{ backgroundColor: '#667EEA' }}>
+            className="flex-1 py-3 rounded-xl font-bold bg-primary text-on-primary hover:opacity-90">
             {isEdit ? '수정 완료' : '행사 등록'}
           </button>
         </div>

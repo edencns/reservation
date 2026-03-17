@@ -14,14 +14,14 @@ export default function CompanyInfo() {
     setTimeout(() => setSaved(false), 1500);
   };
 
-  const inputCls = 'w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#667EEA]';
-  const labelCls = 'block text-sm font-semibold text-gray-700 mb-1.5';
+  const inputCls = 'w-full px-3 py-2.5 border border-outline-variant rounded-xl text-sm bg-surface-container-lowest focus:outline-none focus:ring-2 focus:ring-primary';
+  const labelCls = 'block text-sm font-semibold text-on-surface mb-1.5';
 
   return (
     <div className="max-w-xl space-y-5">
-      <h2 className="font-bold text-gray-800">회사 정보</h2>
+      <h2 className="font-bold text-on-surface">회사 정보</h2>
 
-      <div className="bg-white rounded-2xl shadow-sm p-5 space-y-4">
+      <div className="bg-surface-container-lowest rounded-xl border border-outline-variant/10 p-5 space-y-4">
         <div>
           <label className={labelCls}>회사명</label>
           <input
@@ -56,8 +56,7 @@ export default function CompanyInfo() {
         <button
           type="button"
           onClick={handleSave}
-          className="px-5 py-2.5 rounded-xl text-white font-semibold text-sm hover:opacity-90"
-          style={{ backgroundColor: saved ? '#22c55e' : '#667EEA' }}
+          className={`px-5 py-2.5 rounded-xl text-on-primary font-semibold text-sm hover:opacity-90 ${saved ? 'bg-green-500' : 'bg-primary'}`}
         >
           {saved ? '저장됨' : '저장'}
         </button>
