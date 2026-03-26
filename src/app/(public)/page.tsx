@@ -2,280 +2,288 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import { cn } from "@/lib/utils";
 
+// ── 이벤트 데이터 ──────────────────────────────────────────────────────────
 const EVENTS = [
   {
-    id: 1,
-    slug: "hillstate-gwanggyo",
-    title: "힐스테이트 광교\n입주 박람회",
+    id: "1",
+    line1: "힐스테이트 광교",
+    line2: "입주 박람회",
     date: "2025.04.12 ~ 13",
     place: "광교 A동 커뮤니티센터",
     badge: "모집중",
-    badgeColor: "#0eb077",
     badgeBg: "#e5f7f0",
-    accentColor: "#0eb077",
+    badgeColor: "#0eb077",
+    barColor: "#0eb077",
     pct: 76,
+    slug: "hilstate-gwanggyo",
   },
   {
-    id: 2,
-    slug: "raemian-onebailly",
-    title: "래미안 원베일리\n입주 박람회",
+    id: "2",
+    line1: "래미안 원베일리",
+    line2: "입주 박람회",
     date: "2025.04.19 ~ 20",
     place: "반포 B동 주민홀",
     badge: "모집중",
-    badgeColor: "#2660f0",
     badgeBg: "#ebefff",
-    accentColor: "#2660f0",
+    badgeColor: "#2660f0",
+    barColor: "#2660f0",
     pct: 51,
+    slug: "raemian-onebailey",
   },
   {
-    id: 3,
-    slug: "dieh-bangbae",
-    title: "디에이치 방배\n입주 박람회",
+    id: "3",
+    line1: "디에이치 방배",
+    line2: "입주 박람회",
     date: "2025.04.26 ~ 27",
     place: "방배 커뮤니티센터",
     badge: "곧 시작",
-    badgeColor: "#ed9208",
     badgeBg: "#fef3e3",
-    accentColor: "#ed9208",
+    badgeColor: "#ed9208",
+    barColor: "#ed9208",
     pct: 23,
+    slug: "dh-bangbae",
   },
   {
-    id: 4,
-    slug: "acro-riverhime",
-    title: "아크로 리버하임\n입주 박람회",
-    date: "2025.05.03 ~ 04",
+    id: "4",
+    line1: "아크로 리버하임",
+    line2: "입주 박람회",
+    date: "2025.05.03",
     place: "서초 커뮤니티홀",
     badge: "곧 시작",
-    badgeColor: "#ed9208",
     badgeBg: "#fef3e3",
-    accentColor: "#ed9208",
-    pct: 8,
+    badgeColor: "#ed9208",
+    barColor: "#ed9208",
+    pct: 10,
+    slug: "acro-riverheim",
   },
   {
-    id: 5,
-    slug: "eg-hangang",
-    title: "e편한세상 한강\n입주 박람회",
+    id: "5",
+    line1: "자이 더 파크",
+    line2: "입주 박람회",
     date: "2025.05.10",
-    place: "마포 커뮤니티센터",
-    badge: "곧 시작",
-    badgeColor: "#ed9208",
-    badgeBg: "#fef3e3",
-    accentColor: "#ed9208",
-    pct: 3,
+    place: "은평 문화센터",
+    badge: "모집중",
+    badgeBg: "#e5f7f0",
+    badgeColor: "#0eb077",
+    barColor: "#0eb077",
+    pct: 38,
+    slug: "xi-thepark",
   },
 ];
 
-const GRAD = "linear-gradient(-5.5deg, #2660f0 13%, #4523eb 87%)";
-const CARD_W = 316;
-const CARD_GAP = 26;
+const GRAD = "linear-gradient(-5.5deg, rgb(38,96,240) 13.4%, rgb(69,35,235) 86.6%)";
 
+// ── 이벤트 카드 ───────────────────────────────────────────────────────────
+function EventCard({ ev }: { ev: (typeof EVENTS)[0] }) {
+  return (
+    <div className="bg-white rounded-2xl shadow-[0px_6px_22px_rgba(0,0,0,0.07)] w-[316px] shrink-0 overflow-hidden">
+      {/* 상단 컬러 바 */}
+      <div className="h-1 w-full" style={{ backgroundColor: ev.barColor }} />
+
+      <div className="px-5 pt-4 pb-5">
+        {/* 배지 */}
+        <div
+          className="inline-block px-[6px] py-[4px] rounded-[5px] text-[10px] font-semibold mb-3"
+          style={{ backgroundColor: ev.badgeBg, color: ev.badgeColor }}
+        >
+          {ev.badge}
+        </div>
+
+        {/* 제목 2줄 */}
+        <div className="text-[15px] font-bold text-[#0e1427] leading-[22px] mb-[30px]">
+          <p>{ev.line1}</p>
+          <p>{ev.line2}</p>
+        </div>
+
+        {/* 날짜 / 장소 */}
+        <p className="text-[12px] text-[#6b7283] mb-[3px]">{ev.date}</p>
+        <p className="text-[12px] text-[#6b7283]">{ev.place}</p>
+
+        {/* 구분선 */}
+        <div className="h-px bg-[#eff0f4] my-4" />
+
+        {/* 예약 버튼 */}
+        <Link
+          href={`/e/${ev.slug}`}
+          className="flex items-center justify-center w-full h-[46px] rounded-[10px] text-[14px] font-semibold text-white"
+          style={{ backgroundImage: GRAD }}
+        >
+          예약하기
+        </Link>
+
+        {/* 예약률 바 */}
+        <div className="mt-3 flex items-center gap-2">
+          <div className="flex-1 h-1 bg-[#eff0f4] rounded-full overflow-hidden">
+            <div
+              className="h-full rounded-full"
+              style={{
+                width: `${ev.pct}%`,
+                backgroundImage: GRAD,
+              }}
+            />
+          </div>
+          <span className="text-[11px] text-[#b2b6bf] shrink-0">예약률 {ev.pct}%</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── 홈 페이지 ─────────────────────────────────────────────────────────────
 export default function HomePage() {
-  const [activeIdx, setActiveIdx] = useState(0);
-  const visibleCount = 3;
-
-  const prev = () => setActiveIdx((i) => Math.max(0, i - 1));
-  const next = () => setActiveIdx((i) => Math.min(EVENTS.length - visibleCount, i + 1));
-
-  const visible = EVENTS.slice(activeIdx, activeIdx + visibleCount);
+  const [page, setPage] = useState(0);
+  const maxPage = EVENTS.length - 3; // 3장씩 보임
 
   return (
-    <div className="bg-[#f4f5f8]">
-      {/* ── HERO ── */}
+    <div className="min-h-screen bg-[#f4f5f8]">
+
+      {/* ── 히어로 ─────────────────────────────────────── */}
       <section
         className="relative overflow-hidden"
         style={{
-          background: "linear-gradient(-28deg, #0a0f32 13%, #1c0c4b 87%)",
-          minHeight: 400,
+          background: "linear-gradient(-28.4deg, rgb(10,15,50) 13.4%, rgb(28,12,75) 86.6%)",
         }}
       >
-        {/* 배경 장식 원 */}
+        {/* 장식 블러 원 */}
         <div
-          className="pointer-events-none absolute"
+          className="absolute pointer-events-none"
           style={{
-            right: -20,
             top: -20,
+            right: "20%",
             width: 360,
             height: 360,
             borderRadius: "50%",
-            background: "rgba(69,50,225,0.22)",
-            filter: "blur(100px)",
+            background: "rgba(69,62,216,0.28)",
+            filter: "blur(80px)",
           }}
         />
 
-        <div className="relative mx-auto max-w-[1280px] px-10 pb-10 pt-16">
-          {/* 태그 배지 */}
-          <div
-            className="mb-6 inline-block rounded-[14px] px-4 py-1.5 text-[11px] font-medium"
-            style={{ background: "rgba(255,255,255,0.12)", color: "#ccdefa" }}
-          >
-            아파트 입주 박람회 예약 플랫폼
+        {/* 컨텐츠 — Figma 기준 left:192 = pl-48 */}
+        <div className="relative max-w-[1280px] mx-auto pl-48 pr-8 pt-16 pb-12">
+          {/* 플랫폼 배지 */}
+          <div className="inline-flex items-center bg-white/10 border border-white/20 rounded-full px-4 h-7 mb-6">
+            <span className="text-[11px] font-medium text-[#ccdefa]">
+              아파트 입주 박람회 예약 플랫폼
+            </span>
           </div>
 
           {/* 타이틀 */}
-          <h1
-            className="mb-5 font-bold text-white"
-            style={{ fontSize: 50, lineHeight: "68px" }}
-          >
-            스마트한 입주 박람회<br />방문 예약 서비스
-          </h1>
+          <div className="mb-5">
+            <p className="text-[50px] font-bold text-white leading-[68px]">스마트한 입주 박람회</p>
+            <p className="text-[50px] font-bold text-white leading-[68px]">방문 예약 서비스</p>
+          </div>
 
-          <p className="mb-8 text-[16px] text-[#b8ccf5]">
+          {/* 서브타이틀 */}
+          <p className="text-[16px] text-[#b8ccf5] mb-10 max-w-[640px]">
             간편하게 사전 예약하고, 당일 빠르게 입장하세요.
           </p>
 
-          {/* CTA */}
-          <div className="mb-8 flex items-center gap-4">
+          {/* CTA 버튼 */}
+          <div className="flex items-center gap-4 mb-10">
             <Link
               href="/events"
-              className="flex h-[50px] items-center justify-center rounded-[12px] px-8 text-[15px] font-semibold text-white transition-opacity hover:opacity-90"
-              style={{ background: GRAD, boxShadow: "0px 6px 20px rgba(0,0,0,0.3)", minWidth: 192 }}
+              className="flex items-center justify-center w-48 h-[50px] rounded-xl text-[15px] font-semibold text-white shadow-[0px_6px_20px_rgba(0,0,0,0.3)]"
+              style={{
+                backgroundImage: "linear-gradient(-8.6deg, rgb(38,96,240) 13.4%, rgb(69,35,235) 86.6%)",
+              }}
             >
               이벤트 둘러보기
             </Link>
             <Link
               href="/my-tickets"
-              className="flex h-[50px] items-center justify-center rounded-[12px] border border-[#bfd1fa] px-8 text-[15px] font-medium text-white opacity-75 transition-opacity hover:opacity-100"
-              style={{ minWidth: 160 }}
+              className="flex items-center justify-center w-40 h-[50px] rounded-xl text-[15px] font-medium text-white border border-[#bfd1fa] opacity-75"
             >
               예약 조회
             </Link>
           </div>
 
-          {/* 통계 */}
-          <div
-            className="flex items-center gap-0 rounded-[10px] px-5"
-            style={{ background: "rgba(255,255,255,0.10)", height: 44, width: 480 }}
-          >
-            {[
-              { v: "3,240건", l: "누적 예약" },
-              { v: "98%", l: "만족도" },
-              { v: "12개", l: "진행 이벤트" },
-            ].map((s, i) => (
-              <div key={i} className="flex items-center">
-                {i > 0 && (
-                  <div className="mx-8 h-[18px] w-px" style={{ background: "#8ca6d9" }} />
-                )}
-                <div>
-                  <p className="text-[15px] font-bold text-white">{s.v}</p>
-                  <p className="text-[11px] text-[#9eb8e5]">{s.l}</p>
-                </div>
-              </div>
-            ))}
+          {/* 통계 바 — Figma: w:480 h:44 left:192 */}
+          <div className="flex items-center bg-white/10 rounded-[10px] h-11 w-[480px]">
+            {/* 누적 예약 */}
+            <div className="flex flex-col justify-center pl-5 w-[152px]">
+              <span className="text-[15px] font-bold text-white leading-none">3,240건</span>
+              <span className="text-[11px] text-[#9eb8e5] mt-1">누적 예약</span>
+            </div>
+            {/* 구분선 */}
+            <div className="w-px h-[18px] bg-[#8ca6d9]" />
+            {/* 만족도 */}
+            <div className="flex flex-col justify-center pl-[26px] w-[132px]">
+              <span className="text-[15px] font-bold text-white leading-none">98%</span>
+              <span className="text-[11px] text-[#9eb8e5] mt-1">만족도</span>
+            </div>
+            {/* 구분선 */}
+            <div className="w-px h-[18px] bg-[#8ca6d9]" />
+            {/* 진행 이벤트 */}
+            <div className="flex flex-col justify-center pl-[26px]">
+              <span className="text-[15px] font-bold text-white leading-none">12개</span>
+              <span className="text-[11px] text-[#9eb8e5] mt-1">진행 이벤트</span>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* ── EVENTS ── */}
-      <section className="mx-auto max-w-[1280px] px-10 py-10">
-        <h2 className="mb-1.5 text-[22px] font-bold text-[#0e1427]">진행 중인 이벤트</h2>
-        <p className="mb-6 text-[14px] text-[#6b7283]">예약 가능한 박람회를 선택하세요</p>
+      {/* ── 이벤트 섹션 ────────────────────────────────── */}
+      <section className="max-w-[1280px] mx-auto pl-48 pr-8 pt-10 pb-16">
+        {/* 섹션 헤더 */}
+        <h2 className="text-[22px] font-bold text-[#0e1427] mb-1">진행 중인 이벤트</h2>
+        <p className="text-[14px] text-[#6b7283] mb-6">예약 가능한 박람회를 선택하세요</p>
 
         {/* 캐러셀 */}
-        <div className="relative flex items-center">
+        <div className="flex items-center gap-4">
           {/* 이전 버튼 */}
           <button
-            onClick={prev}
-            disabled={activeIdx === 0}
-            className="mr-4 flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-white text-[20px] font-medium text-[#4f576a] transition-opacity disabled:opacity-30"
-            style={{ boxShadow: "0px 2px 8px rgba(0,0,0,0.08)" }}
+            onClick={() => setPage((p) => Math.max(0, p - 1))}
+            disabled={page === 0}
+            className="shrink-0 w-10 h-10 rounded-full bg-white shadow-[0px_2px_8px_rgba(0,0,0,0.08)] flex items-center justify-center text-[#4f576a] disabled:opacity-30 hover:bg-slate-50 transition-colors"
           >
-            ‹
+            <ChevronLeft size={20} />
           </button>
 
-          {/* 카드 영역 */}
-          <div className="flex gap-[26px] overflow-hidden">
-            {visible.map((ev) => {
-              const lines = ev.title.split("\n");
-              return (
-                <div
-                  key={ev.id}
-                  className="flex-shrink-0 rounded-[16px] bg-white"
-                  style={{
-                    width: CARD_W,
-                    boxShadow: "0px 6px 22px rgba(0,0,0,0.07)",
-                  }}
-                >
-                  {/* 상단 컬러 바 */}
-                  <div
-                    className="h-1 w-full rounded-t-[16px]"
-                    style={{ background: ev.accentColor }}
-                  />
-
-                  <div className="p-5">
-                    {/* 배지 */}
-                    <div
-                      className="mb-4 inline-block rounded-[5px] px-2 py-0.5 text-[10px] font-semibold"
-                      style={{ background: ev.badgeBg, color: ev.badgeColor }}
-                    >
-                      {ev.badge}
-                    </div>
-
-                    {/* 제목 */}
-                    <div
-                      className="mb-3 font-bold text-[#0e1427]"
-                      style={{ fontSize: 15, lineHeight: "22px" }}
-                    >
-                      {lines.map((l, i) => <p key={i}>{l}</p>)}
-                    </div>
-
-                    {/* 날짜·장소 */}
-                    <p className="text-[12px] text-[#6b7283]">{ev.date}</p>
-                    <p className="mb-4 text-[12px] text-[#6b7283]">{ev.place}</p>
-
-                    {/* 구분선 */}
-                    <div className="mb-4 h-px bg-[#eff0f4]" />
-
-                    {/* 예약 버튼 */}
-                    <Link
-                      href={`/e/${ev.slug}/reserve`}
-                      className="mb-2 flex h-[46px] w-full items-center justify-center rounded-[10px] text-[14px] font-semibold text-white transition-opacity hover:opacity-90"
-                      style={{ background: GRAD }}
-                    >
-                      예약하기
-                    </Link>
-
-                    {/* 예약률 */}
-                    <p className="mb-1.5 text-right text-[11px] text-[#b2b6bf]">
-                      예약률 {ev.pct}%
-                    </p>
-                    <div className="h-1 w-full rounded-full bg-[#eff0f4]">
-                      <div
-                        className="h-full rounded-full"
-                        style={{ width: `${ev.pct}%`, background: GRAD }}
-                      />
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
+          {/* 카드 뷰포트 */}
+          <div className="flex-1 overflow-hidden">
+            <div
+              className="flex gap-5 transition-transform duration-300 ease-in-out"
+              style={{ transform: `translateX(calc(-${page * (316 + 20)}px))` }}
+            >
+              {EVENTS.map((ev) => (
+                <EventCard key={ev.id} ev={ev} />
+              ))}
+            </div>
           </div>
 
           {/* 다음 버튼 */}
           <button
-            onClick={next}
-            disabled={activeIdx >= EVENTS.length - visibleCount}
-            className="ml-4 flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full text-[20px] font-semibold text-white transition-opacity disabled:opacity-30"
+            onClick={() => setPage((p) => Math.min(maxPage, p + 1))}
+            disabled={page >= maxPage}
+            className="shrink-0 w-10 h-10 rounded-full flex items-center justify-center text-white shadow-[0px_4px_12px_rgba(0,0,0,0.2)] disabled:opacity-30 hover:opacity-90 transition-opacity"
             style={{
-              background: activeIdx >= EVENTS.length - visibleCount ? "#e0e2e8" : GRAD,
-              boxShadow: "0px 4px 12px rgba(0,0,0,0.2)",
+              backgroundImage:
+                "linear-gradient(-45deg, rgb(38,96,240) 14.6%, rgb(69,35,235) 85.4%)",
             }}
           >
-            ›
+            <ChevronRight size={20} />
           </button>
         </div>
 
-        {/* 인디케이터 점 */}
-        <div className="mt-5 flex justify-center gap-2">
-          {Array.from({ length: EVENTS.length - visibleCount + 1 }).map((_, i) => (
+        {/* 인디케이터 닷 */}
+        <div className="flex items-center justify-center gap-2 mt-6">
+          {Array.from({ length: maxPage + 1 }).map((_, i) => (
             <button
               key={i}
-              onClick={() => setActiveIdx(i)}
-              className="h-2 rounded-full transition-all"
-              style={{
-                width: i === activeIdx ? 20 : 8,
-                background: i === activeIdx ? "#2660f0" : "#e0e2e8",
-              }}
+              onClick={() => setPage(i)}
+              className={cn("h-2 rounded-full transition-all duration-200")}
+              style={
+                i === page
+                  ? {
+                      width: 20,
+                      backgroundImage:
+                        "linear-gradient(90deg, rgb(38,96,240) 0%, rgb(69,35,235) 100%)",
+                    }
+                  : { width: 8, backgroundColor: "#e1e2e9" }
+              }
             />
           ))}
         </div>
