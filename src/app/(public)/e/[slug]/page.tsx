@@ -1,36 +1,40 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { notFound } from "next/navigation";
 import { CalendarDays, MapPin, Clock, ArrowRight, Tag } from "lucide-react";
 
 interface Props {
   params: Promise<{ slug: string }>;
 }
 
+// 정적 export를 위한 slug 목록
+export async function generateStaticParams() {
+  return [
+    { slug: "hilstate-gwanggyo" },
+    { slug: "raemian-onebailey" },
+    { slug: "dh-bangbae" },
+    { slug: "acro-riverheim" },
+    { slug: "xi-thepark" },
+  ];
+}
+
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
-  // Will fetch from DB in Step 2
   return { title: `이벤트 — ${slug}` };
 }
 
 export default async function EventDetailPage({ params }: Props) {
   const { slug } = await params;
 
-  // Placeholder — will query DB in Step 2
-  if (slug !== "sample-event-2025") {
-    notFound();
-  }
-
   const event = {
     slug,
-    title: "2025 입주박람회 — 서울",
+    title: "힐스테이트 광교 입주 박람회",
     description:
-      "서울 최대 규모의 입주박람회입니다. 다양한 인테리어, 가전, 가구 업체들이 참가하여 특별 혜택을 제공합니다.",
-    location: "서울 코엑스 A홀",
-    startDate: "2025-08-01",
-    endDate: "2025-08-03",
+      "아파트 입주 박람회에 방문 예약하세요. 인테리어, 가전, 금융 서비스 등 다양한 서비스를 한 자리에서 만나보세요.",
+    location: "광교 A동 커뮤니티센터",
+    startDate: "2025-04-12",
+    endDate: "2025-04-13",
     timeSlots: ["09:00", "10:00", "11:00", "13:00", "14:00", "15:00", "16:00"],
-    categories: ["인테리어", "가전", "가구", "욕실", "주방"],
+    categories: ["인테리어", "가전", "금융", "이사", "청소"],
     totalCapacity: 500,
   };
 
@@ -74,11 +78,11 @@ export default async function EventDetailPage({ params }: Props) {
             </div>
           </div>
 
-          {/* Vendor Categories */}
+          {/* 관심 서비스 */}
           <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
             <h2 className="mb-4 font-semibold text-slate-900 flex items-center gap-2">
               <Tag size={16} className="text-slate-400" />
-              참가 업종
+              제공 서비스
             </h2>
             <div className="flex flex-wrap gap-2">
               {event.categories.map((cat) => (
@@ -101,17 +105,11 @@ export default async function EventDetailPage({ params }: Props) {
 
             <Link
               href={`/e/${slug}/reserve`}
-              className="flex w-full items-center justify-center gap-2 rounded-xl bg-blue-600 px-4 py-3 font-semibold text-white transition-colors hover:bg-blue-700"
+              className="flex w-full items-center justify-center gap-2 rounded-xl px-4 py-3 font-semibold text-white transition-opacity hover:opacity-90"
+              style={{ background: "linear-gradient(120deg, #2660f0 0%, #4523eb 100%)" }}
             >
               지금 예약하기
               <ArrowRight size={16} />
-            </Link>
-
-            <Link
-              href={`/e/${slug}/ticket`}
-              className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50"
-            >
-              예약 조회
             </Link>
           </div>
         </div>
