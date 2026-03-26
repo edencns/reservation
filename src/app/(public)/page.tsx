@@ -5,7 +5,7 @@ import { useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-// ── 이벤트 데이터 ──────────────────────────────────────────────────────────
+/* ── 이벤트 데이터 ── */
 const EVENTS = [
   {
     id: "1",
@@ -61,10 +61,10 @@ const EVENTS = [
   },
   {
     id: "5",
-    line1: "자이 더 파크",
+    line1: "자이 더파크",
     line2: "입주 박람회",
     date: "2025.05.10",
-    place: "은평 문화센터",
+    place: "잠실 문화센터",
     badge: "모집중",
     badgeBg: "#e5f7f0",
     badgeColor: "#0eb077",
@@ -74,9 +74,10 @@ const EVENTS = [
   },
 ];
 
-const GRAD = "linear-gradient(-5.5deg, rgb(38,96,240) 13.4%, rgb(69,35,235) 86.6%)";
+const GRAD =
+  "linear-gradient(-5.5deg, rgb(38,96,240) 13.4%, rgb(69,35,235) 86.6%)";
 
-// ── 이벤트 카드 ───────────────────────────────────────────────────────────
+/* ── 이벤트 카드 ── */
 function EventCard({ ev }: { ev: (typeof EVENTS)[0] }) {
   return (
     <div className="bg-white rounded-2xl shadow-[0px_6px_22px_rgba(0,0,0,0.07)] w-[316px] shrink-0 overflow-hidden">
@@ -92,13 +93,13 @@ function EventCard({ ev }: { ev: (typeof EVENTS)[0] }) {
           {ev.badge}
         </div>
 
-        {/* 제목 2줄 */}
+        {/* 타이틀 2줄 */}
         <div className="text-[15px] font-bold text-[#0e1427] leading-[22px] mb-[30px]">
           <p>{ev.line1}</p>
           <p>{ev.line2}</p>
         </div>
 
-        {/* 날짜 / 장소 */}
+        {/* 일시 / 장소 */}
         <p className="text-[12px] text-[#6b7283] mb-[3px]">{ev.date}</p>
         <p className="text-[12px] text-[#6b7283]">{ev.place}</p>
 
@@ -125,26 +126,28 @@ function EventCard({ ev }: { ev: (typeof EVENTS)[0] }) {
               }}
             />
           </div>
-          <span className="text-[11px] text-[#b2b6bf] shrink-0">예약률 {ev.pct}%</span>
+          <span className="text-[11px] text-[#b2b6bf] shrink-0">
+            예약률 {ev.pct}%
+          </span>
         </div>
       </div>
     </div>
   );
 }
 
-// ── 홈 페이지 ─────────────────────────────────────────────────────────────
+/* ── 홈페이지 ── */
 export default function HomePage() {
   const [page, setPage] = useState(0);
-  const maxPage = EVENTS.length - 3; // 3장씩 보임
+  const maxPage = EVENTS.length - 3;
 
   return (
     <div className="min-h-screen bg-[#f4f5f8]">
-
-      {/* ── 히어로 ─────────────────────────────────────── */}
+      {/* ── 히어로 ── */}
       <section
         className="relative overflow-hidden"
         style={{
-          background: "linear-gradient(-28.4deg, rgb(10,15,50) 13.4%, rgb(28,12,75) 86.6%)",
+          background:
+            "linear-gradient(-28.4deg, rgb(10,15,50) 13.4%, rgb(28,12,75) 86.6%)",
         }}
       >
         {/* 장식 블러 원 */}
@@ -161,7 +164,7 @@ export default function HomePage() {
           }}
         />
 
-        {/* 컨텐츠 — Figma 기준 left:192 = pl-48 */}
+        {/* 콘텐츠 — Figma 기준 left:192 = pl-48 */}
         <div className="relative max-w-[1280px] mx-auto pl-48 pr-8 pt-16 pb-12">
           {/* 플랫폼 배지 */}
           <div className="inline-flex items-center bg-white/10 border border-white/20 rounded-full px-4 h-7 mb-6">
@@ -172,8 +175,12 @@ export default function HomePage() {
 
           {/* 타이틀 */}
           <div className="mb-5">
-            <p className="text-[50px] font-bold text-white leading-[68px]">스마트한 입주 박람회</p>
-            <p className="text-[50px] font-bold text-white leading-[68px]">방문 예약 서비스</p>
+            <p className="text-[50px] font-bold text-white leading-[68px]">
+              스마트한 입주 박람회
+            </p>
+            <p className="text-[50px] font-bold text-white leading-[68px]">
+              방문 예약 서비스
+            </p>
           </div>
 
           {/* 서브타이틀 */}
@@ -187,7 +194,8 @@ export default function HomePage() {
               href="/events"
               className="flex items-center justify-center w-48 h-[50px] rounded-xl text-[15px] font-semibold text-white shadow-[0px_6px_20px_rgba(0,0,0,0.3)]"
               style={{
-                backgroundImage: "linear-gradient(-8.6deg, rgb(38,96,240) 13.4%, rgb(69,35,235) 86.6%)",
+                backgroundImage:
+                  "linear-gradient(-8.6deg, rgb(38,96,240) 13.4%, rgb(69,35,235) 86.6%)",
               }}
             >
               이벤트 둘러보기
@@ -200,36 +208,45 @@ export default function HomePage() {
             </Link>
           </div>
 
-          {/* 통계 바 — Figma: w:480 h:44 left:192 */}
+          {/* 통계 바 — Figma: w:480 h:44 */}
           <div className="flex items-center bg-white/10 rounded-[10px] h-11 w-[480px]">
-            {/* 누적 예약 */}
             <div className="flex flex-col justify-center pl-5 w-[152px]">
-              <span className="text-[15px] font-bold text-white leading-none">3,240건</span>
-              <span className="text-[11px] text-[#9eb8e5] mt-1">누적 예약</span>
+              <span className="text-[15px] font-bold text-white leading-none">
+                3,240건
+              </span>
+              <span className="text-[11px] text-[#9eb8e5] mt-1">
+                누적 예약
+              </span>
             </div>
-            {/* 구분선 */}
             <div className="w-px h-[18px] bg-[#8ca6d9]" />
-            {/* 만족도 */}
             <div className="flex flex-col justify-center pl-[26px] w-[132px]">
-              <span className="text-[15px] font-bold text-white leading-none">98%</span>
+              <span className="text-[15px] font-bold text-white leading-none">
+                98%
+              </span>
               <span className="text-[11px] text-[#9eb8e5] mt-1">만족도</span>
             </div>
-            {/* 구분선 */}
             <div className="w-px h-[18px] bg-[#8ca6d9]" />
-            {/* 진행 이벤트 */}
             <div className="flex flex-col justify-center pl-[26px]">
-              <span className="text-[15px] font-bold text-white leading-none">12개</span>
-              <span className="text-[11px] text-[#9eb8e5] mt-1">진행 이벤트</span>
+              <span className="text-[15px] font-bold text-white leading-none">
+                12개
+              </span>
+              <span className="text-[11px] text-[#9eb8e5] mt-1">
+                진행 이벤트
+              </span>
             </div>
           </div>
         </div>
       </section>
 
-      {/* ── 이벤트 섹션 ────────────────────────────────── */}
+      {/* ── 이벤트 섹션 ── */}
       <section className="max-w-[1280px] mx-auto pl-48 pr-8 pt-10 pb-16">
         {/* 섹션 헤더 */}
-        <h2 className="text-[22px] font-bold text-[#0e1427] mb-1">진행 중인 이벤트</h2>
-        <p className="text-[14px] text-[#6b7283] mb-6">예약 가능한 박람회를 선택하세요</p>
+        <h2 className="text-[22px] font-bold text-[#0e1427] mb-1">
+          진행 중인 이벤트
+        </h2>
+        <p className="text-[14px] text-[#6b7283] mb-6">
+          예약 가능한 박람회를 선택하세요
+        </p>
 
         {/* 캐러셀 */}
         <div className="flex items-center gap-4">
@@ -246,7 +263,9 @@ export default function HomePage() {
           <div className="flex-1 overflow-hidden">
             <div
               className="flex gap-5 transition-transform duration-300 ease-in-out"
-              style={{ transform: `translateX(calc(-${page * (316 + 20)}px))` }}
+              style={{
+                transform: `translateX(calc(-${page * (316 + 20)}px))`,
+              }}
             >
               {EVENTS.map((ev) => (
                 <EventCard key={ev.id} ev={ev} />
@@ -268,7 +287,7 @@ export default function HomePage() {
           </button>
         </div>
 
-        {/* 인디케이터 닷 */}
+        {/* 인디케이터 점 */}
         <div className="flex items-center justify-center gap-2 mt-6">
           {Array.from({ length: maxPage + 1 }).map((_, i) => (
             <button
