@@ -1,0 +1,21 @@
+{
+  "/(public)/e/[slug]/page": "/e/[slug]",
+  "/(public)/e/[slug]/reserve/page": "/e/[slug]/reserve",
+  "/(public)/e/[slug]/ticket/page": "/e/[slug]/ticket",
+  "/(public)/events/page": "/events",
+  "/(public)/my-tickets/page": "/my-tickets",
+  "/(public)/page": "/",
+  "/_global-error/page": "/_global-error",
+  "/_not-found/page": "/_not-found",
+  "/admin/(dashboard)/company/page": "/admin/company",
+  "/admin/(dashboard)/contracts/page": "/admin/contracts",
+  "/admin/(dashboard)/events/page": "/admin/events",
+  "/admin/(dashboard)/page": "/admin",
+  "/admin/(dashboard)/reservations/page": "/admin/reservations",
+  "/admin/(dashboard)/settlement/page": "/admin/settlement",
+  "/admin/(dashboard)/statistics/page": "/admin/statistics",
+  "/admin/(dashboard)/vendors/page": "/admin/vendors",
+  "/admin/login/page": "/admin/login",
+  "/kiosk/[slug]/page": "/kiosk/[slug]",
+  "/page": "/"
+}

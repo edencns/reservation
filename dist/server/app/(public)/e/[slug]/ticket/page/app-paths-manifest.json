@@ -1,0 +1,3 @@
+{
+  "/(public)/e/[slug]/ticket/page": "app/(public)/e/[slug]/ticket/page.js"
+}

@@ -1,0 +1,18 @@
+{
+  "headers": {
+    "x-nextjs-stale-time": "300",
+    "x-nextjs-prerender": "1",
+    "x-next-cache-tags": "_N_T_/layout,_N_T_/(public)/layout,_N_T_/(public)/e/layout,_N_T_/(public)/e/[slug]/layout,_N_T_/(public)/e/[slug]/ticket/layout,_N_T_/(public)/e/[slug]/ticket/page,_N_T_/e/xi-thepark/ticket"
+  },
+  "segmentPaths": [
+    "/_tree",
+    "/_full",
+    "/!KHB1YmxpYyk/e/$d$slug/ticket/__PAGE__",
+    "/!KHB1YmxpYyk/e/$d$slug/ticket",
+    "/!KHB1YmxpYyk/e/$d$slug",
+    "/!KHB1YmxpYyk/e",
+    "/!KHB1YmxpYyk",
+    "/_index",
+    "/_head"
+  ]
+}

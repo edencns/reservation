@@ -1,6 +1,0 @@
-1:"$Sreact.fragment"
-2:I[33543,["/_next/static/chunks/1ddac579c94866fd.js","/_next/static/chunks/51985fd65ca3de61.js","/_next/static/chunks/3de2bf453fbfdc51.js"],"default"]
-3:I[97367,["/_next/static/chunks/ff1a16fafef87110.js","/_next/static/chunks/d2be314c3ece3fbe.js"],"OutletBoundary"]
-4:"$Sreact.suspense"
-0:{"buildId":"zEz5e0YAOrvqPxvlGUMa6","rsc":["$","$1","c",{"children":[["$","$L2",null,{"eventTitle":"아크로 리버하임 입주 박람회","eventDate":"2025.05.03","eventPlace":"서초 커뮤니티홀","eventSlug":"acro-riverheim"}],[["$","script","script-0",{"src":"/_next/static/chunks/3de2bf453fbfdc51.js","async":true}]],["$","$L3",null,{"children":["$","$4",null,{"name":"Next.MetadataOutlet","children":"$@5"}]}]]}],"loading":null,"isPartial":false}
-5:null

@@ -1,5 +1,0 @@
-1:"$Sreact.fragment"
-2:I[42035,["/_next/static/chunks/52d0e6cfe8bf0bf3.js","/_next/static/chunks/51985fd65ca3de61.js"],"default"]
-3:I[39756,["/_next/static/chunks/ff1a16fafef87110.js","/_next/static/chunks/d2be314c3ece3fbe.js"],"default"]
-4:I[37457,["/_next/static/chunks/ff1a16fafef87110.js","/_next/static/chunks/d2be314c3ece3fbe.js"],"default"]
-0:{"buildId":"zEz5e0YAOrvqPxvlGUMa6","rsc":["$","$1","c",{"children":[[["$","script","script-0",{"src":"/_next/static/chunks/52d0e6cfe8bf0bf3.js","async":true}],["$","script","script-1",{"src":"/_next/static/chunks/51985fd65ca3de61.js","async":true}]],["$","div",null,{"className":"flex min-h-dvh bg-slate-50","children":[["$","$L2",null,{}],["$","div",null,{"className":"flex flex-1 flex-col overflow-hidden","children":["$","main",null,{"className":"flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8","children":["$","$L3",null,{"parallelRouterKey":"children","template":["$","$L4",null,{}]}]}]}]]}]]}],"loading":null,"isPartial":false}

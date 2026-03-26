@@ -1,0 +1,16 @@
+{
+  "headers": {
+    "x-nextjs-stale-time": "300",
+    "x-nextjs-prerender": "1",
+    "x-next-cache-tags": "_N_T_/layout,_N_T_/kiosk/layout,_N_T_/kiosk/[slug]/layout,_N_T_/kiosk/[slug]/page,_N_T_/kiosk/hilstate-gwanggyo"
+  },
+  "segmentPaths": [
+    "/_tree",
+    "/_full",
+    "/kiosk/$d$slug/__PAGE__",
+    "/kiosk/$d$slug",
+    "/kiosk",
+    "/_index",
+    "/_head"
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "/(public)/e/[slug]/page": "app/(public)/e/[slug]/page.js",
+  "/(public)/e/[slug]/reserve/page": "app/(public)/e/[slug]/reserve/page.js",
+  "/(public)/e/[slug]/ticket/page": "app/(public)/e/[slug]/ticket/page.js",
+  "/(public)/events/page": "app/(public)/events/page.js",
+  "/(public)/my-tickets/page": "app/(public)/my-tickets/page.js",
+  "/(public)/page": "app/(public)/page.js",
+  "/_global-error/page": "app/_global-error/page.js",
+  "/_not-found/page": "app/_not-found/page.js",
+  "/admin/(dashboard)/company/page": "app/admin/(dashboard)/company/page.js",
+  "/admin/(dashboard)/contracts/page": "app/admin/(dashboard)/contracts/page.js",
+  "/admin/(dashboard)/events/page": "app/admin/(dashboard)/events/page.js",
+  "/admin/(dashboard)/page": "app/admin/(dashboard)/page.js",
+  "/admin/(dashboard)/reservations/page": "app/admin/(dashboard)/reservations/page.js",
+  "/admin/(dashboard)/settlement/page": "app/admin/(dashboard)/settlement/page.js",
+  "/admin/(dashboard)/statistics/page": "app/admin/(dashboard)/statistics/page.js",
+  "/admin/(dashboard)/vendors/page": "app/admin/(dashboard)/vendors/page.js",
+  "/admin/login/page": "app/admin/login/page.js",
+  "/kiosk/[slug]/page": "app/kiosk/[slug]/page.js",
+  "/page": "app/page.js"
+}
