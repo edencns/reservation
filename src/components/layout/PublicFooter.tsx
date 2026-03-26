@@ -1,20 +1,11 @@
-import { Ticket } from "lucide-react";
-
 export default function PublicFooter() {
   return (
-    <footer className="border-t border-slate-200 bg-white">
-      <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6">
-        <div className="flex flex-col items-center gap-3 sm:flex-row sm:justify-between">
-          <div className="flex items-center gap-2 text-slate-600">
-            <span className="flex h-6 w-6 items-center justify-center rounded bg-blue-600 text-white">
-              <Ticket size={12} strokeWidth={2.5} />
-            </span>
-            <span className="text-sm font-semibold">ReserveTicket</span>
-          </div>
-          <p className="text-center text-xs text-slate-400">
-            입주박람회 사전예약 시스템 &copy; {new Date().getFullYear()}
-          </p>
-        </div>
+    <footer className="bg-white border-t border-[#eff0f4]">
+      <div className="mx-auto flex max-w-[1280px] items-center justify-between px-10 py-[11px]">
+        <span className="text-[13px] font-bold text-[#262e42]">EDEN Ticket</span>
+        <span className="text-[12px] text-[#6b7283]">
+          © 2025 EDEN Ticket. All rights reserved.
+        </span>
       </div>
     </footer>
   );

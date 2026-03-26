@@ -1,75 +1,57 @@
 @import "tailwindcss";
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --color-primary: #2563eb;
-  --color-primary-hover: #1d4ed8;
-  --color-primary-light: #eff6ff;
+  --color-primary: #2660f0;
+  --color-primary-dark: #4523eb;
+  --color-primary-light: #ebefff;
+  --color-bg: #f4f5f8;
   --color-surface: #ffffff;
-  --color-border: #e2e8f0;
-  --color-muted: #64748b;
-  --color-success: #10b981;
-  --color-warning: #f59e0b;
-  --color-danger: #ef4444;
-  --font-sans: var(--font-geist-sans), "Noto Sans KR", sans-serif;
-  --font-mono: var(--font-geist-mono), monospace;
+  --color-border: #e0e2e8;
+  --color-border-light: #eff0f4;
+  --color-text-heading: #0e1427;
+  --color-text-body: #262e42;
+  --color-text-muted: #6b7283;
+  --color-text-subtle: #b2b6bf;
+  --color-text-disabled: #4f576a;
+  --color-green: #0eb077;
+  --color-green-light: #e5f7f0;
+  --color-amber: #ed9208;
+  --color-amber-light: #fef3e3;
+  --color-red: #db3838;
+  --color-red-light: #fde8e8;
+  --color-input-bg: #f9fafd;
+
+  /* Dark (Admin) */
+  --color-dark-bg: #0d1227;
+  --color-dark-panel: #111830;
+  --color-dark-card: #151e36;
+  --color-dark-sub: #6478ae;
+  --color-dark-border: #1e2d4e;
 }
 
-:root {
-  --background: #f8fafc;
-  --foreground: #0f172a;
-  --background-admin: #0f172a;
-}
+* { box-sizing: border-box; margin: 0; padding: 0; }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0f172a;
-    --foreground: #f1f5f9;
-  }
-}
-
-* {
-  box-sizing: border-box;
-}
-
-html {
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
+html { -webkit-font-smoothing: antialiased; }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: var(--font-sans);
+  background: var(--color-bg);
+  color: var(--color-text-heading);
+  font-family: "Pretendard", "Noto Sans KR", "Inter", sans-serif;
   min-height: 100dvh;
 }
 
-/* Scrollbar */
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+/* 그라디언트 유틸 */
+.grad-primary {
+  background: linear-gradient(120deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
 }
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
-  border-radius: 3px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
+.grad-hero {
+  background: linear-gradient(-28deg, #0a0f32 13%, #1c0c4b 87%);
 }
 
-/* Focus ring */
-:focus-visible {
-  outline: 2px solid #2563eb;
-  outline-offset: 2px;
-}
+/* 스크롤바 */
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #d0d4e0; border-radius: 3px; }
 
-/* Print */
-@media print {
-  .no-print {
-    display: none !important;
-  }
-}
+/* 포커스 링 */
+:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 2px; }
